@@ -77,6 +77,7 @@
 | W-38 | Aktueller Fahrer bei Teamrennen: Teamname + wer gerade fährt | Claude | ja | ja | klein | T4 | 💡 |
 | W-39 | Box-Status je Auto: „PIT req“ (angefordert), „PIT in“, „PIT“ (steht), „PIT out“; dazu Anzahl Stopps | Robert | ja | ja (ohne „PIT req“) | klein | T4 | ✅ |
 | W-40 | Ausgefallene Autos (DNF, disqualifiziert) markieren statt normal weiterführen | Claude | ja | ja | klein | T4 | 💡 |
+| W-41 | Autostart: Schalter in den Einstellungen; Boxenfunk startet mit Windows unsichtbar im Hintergrund (Symbol unten rechts in der Taskleiste), wartet auf LMU oder iRacing, blendet die Overlays mit dem passenden Preset ein und beim Beenden des Spiels wieder aus | Robert | ja | ja | klein | T3 Hintergrundbetrieb, T7 Autostart-Schalter | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -186,3 +187,9 @@ Ergebnis: Kein Baustein im Entwurf ist unmöglich. Anpassen: Nässe bei iRacing 
 - **Fehlerpunkte „X“:** gleiche Bezeichnung in beiden Spielen. LMU liefert Track-Limits-Schritte, Schritte pro Punkt und Schritte pro Strafe → „X 1,5/4“. iRacing liefert die eigenen Strafpunkte und das Disqualifikations-Limit aus den Session-Infos; ob die Grenze für eine Durchfahrtsstrafe auch drinsteht, wird geprüft. Fehlt sie, kann man sie von Hand eintragen. Für Gegner gibt es diese Werte in iRacing nicht.
 - **Strafen:** LMU meldet je Auto die Zahl offener Strafen, aber nicht die Art. iRacing zeigt nur, dass ein Auto die schwarze Flagge hat. Darum vorerst „PEN“ (+ Anzahl in LMU). SG/DT kommen dazu, falls sich eine Quelle findet (z. B. LMU-REST oder Meldungen im Spiel).
 - **Box-Status:** LMU meldet alle vier Zustände direkt. iRacing: „PIT in“, „PIT“, „PIT out“ werden aus Boxengasse + Boxenplatz abgeleitet; „angefordert“ gibt es dort nicht.
+
+### W-41 Autostart und Hintergrundbetrieb ✅ (Robert, 12.11.2026)
+- **Autostart:** Windows-Standardweg (Eintrag im Autostart des Benutzers), ohne Adminrechte, per Schalter an/aus.
+- **Warten:** Ohne Spiel schaut die App alle paar Sekunden nach, ob eine Datenquelle offen ist. Verbraucht praktisch keine Leistung.
+- **Taskleisten-Symbol:** zeigt den Zustand (wartet / LMU / iRacing), Rechtsklick öffnet Einstellungen oder beendet die App.
+- Baut auf W-30 (Spiel erkennen) und W-35 (Situation erkennen) auf.
