@@ -148,3 +148,14 @@ mit Knopf „zurück auf Standard“. Noch nicht im Muster umgesetzt.
   (standardmäßig aus, nur LMU). Ohne Box-Zustand: „PIT“ + Runden seit Stopp, blass ohne Leuchten.
   Neue Spalte „Stopps“ (Anzahl Boxenstopps). Team/Fahrer (W-38) und DNF (W-40) nicht gewünscht.
 - Wettervorhersage nur LMU (bestätigt).
+
+## 12. App-Startfenster (Grundriss-Entwürfe 2026-11-12)
+
+Muster: Artifact „Boxenfunk Startfenster“ (Quelle `design/app-startfenster.html` im Projektordner).
+Zwei Entwürfe, Robert wählt noch:
+- **A · Seitenleiste:** links Spiel-Schalter + Bereiche Widgets / Presets / Einstellungen, unten
+  „Overlay verschieben“. Widgets als Kacheln (Vorschau, an/aus, Situationen, Bearbeiten).
+  Presets als Tabelle mit Aktivieren, Umbenennen, Kopieren, Für anderes Spiel kopieren, Exportieren, Löschen.
+- **B · Eine Seite:** Spiele als Reiter oben, darunter Preset-Leiste (Auswahl, Neu, Kopieren, Umbenennen,
+  Mehr …), Widgets als kompakte Liste, Statuszeile mit „Overlay verschieben“, Einstellungen klappen rechts herein.
+- Beide: Spiel wird erkannt, aktives Preset geladen. Löschen immer mit Rückfrage; letztes Preset nicht löschbar.
