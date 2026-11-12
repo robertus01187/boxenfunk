@@ -1,0 +1,333 @@
+<title>Boxenfunk Standings</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,500;0,600;0,700;1,600&family=Rajdhani:wght@500;600;700&family=Titillium+Web:wght@400;600;700&family=Barlow+Condensed:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Layout: ein Einstellungsfenster (Reiter oben, Einstellungen, darunter Live-Vorschau auf Schachbrett = durchsichtig) */
+:root{
+  color-scheme:dark;
+  --win:#1b1d21; --panel:#23262c; --line:#3a3f48; --ctl:#2c3038; --ctl-hi:#4a6fb3;
+  --txt:#e9ecf1; --txt-dim:#9aa3b0;
+  --chk-a:#3f78bd; --chk-b:#6f9fd6;
+  --gain:#52e05a; --loss:#ff7a62;
+  --me:#1e8b96; --pb:#1fbf4a; --ob:#b23cff;
+  --ui:"Roboto",system-ui,sans-serif;
+  --ov:"Exo 2","Segoe UI",sans-serif;
+}
+body{background:var(--win);color:var(--txt);font-family:var(--ui);margin:0;
+  padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.win{max-width:1240px;margin:0 auto;border:1px solid var(--line);border-radius:8px;background:var(--win);overflow:hidden}
+.titlebar{display:flex;align-items:center;justify-content:center;position:relative;padding:10px 12px 6px;font-weight:700;font-size:17px}
+.titlebar .wc{position:absolute;right:12px;display:flex;gap:16px;color:var(--txt-dim);font-weight:400}
+.tabs{display:flex;justify-content:center;flex-wrap:wrap;padding:4px 8px 10px;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:var(--ctl);color:var(--txt);border:0;border-right:1px solid var(--line);padding:6px 10px;font:600 14px var(--ui);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ctl-hi)}
+.seg button:hover{filter:brightness(1.15)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #9cc2ff;outline-offset:1px}
+.wrap{padding:14px 18px 18px;display:flex;flex-direction:column;gap:16px}
+fieldset{border:1px solid var(--line);border-radius:8px;margin:0;padding:18px 18px 16px;position:relative;min-width:0}
+legend,.lg{background:var(--ctl);border-radius:4px;padding:3px 8px;font-weight:700;font-size:13px}
+.grid{display:flex;flex-wrap:wrap;gap:14px 40px;align-items:flex-start}
+.col{display:grid;grid-template-columns:auto auto;gap:12px 14px;align-items:center}
+.col label{font-weight:700;font-size:15px}
+input[type=number]{width:46px;background:var(--win);color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:5px 6px;font:600 15px var(--ui)}
+select{background:var(--win);color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:5px 8px;font:600 15px var(--ui);min-width:88px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--ctl-hi)}
+input[type=range]{width:170px;accent-color:#5677c6}
+input[type=color]{width:48px;height:30px;border:1px solid var(--line);background:none;padding:0}
+.pair{display:flex;gap:6px}
+.hint{color:var(--txt-dim);font-size:13px;max-width:60ch}
+.reset{background:var(--ctl);border:1px solid var(--line);color:var(--txt);border-radius:4px;width:34px;height:30px;cursor:pointer}
+/* Bausteine zum Ziehen */
+.droparea{border:1.5px dashed #ffffffaa;border-radius:3px;min-height:30px;display:flex;flex-wrap:wrap;gap:4px;padding:4px;align-items:center;flex:1}
+.droparea:empty::after{content:"ABLAGE (hierher ziehen = ausblenden)";color:#fff;font-size:11px;font-weight:700;margin:auto}
+.active{display:flex;flex-wrap:wrap;gap:4px;min-height:30px;align-items:center;padding:4px;border-radius:3px}
+.active.over,.droparea.over{background:#ffffff22}
+.chip{background:#111418e6;color:#fff;border:1px solid #ffffff22;border-radius:3px;padding:3px 6px;font:600 13px var(--ov);cursor:grab;user-select:none;white-space:nowrap}
+.chip.dragging{opacity:.4}
+.chip:hover{border-color:#9cc2ff}
+.chk{background-color:var(--chk-a);background-image:repeating-linear-gradient(45deg,#ffffff55 0 3px,transparent 3px 36px),repeating-linear-gradient(-45deg,#ffffff55 0 3px,transparent 3px 36px);border-radius:6px}
+.slotwrap{padding:12px;display:flex;flex-direction:column;gap:10px}
+.prevhead{display:flex;gap:20px;align-items:center;margin-bottom:-10px;position:relative;z-index:1;padding-left:4px}
+.prevhead .seg button{padding:3px 7px;font-size:13px}
+.preview{min-height:360px;padding:26px 20px;overflow-x:auto;display:flex;flex-direction:column}
+.preview.al-center{align-items:center}.preview.al-right{align-items:flex-end}.preview.al-left{align-items:flex-start}
+/* ===== Das Overlay selbst ===== */
+.ov{font-family:var(--ovfont,var(--ov));color:#fff;display:inline-flex;flex-direction:column;gap:6px;font-variant-numeric:tabular-nums;--rowh:30px}
+.ov.cond{letter-spacing:-.02em}
+.hdr{align-self:flex-start;display:flex;gap:14px;align-items:center;padding:4px 10px;border-radius:4px;font-weight:600;white-space:nowrap;background:hsla(220,15%,var(--hl),var(--op))}
+.blk{border-radius:4px;overflow:hidden;display:flex;flex-direction:column}
+.row{display:flex;align-items:center;height:var(--rowh);white-space:nowrap;position:relative;transition:transform .5s ease}
+.row:nth-child(odd){background:hsla(215,22%,var(--lo),var(--op))}
+.row:nth-child(even){background:hsla(215,18%,var(--le),var(--op))}
+.row.me{background:hsla(186,66%,calc(15% + var(--tint) * .25%),calc(var(--op) + .1))}
+.row.me::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#38c6d4}
+.c{padding:0 5px;text-align:right;font-weight:600}
+.c-pos{width:1.6em;padding-left:8px}
+.c-gain{width:2.6em;display:flex;align-items:center;gap:2px;justify-content:space-between}
+.c-num{width:2.2em;font-style:italic}
+.c-name{width:8.2em;text-align:left;overflow:hidden;text-overflow:clip;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.c-mk{width:2.2em;text-align:center;font-size:.62em;font-weight:700;letter-spacing:.04em;opacity:.9}
+.c-mk span{border:1.5px solid #fff9;border-radius:50%;display:inline-block;width:2.1em;height:2.1em;line-height:1.95em}
+.c-lic{display:flex;align-items:center;padding:0 4px}
+.lic{border-radius:7px 0 0 7px;padding:0 5px;color:#111;font-weight:700;height:1.2em;line-height:1.2em}
+.irt{background:#3b414b;border-radius:0 7px 7px 0;padding:0 7px 0 5px;height:1.2em;line-height:1.2em;display:flex;gap:6px;align-items:center}
+.irt b{font-weight:600;min-width:2.6em}
+.c-gap,.c-int{width:3.2em}
+.c-last{width:3.9em}
+.c-last.pb,.c-last.ob{box-shadow:inset 0 -3px 0 var(--u)}
+.c-last.pb{--u:var(--pb)}.c-last.ob{--u:var(--ob)}
+.c-tyre{width:1.8em;text-align:center}
+.tyre{display:inline-block;width:1em;height:1em;border-radius:50%;border:2.5px solid var(--tc);box-sizing:border-box;position:relative;vertical-align:-.15em}
+.tyre::after{content:"";position:absolute;inset:2px;border-radius:50%;border:1px dotted var(--tc)}
+.c-pit{width:5.6em;display:flex;justify-content:space-between;padding:0 6px;position:relative;height:100%;align-items:center}
+.c-pit.red{background:linear-gradient(90deg,transparent,#c0392b99 45%,transparent);box-shadow:inset 0 -3px 0 #e2493b}
+.c-pit.yel{background:linear-gradient(90deg,transparent,#a8862099 45%,transparent);box-shadow:inset 0 -3px 0 #d4ae2c}
+.c-pit.stint{color:#f1c84b}
+.c-tr{width:2em;padding:0 3px}
+.inf{font-size:1.35em;line-height:1}
+.g{color:var(--gain)}.l{color:var(--loss)}
+.arrow{width:.85em;height:.85em}
+.flash{animation:fl 1.2s ease}
+@keyframes fl{0%{filter:brightness(2)}100%{filter:none}}
+@media (prefers-reduced-motion:reduce){.row{transition:none}.flash{animation:none}}
+.note{font-size:13px;color:var(--txt-dim);line-height:1.5}
+.note b{color:var(--txt)}
+@media (max-width:700px){.grid{gap:14px 20px}.titlebar{font-size:15px}}
+</style>
+
+<div class="win">
+  <div class="titlebar">Standings — Einstellungen <span class="wc" aria-hidden="true">–&nbsp; ☐ &nbsp;✕</span></div>
+  <div class="tabs"><div class="seg" id="tabs" role="tablist">
+    <button data-tab="general" aria-pressed="true">Allgemein</button>
+    <button data-tab="header">Kopfzeile</button>
+    <button data-tab="driver">Fahrerzeile</button>
+    <button data-tab="anim">Animation</button>
+    <button data-tab="bg">Hintergrund</button>
+    <button data-tab="misc">Sonstiges</button>
+  </div></div>
+
+  <div class="wrap">
+    <!-- ALLGEMEIN -->
+    <fieldset data-panel="general"><legend>Allgemein</legend>
+      <div class="grid">
+        <div class="col">
+          <label for="live" title="Positionen sofort tauschen statt erst an der Ziellinie">Live-Positionen</label><input type="checkbox" id="live">
+          <label for="showhdr">Kopfzeile zeigen</label><input type="checkbox" id="showhdr" checked>
+        </div>
+        <div class="col">
+          <label title="Links: Plätze oben (Führende). Rechts: Plätze um mich herum">Zeilen</label><span class="pair"><input type="number" id="rowsTop" value="3" min="0" max="10"><input type="number" id="rowsMe" value="5" min="1" max="15"></span>
+          <label title="Für jede andere Klasse: Führende / um mich herum">Andere Klassen</label><span class="pair"><input type="number" id="mcTop" value="1" min="0" max="5"><input type="number" id="mcMe" value="3" min="0" max="5"></span>
+        </div>
+        <div class="col">
+          <label for="font">Schrift</label><select id="font"><option value='"Exo 2"'>Exo 2</option><option value="Rajdhani">Rajdhani</option><option value='"Titillium Web"'>Titillium</option><option value='"Barlow Condensed"'>Barlow Cond.</option></select>
+          <label for="cond">Schmal</label><input type="checkbox" id="cond" checked>
+        </div>
+        <div class="col">
+          <label>Kopfzeile Größe</label><div class="seg" data-seg="hsize"><button>XS</button><button>S</button><button>M</button><button aria-pressed="true">L</button></div>
+          <label>Fahrer Größe</label><div class="seg" data-seg="dsize"><button>XS</button><button>S</button><button>M</button><button aria-pressed="true">L</button></div>
+        </div>
+        <button class="reset" id="reset" title="Alles zurücksetzen">↺</button>
+      </div>
+    </fieldset>
+
+    <!-- KOPFZEILE -->
+    <div data-panel="header" hidden>
+      <div class="lg" style="display:inline-block;margin-bottom:-10px;position:relative;margin-left:4px">Kopfzeile</div>
+      <div class="chk slotwrap" style="padding-top:18px">
+        <div style="display:flex;gap:6px;align-items:center"><div class="droparea" id="hdrPool"></div></div>
+        <div class="active" id="hdrActive"></div>
+        <div class="hint" style="color:#fff">Bausteine mit der Maus ziehen: Reihenfolge ändern oder in die Ablage ziehen, um sie auszublenden.</div>
+      </div>
+    </div>
+
+    <!-- FAHRERZEILE -->
+    <div data-panel="driver" hidden>
+      <div class="lg" style="display:inline-block;margin-bottom:-10px;position:relative;margin-left:4px">Fahrerzeile</div>
+      <div class="chk slotwrap" style="padding-top:18px">
+        <div class="droparea" id="colPool"></div>
+        <div class="active" id="colActive"></div>
+        <div class="hint" style="color:#fff">Spalten genauso ziehen. Fahre mit der Maus über einen Baustein, um zu sehen, was er bedeutet.</div>
+      </div>
+    </div>
+
+    <!-- ANIMATION -->
+    <fieldset data-panel="anim" hidden><legend>Animation</legend>
+      <div class="grid">
+        <div class="col">
+          <label>Im Auto</label><div class="seg" data-seg="animCar"><button>Aus</button><button>Schnell</button><button aria-pressed="true">Normal</button><button>Langsam</button></div>
+          <label>In der Wiederholung</label><div class="seg" data-seg="animReplay"><button aria-pressed="true">Aus</button><button>Schnell</button><button>Normal</button><button>Langsam</button></div>
+        </div>
+        <div class="hint">In der Vorschau unter „Animation“ gilt nur die Einstellung „Im Auto“. Positionswechsel gleiten dann sichtbar an ihren neuen Platz.</div>
+      </div>
+    </fieldset>
+
+    <!-- HINTERGRUND -->
+    <fieldset data-panel="bg" hidden><legend>Hintergrund</legend>
+      <div class="grid">
+        <div class="col">
+          <label for="op">Deckkraft</label><input type="range" id="op" min="30" max="100" value="88">
+          <label for="tint">Meine Zeile</label><input type="range" id="tint" min="0" max="100" value="50">
+        </div>
+        <div class="col">
+          <label for="lo">Helligkeit ungerade</label><input type="range" id="lo" min="5" max="30" value="12">
+          <label for="le">Helligkeit gerade</label><input type="range" id="le" min="5" max="30" value="17">
+        </div>
+        <div class="col">
+          <label for="hl">Helligkeit Kopfzeile</label><input type="range" id="hl" min="3" max="30" value="8">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- SONSTIGES -->
+    <fieldset data-panel="misc" hidden><legend>Sonstiges</legend>
+      <div class="grid" style="align-items:center">
+        <div class="col">
+          <label>Ausrichtung</label><div class="seg" data-seg="align"><button aria-pressed="true" title="links">⯇</button><button title="Mitte">◆</button><button title="rechts">⯈</button></div>
+        </div>
+        <div class="col">
+          <label>Farben Gewinn / Verlust</label><span class="pair"><input type="color" id="cg" value="#52e05a"><input type="color" id="cl" value="#ff7a62"><button class="reset" id="resetCol" title="Farben zurücksetzen">↺</button></span>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- VORSCHAU -->
+    <div>
+      <div class="prevhead"><span class="lg">Vorschau</span>
+        <div class="seg" data-seg="pmode"><button>Quali</button><button aria-pressed="true">Rennen</button><button>Animation</button></div>
+      </div>
+      <div class="chk preview" id="preview"><div class="ov" id="ov"></div></div>
+    </div>
+
+    <div class="note"><b>Muster, kein fertiges Programm.</b> Alle Werte sind Beispieldaten. Die Schachbrett-Fläche steht für „durchsichtig“: dort sieht man später das Spiel. Position und Größe des Overlays stellst du später direkt auf dem Bildschirm mit der Maus ein, deshalb fehlen sie hier.</div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const UP='<svg class="arrow" viewBox="0 0 10 10"><path d="M1 7 5 3l4 4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>';
+const DN='<svg class="arrow" viewBox="0 0 10 10"><path d="M1 3l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>';
+const LIC={R:'#e8312a',D:'#ff7a1a',C:'#ffd21a',B:'#33c72e',A:'#1f74ff',P:'#9a3cff',W:'#d6d6d6'};
+const TYRE={S:'#ffd21a',M:'#d8d8d8',H:'#ff6a4d',W:'#2fa8ff'};
+// Beispielfelder (ausgedacht)
+const FIELD=[
+ {p:1,g:7,n:54,name:'Jonas Weidner',mk:'POR',lic:'D',sr:4.5,ir:2.8,ird:143,gap:'GAP',int:'INT',last:'1:26.6',ty:'S',pit:['red','PIT',39],tr:[18,2.3,-9.1]},
+ {p:2,g:9,n:59,name:'Mika Laine',mk:'MCL',lic:'B',sr:1.2,ir:3.2,ird:99,gap:'55.6',int:'31.2',last:'1:28.4',ty:'M',pit:['yel','PIT',20],tr:[12,11,-6.6]},
+ {p:3,g:10,n:79,name:'Tom Becker',mk:'LAM',lic:'D',sr:4.3,ir:5.0,ird:58,gap:'17.2',int:'0.1',last:'1:28.9',ty:'H',pit:['stint','L101','1:26'],tr:[-14,-17,-11]},
+ {sep:true},
+ {p:5,g:5,n:3,name:'Lars Meyer',mk:'AUD',lic:'D',sr:1.5,ir:5.5,ird:-50,gap:'43.4',int:'48.3',last:'1:28.4',ty:'M',pit:['red','PIT',4],tr:[4.8,11,18]},
+ {p:6,g:-13,n:54,name:'Paolo Rinaldi',mk:'MAZ',lic:'A',sr:1.9,ir:1.7,ird:-67,gap:'47.4',int:'23.4',last:'1:29.1',lf:'pb',ty:'H',pit:['yel','PIT',31],tr:[6.2,16,6.3]},
+ {p:7,g:5,n:182,name:'Robert K.',mk:'BMW',lic:'W',sr:2.6,ir:5.3,ird:-100,gap:'5.5',int:'46.5',last:'1:27.5',lf:'ob',ty:'M',pit:['stint','L100','40.5'],tr:null,me:true},
+ {p:8,g:-14,n:98,name:'Dmitri Volkov',mk:'MCL',lic:'C',sr:2.6,ir:1.8,ird:-140,gap:'9.7',int:'47.9',last:'1:25.0',ty:'S',pit:['red','PIT',26],tr:[6.2,-12,1.6]},
+ {p:9,g:-5,n:48,name:'Kevin Hart',mk:'AUD',lic:'R',sr:4.4,ir:5.1,ird:-88,gap:'25.1',int:'1.2',last:'1:27.8',ty:'S',pit:['yel','PIT',24],tr:[3.0,-0.7,-1.6]},
+ {p:10,g:2,n:12,name:'Sven Olsen',mk:'POR',lic:'B',sr:3.1,ir:2.2,ird:31,gap:'31.0',int:'5.9',last:'1:28.0',ty:'M',pit:['yel','PIT',12],tr:[1.1,2.4,-0.3]},
+ {p:11,g:-1,n:7,name:'Ali Demir',mk:'MAZ',lic:'C',sr:3.6,ir:1.4,ird:-12,gap:'36.9',int:'8.1',last:'1:28.7',ty:'H',pit:['red','PIT',41],tr:[-2.2,-0.4,0.9]},
+];
+const COLS={
+ pos:['Pos','Platz'], gain:['±','Plätze gewonnen/verloren seit Start'], num:['#','Startnummer'], name:['Name','Fahrername'],
+ mk:['Marke','Hersteller (Platzhalter-Kürzel statt Logo)'], lic:['Lizenz/Rating','Lizenzklasse + Sicherheitswert, Rating und erwartete Änderung'],
+ gap:['Abst.','Abstand zum Führenden'], int:['Int.','Abstand zum Vordermann'], last:['Letzte','Letzte Runde (grün = eigene Bestzeit, lila = schnellste im Feld)'],
+ tyre:['Reifen','Reifenmischung (Farbe)'], pit:['Box','PIT + Runden seit Stopp, oder aktueller Stint (Runde + Zeit)'], tr:['Trend','Rundenzeit-Unterschied zu diesem Auto in den letzten 3 Runden, neueste ganz rechts (grün = ich war schneller, rot = langsamer)']
+};
+const HDR={
+ car:['Porsche 992','Mein Auto'], air:['🌡 26°C','Lufttemperatur'], track:['⛰ 32°C','Streckentemperatur'], wet:['💧 55%','Nässe'],
+ sess:['R','Sitzung (Q/R)'], time:['11:06:40/≈22h13m','gefahrene / geschätzte Restzeit'], laps:['182/≈459','Runden / geschätzt gesamt'],
+ inc:['⚠ 28/34','Strafpunkte / Limit'], sof:['SOF 4.5k','Stärke des Feldes']
+};
+const DEF={hdrActive:['sess','time','laps','inc','sof'],colActive:['pos','gain','num','name','mk','lic','gap','int','last','tyre','pit','tr'],
+ hsize:3,dsize:3,font:'"Exo 2"',cond:true,showhdr:true,rowsTop:3,rowsMe:5,op:88,tint:50,lo:12,le:17,hl:8,align:0,cg:'#52e05a',cl:'#ff7a62',pmode:1,animCar:2};
+let S=JSON.parse(JSON.stringify(DEF));
+const SIZES=[13,15,17,19];
+
+function cell(k,r){
+ const gc=v=>v>=0?'g':'l';
+ switch(k){
+  case'pos':return `<span class="c c-pos">${r._pos}</span>`;
+  case'gain':return `<span class="c c-gain ${gc(r.g)}">${r.g>=0?UP:DN}<span>${Math.abs(r.g)}</span></span>`;
+  case'num':return `<span class="c c-num">${r.n}</span>`;
+  case'name':return `<span class="c c-name">${r.name}</span>`;
+  case'mk':return `<span class="c c-mk"><span>${r.mk}</span></span>`;
+  case'lic':return `<span class="c c-lic"><span class="lic" style="background:${LIC[r.lic]}">${r.lic}${r.sr.toFixed(1)}</span><span class="irt"><b>${r.ir.toFixed(1)}k</b>${r.ird>=0?UP:DN}<span style="min-width:1.7em;text-align:right">${Math.abs(r.ird)}</span></span></span>`;
+  case'gap':return `<span class="c c-gap">${S.pmode===0?(r.gap==='GAP'?'—':'+'+(r.p*0.213).toFixed(3)):r.gap}</span>`;
+  case'int':return `<span class="c c-int">${S.pmode===0?'':r.int}</span>`;
+  case'last':return `<span class="c c-last ${r.lf||''}">${r.last}</span>`;
+  case'tyre':return `<span class="c c-tyre"><span class="tyre" style="--tc:${TYRE[r.ty]}"></span></span>`;
+  case'pit':{const[t,a,b]=r.pit;return `<span class="c c-pit ${t==='stint'?'stint':t}"><span>${a}</span><span>${b}</span></span>`}
+  case'tr':return r.tr?r.tr.map(v=>`<span class="c c-tr ${gc(v)}">${Math.abs(v)<10?Math.abs(v).toFixed(1):Math.abs(v)}</span>`).join(''):'<span class="c c-tr inf">∞</span>'.repeat(3);
+ }
+}
+const POS=FIELD.filter(r=>!r.sep).map(r=>r.p);
+let order=FIELD.filter(r=>!r.sep).map(r=>r.p);
+function render(){
+ const ov=$('#ov'), root=document.documentElement.style;
+ root.setProperty('--gain',S.cg);root.setProperty('--loss',S.cl);
+ ov.style.setProperty('--ovfont',S.font);ov.classList.toggle('cond',S.cond);
+ ov.style.setProperty('--op',S.op/100);ov.style.setProperty('--tint',S.tint);
+ ov.style.setProperty('--lo',S.lo+'%');ov.style.setProperty('--le',S.le+'%');ov.style.setProperty('--hl',S.hl+'%');
+ const ds=SIZES[S.dsize], hs=SIZES[S.hsize];
+ ov.style.fontSize=ds+'px';ov.style.setProperty('--rowh',Math.round(ds*1.75)+'px');
+ $('#preview').className='chk preview al-'+['left','center','right'][S.align];
+ // Zeilen: oben N + um mich herum M
+ const rows=order.map(p=>FIELD.find(r=>r.p===p));
+ rows.forEach((r,i)=>r._pos=POS[i]);
+ const meI=rows.findIndex(r=>r.me);
+ const top=rows.slice(0,S.rowsTop);
+ const half=Math.floor((S.rowsMe-1)/2);
+ let a=Math.max(0,meI-half), b=Math.min(rows.length,a+S.rowsMe); a=Math.max(0,b-S.rowsMe);
+ let around=rows.slice(a,b).filter(r=>!top.includes(r));
+ const mk=list=>list.length?`<div class="blk">${list.map(r=>`<div class="row${r.me?' me':''}" data-p="${r.p}">${S.colActive.map(k=>cell(k,r)).join('')}</div>`).join('')}</div>`:'';
+ const hdr=S.showhdr?`<div class="hdr" style="font-size:${hs}px">${S.hdrActive.map(k=>`<span>${k==='sess'?(S.pmode===0?'Q':'R'):HDR[k][0]}</span>`).join('')}</div>`:'';
+ const contiguous=top.length&&around.length&&top[top.length-1]._pos+1===around[0]._pos;
+ ov.innerHTML=hdr+(contiguous?mk(top.concat(around)):mk(top)+mk(around));
+}
+// FLIP-Animation
+function animateSwap(){
+ const dur=[0,.25,.5,.9][S.animCar];
+ const before={};$$('#ov .row').forEach(el=>before[el.dataset.p]=el.getBoundingClientRect().top);
+ // zwei Plätze tauschen (Platz 8 überholt 7 bzw. zurück)
+ const i=5,j=6;[order[i],order[j]]=[order[j],order[i]];
+ render();
+ if(!dur)return;
+ $$('#ov .row').forEach(el=>{const b=before[el.dataset.p];if(b==null)return;const d=b-el.getBoundingClientRect().top;if(!d)return;
+  el.style.transition='none';el.style.transform=`translateY(${d}px)`;el.offsetHeight;
+  el.style.transition=`transform ${dur}s ease`;el.style.transform='';el.classList.add('flash');});
+}
+let timer=null;
+function setMode(){clearInterval(timer);order=FIELD.filter(r=>!r.sep).map(r=>r.p);render();if(S.pmode===2)timer=setInterval(animateSwap,2200)}
+
+// Reiter
+$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ $$('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==b.dataset.tab)});
+// Segment-Schalter
+$$('[data-seg]').forEach(seg=>{const key=seg.dataset.seg;[...seg.children].forEach((btn,i)=>btn.onclick=()=>{
+ [...seg.children].forEach(x=>x.setAttribute('aria-pressed',x===btn));S[key]=i;key==='pmode'?setMode():render()})});
+// Eingaben
+const bind=(id,key,fn=v=>v)=>{const el=$('#'+id);el.oninput=()=>{S[key]=fn(el.type==='checkbox'?el.checked:el.value);render()}};
+bind('showhdr','showhdr');bind('cond','cond');bind('font','font');bind('rowsTop','rowsTop',Number);bind('rowsMe','rowsMe',Number);
+['op','tint','lo','le','hl'].forEach(k=>bind(k,k,Number));bind('cg','cg');bind('cl','cl');
+$('#resetCol').onclick=()=>{S.cg=DEF.cg;S.cl=DEF.cl;$('#cg').value=S.cg;$('#cl').value=S.cl;render()};
+$('#reset').onclick=()=>location.reload();
+
+// Ziehen & Ablegen für Kopfzeile und Spalten
+function chips(poolId,actId,dict,key){
+ const pool=$('#'+poolId),act=$('#'+actId);
+ const draw=()=>{act.innerHTML='';pool.innerHTML='';
+  Object.keys(dict).forEach(k=>{const c=document.createElement('span');c.className='chip';c.draggable=true;c.dataset.k=k;c.textContent=dict[k][0];c.title=dict[k][1]+' (Doppelklick = ein/aus)';
+   c.ondragstart=e=>{e.dataTransfer.setData('text/plain',k);c.classList.add('dragging')};c.ondragend=()=>c.classList.remove('dragging');
+   c.ondblclick=()=>{const a=S[key];a.includes(k)?a.splice(a.indexOf(k),1):a.push(k);draw();render()};
+   if(!S[key].includes(k))pool.appendChild(c)});
+  S[key].forEach(k=>{const c=[...pool.children,...act.children].find(x=>x.dataset.k===k);const n=document.createElement('span');
+   n.className='chip';n.draggable=true;n.dataset.k=k;n.textContent=dict[k][0];n.title=dict[k][1]+' (Doppelklick = ein/aus)';
+   n.ondragstart=e=>{e.dataTransfer.setData('text/plain',k);n.classList.add('dragging')};n.ondragend=()=>n.classList.remove('dragging');
+   n.ondblclick=()=>{S[key].splice(S[key].indexOf(k),1);draw();render()};act.appendChild(n)});};
+ const zone=(el,isAct)=>{el.ondragover=e=>{e.preventDefault();el.classList.add('over')};el.ondragleave=()=>el.classList.remove('over');
+  el.ondrop=e=>{e.preventDefault();el.classList.remove('over');const k=e.dataTransfer.getData('text/plain');if(!dict[k])return;
+   const a=S[key];const i=a.indexOf(k);if(i>-1)a.splice(i,1);
+   if(isAct){const t=e.target.closest('.chip');let at=a.length;if(t&&t.dataset.k!==k){at=a.indexOf(t.dataset.k);const r=t.getBoundingClientRect();if(e.clientX>r.left+r.width/2)at++}a.splice(at,0,k)}
+   draw();render()}};
+ zone(pool,false);zone(act,true);draw();
+}
+chips('hdrPool','hdrActive',HDR,'hdrActive');chips('colPool','colActive',COLS,'colActive');
+setMode();
+</script>
