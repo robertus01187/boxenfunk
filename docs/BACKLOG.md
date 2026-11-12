@@ -66,6 +66,7 @@
 | W-27 | „Live-Standings“: Positionen laufend auf der Strecke statt nur an der Ziellinie neu sortieren | Robert | ja | ja | klein | T4 | ✅ |
 | W-28 | Rundenvergleich rechts in jeder Zeile: Differenz der letzten 3 Rundenzeiten dieses Autos zu meiner jeweiligen Runde, grün = ich war schneller, rot = langsamer (von Robert bestätigt). Neueste Runde rechts, älteste fällt links raus. Eigene Zeile zeigt ∞ | Robert | ja | ja | klein | T4 | ✅ |
 | W-29 | Eigene Standings-Ansicht für Training/Quali (nach Bestzeit sortiert, Abstand zur Bestzeit) | Robert | ja | ja | klein | T4 | ✅ |
+| W-30 | Spiel automatisch erkennen (LMU oder iRacing) und das passende Overlay-Preset laden. Beide Presets vorher getrennt einstellbar; im Einstellungsfenster werden nur Bausteine angeboten, die das jeweilige Spiel liefern kann (andere ausgegraut mit Hinweis) | Robert | ja | ja | mittel | T2 Erkennung, T3/T7 Presets | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -102,3 +103,8 @@
 - **Reifenmischung (W-22):** LMU zeichnet der Recorder für alle Autos auf; ob die Mischung der Gegner stimmt, wird mit R1 geprüft. iRacing liefert sie für alle Autos.
 - **Drei farbige Zahlen rechts:** geklärt, siehe W-28. Beide Spiele liefern die letzte Rundenzeit jedes Autos, die App merkt sich die letzten drei.
 - **Krone im Fahrer-Reiter:** entfällt (Robert, 12.11.2026).
+
+### W-30 Spiel erkennen und Preset laden (Robert, 12.11.2026) ✅
+- **Erkennung:** Die App schaut regelmäßig nach, welche Datenquelle offen ist (LMU-Shared-Memory oder iRacing-Schnittstelle). Das gehört zur Datenschicht (T2) und ist einfach.
+- **Presets:** Für jedes Spiel eigene Einstellungen und Positionen der Widgets. Beim Spielwechsel wird automatisch umgeschaltet (T3 Grundlage, T7 Ausbau).
+- **Nur Machbares anzeigen:** Jeder Baustein bekommt die Info „gibt es in LMU / iRacing“ (siehe Spalten LMU/iRacing in dieser Liste). Nicht verfügbare Bausteine sind im Preset des jeweiligen Spiels ausgegraut, z. B. Gegner-Energie nur LMU, iRating nur iRacing.
