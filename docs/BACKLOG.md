@@ -64,7 +64,7 @@
 | W-25 | Darstellung einstellbar: Schriftart, schmale Schrift, Größe der Kopf- und Fahrerzeilen (XS bis L), Ausrichtung, Farben für Gewinn/Verlust, Deckkraft, abwechselnd helle/dunkle Zeilen, Tönung der eigenen Zeile, „zurücksetzen“-Knopf | Robert | ja | ja | mittel | T3/T7 | ✅ |
 | W-26 | Animation bei Platzwechseln, Tempo getrennt für Fahrt und Wiederholung (aus, schnell, normal, langsam) | Robert | ja | ja | mittel | T7 | ✅ |
 | W-27 | „Live-Standings“: Positionen laufend auf der Strecke statt nur an der Ziellinie neu sortieren | Robert | ja | ja | klein | T4 | ✅ |
-| W-28 | Rundenvergleich rechts in jeder Zeile: Differenz der letzten 3 Rundenzeiten dieses Autos zu meiner jeweiligen Runde, grün = ich war schneller, rot = langsamer (Annahme). Neueste Runde rechts, älteste fällt links raus. Eigene Zeile zeigt ∞ | Robert | ja | ja | klein | T4 | ✅ |
+| W-28 | Rundenvergleich rechts in jeder Zeile: Differenz der letzten 3 Rundenzeiten dieses Autos zu meiner jeweiligen Runde, grün = ich war schneller, rot = langsamer (von Robert bestätigt). Neueste Runde rechts, älteste fällt links raus. Eigene Zeile zeigt ∞ | Robert | ja | ja | klein | T4 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -100,4 +100,4 @@
 - **Lizenz/iRating/SOF (W-23):** iRacing liefert das. LMU hat zwar Fahrer- und Sicherheitswertungen, ob sie im Shared Memory stehen, ist offen (eventuell nur über die REST-Schnittstelle). Wenn nicht verfügbar, wird der Block in LMU ausgeblendet.
 - **Reifenmischung (W-22):** LMU zeichnet der Recorder für alle Autos auf; ob die Mischung der Gegner stimmt, wird mit R1 geprüft. iRacing liefert sie für alle Autos.
 - **Drei farbige Zahlen rechts:** geklärt, siehe W-28. Beide Spiele liefern die letzte Rundenzeit jedes Autos, die App merkt sich die letzten drei.
-- **Unklar, bei Robert nachfragen:** die Krone im Fahrer-Reiter.
+- **Krone im Fahrer-Reiter:** entfällt (Robert, 12.11.2026).
