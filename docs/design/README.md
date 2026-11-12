@@ -104,6 +104,6 @@ wegen der Herstellerlogos nicht im Repo).
   linksbündig, Fußzeile über die ganze Breite verteilt (links, Mitte, rechts).
   Standard Kopf: Öl, Wasser, Sprit %. Standard Fuß: Runde, Uhrzeit, Sitzung + Restzeit
   (iRacing zusätzlich Strafpunkte und SOF).
-- Farben: eigene Zeile Bernstein `#ffb21e` auf warm getöntem Hintergrund, Auto Runde(n) vor mir
+- Farben: eigene Zeile: ganzer Balken in der gewählten Farbe (Standard Bernstein `#ffb21e`, Stärke per Regler „Meine Zeile“), Schrift weiß, Auto Runde(n) vor mir
   rot `#ff8a7a`, Runde(n) hinter mir blau `#7fb8ff`, gleiche Runde weiß. Auto in der Box: blass + „BOX“.
 - Nur iRacing: Strafpunkte, SOF, iRating. Nur LMU: Virtuelle Energie.
