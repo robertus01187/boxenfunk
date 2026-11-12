@@ -107,3 +107,26 @@ wegen der Herstellerlogos nicht im Repo).
 - Farben: eigene Zeile: ganzer Balken in der gewählten Farbe (Standard Bernstein `#ffb21e`, Stärke per Regler „Meine Zeile“), Schrift weiß, Auto Runde(n) vor mir
   rot `#ff8a7a`, Runde(n) hinter mir blau `#7fb8ff`, gleiche Runde weiß. Auto in der Box: blass + „BOX“.
 - Nur iRacing: Strafpunkte, SOF, iRating. Nur LMU: Virtuelle Energie.
+
+## 9. Input-Graph, Wetter, Delta-Balken (Entwürfe 2026-11-12)
+
+Muster als Artifacts „Boxenfunk Inputs“, „Boxenfunk Wetter“, „Boxenfunk Delta“
+(Quellen im Projektordner `design/`). Alle mit LMU/iRacing-Schalter und gleichem Fensteraufbau.
+
+- **Inputs:** laufender Graph (Zeitfenster 3–15 s) für Gas grün `#3ddc54`, Bremse rot `#ff4141`,
+  Kupplung blau `#4aa3ff`, Lenkung grau `#d6d6d6` (je an/aus, Farbe frei). Bremslinie wird gelb
+  `#ffd21a`, wenn ABS eingreift; Gaslinie ebenso bei TC (vorerst nur LMU). Rechts Balken in %,
+  daneben Gang, Tempo (km/h oder mph) und ein Lenkrad-Symbol, das mitdreht.
+- **Wetter:** Kacheln, per Ziehen wählbar: Wetter jetzt (Symbol), Luft, Strecke, Nässe (mit Balken),
+  Regen, Wind (Pfeil relativ zum Auto), Bewölkung, Luftfeuchte, Vorhersage (vorerst nur LMU),
+  Verlauf Streckentemperatur. Waagerecht oder senkrecht. Regen-Warnung lässt das Overlay kurz
+  blau aufleuchten; Nässe wird ab einstellbarem Wert hervorgehoben.
+- **Delta:** große Zahl (grün schneller / rot langsamer) mit Trendpfeil, Balken ab der Mitte
+  (Richtung einstellbar), Skala ±0,5/1/2 s, 3 Sektor-Striche, Vergleichszeit und Prognose.
+  Vergleich mit: eigene Bestzeit, letzte Runde, Beste im Feld, optimale Runde.
+
+## 10. Globale Schrift-Einstellungen (Wunsch W-34)
+
+Schriftart und Schriftgröße gibt es auch global für alle Widgets. Im Widget-Fenster muss sichtbar
+sein, ob ein Wert vom globalen Standard kommt oder eigen ist (z. B. kleiner Punkt/„Standard“-Hinweis),
+mit Knopf „zurück auf Standard“. Noch nicht im Muster umgesetzt.
