@@ -7,5 +7,5 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 - Projektgerüst (Python 3.12, PySide6), Ordnerstruktur für Adapter, Modell, Kern, Strategie, Overlays, Recorder.
 - Leere App mit Statusfenster, `--version` und `--quit-after`.
 - CI: ruff + pytest auf Ubuntu und Windows.
-- Release-Workflow: Windows-`.exe` per PyInstaller bei Tag `v*`.
+- Release-Workflow: Windows-`.exe` per PyInstaller, Release wird bei neuer Versionsnummer automatisch angelegt.
 - ADR-001 (Architektur), STATUS.md, GPLv3-Lizenz.

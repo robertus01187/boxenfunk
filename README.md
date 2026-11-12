@@ -22,7 +22,7 @@ ruff check .
 python -m boxenfunk.app
 ```
 
-Ein Release entsteht durch einen Tag `vX.Y.Z` → GitHub Actions baut die `.exe` und hängt sie ans Release.
+Neue Version: Versionsnummer in `pyproject.toml` erhöhen und nach `main` pushen → GitHub Actions baut die `.exe` und legt das Release `vX.Y.Z` an.
 
 Architektur: [docs/adr/001-architektur.md](docs/adr/001-architektur.md)
 
