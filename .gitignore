@@ -19,3 +19,4 @@ recordings/
 # Lokale Nutzereinstellungen
 config/user/
 *.log
+*.roh.gz
