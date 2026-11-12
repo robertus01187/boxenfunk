@@ -59,7 +59,7 @@
 | W-20 | Baukasten: Kopfzeile und Fahrerzeile selbst zusammenstellen, Infoblöcke per Ziehen in eine Ablagefläche legen und umsortieren | Robert | ja | ja | groß | T4/T7 | ✅ |
 | W-21 | Standings-Aufbau: Anzahl Zeilen oben (Spitze) und um mich herum, je Klasse getrennte Blöcke, eigene Zeile hervorgehoben | Robert | ja | ja | mittel | T4 | ✅ |
 | W-22 | Standings-Fahrerzeile: Platz, gewonnene/verlorene Plätze (Pfeil), Startnummer, Name, Hersteller-Logo, Abstand zum Führenden und zum Vordermann, letzte Runde (grün = persönliche Bestzeit, lila = Bestzeit aller), Reifenmischung, Boxenstatus (PIT + Runden seit Stopp), Zahl der Stopps | Robert | ja | ja | mittel | T4 | ✅ |
-| W-23 | Lizenz/Safety Rating und iRating mit erwarteter Änderung, Feldstärke (SOF) in der Kopfzeile | Robert | offen | ja | mittel | T4 (iRacing), LMU prüfen | 💡 |
+| W-23 | Lizenz/Safety Rating und iRating mit erwarteter Änderung, Feldstärke (SOF) in der Kopfzeile | Robert | offen | ja | mittel | T4 (iRacing), LMU prüfen | ⏸️ (vorerst ausgeblendet) |
 | W-24 | Kopfzeile: Session-Art, Restzeit/Uhrzeit, Runde/geschätzte Rundenzahl, Strafpunkte/Limit (z. B. 28/34; iRacing ja, LMU nur Strafen-Anzahl, prüfen), Feldstärke, Fahrzeug, Luft- und Streckentemperatur, Regen-/Nässe-Anteil | Robert | ja | ja | klein | T4 | ✅ |
 | W-25 | Darstellung einstellbar: Schriftart, schmale Schrift, Größe der Kopf- und Fahrerzeilen (XS bis L), Ausrichtung, Farben für Gewinn/Verlust, Deckkraft, abwechselnd helle/dunkle Zeilen, Tönung der eigenen Zeile, „zurücksetzen“-Knopf | Robert | ja | ja | mittel | T3/T7 | ✅ |
 | W-26 | Animation bei Platzwechseln, Tempo getrennt für Fahrt und Wiederholung (aus, schnell, normal, langsam) | Robert | ja | ja | mittel | T7 | ✅ |
@@ -67,7 +67,7 @@
 | W-28 | Rundenvergleich rechts in jeder Zeile: Differenz der letzten 3 Rundenzeiten dieses Autos zu meiner jeweiligen Runde, grün = ich war schneller, rot = langsamer (von Robert bestätigt). Neueste Runde rechts, älteste fällt links raus. Eigene Zeile zeigt ∞ | Robert | ja | ja | klein | T4 | ✅ |
 | W-29 | Eigene Standings-Ansicht für Training/Quali (nach Bestzeit sortiert, Abstand zur Bestzeit) | Robert | ja | ja | klein | T4 | ✅ |
 | W-30 | Spiel automatisch erkennen (LMU oder iRacing) und das passende Overlay-Preset laden. Beide Presets vorher getrennt einstellbar; im Einstellungsfenster werden nur Bausteine angeboten, die das jeweilige Spiel liefern kann (andere ausgegraut mit Hinweis) | Robert | ja | ja | mittel | T2 Erkennung, T3/T7 Presets | ✅ |
-| W-31 | Herstellerlogos statt Kürzel: App wird ohne Logos ausgeliefert, lädt sie aus einem Logo-Ordner, den der Nutzer selbst füllt (eine Datei pro Marke); fehlt ein Logo, wird das Kürzel gezeigt. Braucht Zuordnung Fahrzeug → Marke | Design-Thread / Robert | ja | ja | klein | T4 | 💡 |
+| W-31 | Herstellerlogos statt Kürzel: App wird ohne Logos ausgeliefert, lädt sie aus einem Logo-Ordner, den der Nutzer selbst füllt (eine Datei pro Marke); fehlt ein Logo, wird das Kürzel gezeigt. Braucht Zuordnung Fahrzeug → Marke | Design-Thread / Robert | ja | ja | klein | T4 | ✅ |
 | W-32 | Sektorzeiten: je Sektor die Zeit, farbig mit +/−-Wert: grün = schneller als meine Bestzeit, rot = langsamer, lila = schnellster Sektor im Feld | Robert | ja | ja | mittel | T4/T7 | ✅ |
 | W-33 | Pedal-Input-Graphen (Gas, Bremse, Kupplung, Lenkung) nach Vorbild TinyPedal, im eigenen Overlay-Stil | Robert | ja | ja | mittel | nach 1.0 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
@@ -112,7 +112,7 @@
 - **Presets:** Für jedes Spiel eigene Einstellungen und Positionen der Widgets. Beim Spielwechsel wird automatisch umgeschaltet (T3 Grundlage, T7 Ausbau).
 - **Nur Machbares anzeigen:** Jeder Baustein bekommt die Info „gibt es in LMU / iRacing“ (siehe Spalten LMU/iRacing in dieser Liste). Nicht verfügbare Bausteine sind im Preset des jeweiligen Spiels ausgegraut, z. B. Gegner-Energie nur LMU, iRating nur iRacing.
 
-### W-31 Herstellerlogos 💡 (Robert entscheidet noch)
+### W-31 Herstellerlogos ✅ (Robert hat im Design-Thread Logos geliefert)
 - **Warum ein eigener Ordner:** Die App ist öffentlich (GPL). Echte Markenlogos sind geschützt und dürfen nicht einfach mitverteilt werden. Darum bringt der Nutzer sie selbst mit.
 - **Zuordnung:** LMU meldet Fahrzeug- und Klassenname, iRacing den Fahrzeugnamen je Auto. Daraus wird per kleiner Tabelle die Marke (z. B. „Porsche 911 GT3 R“ → Porsche). Unbekannte Autos zeigen das Kürzel.
 
