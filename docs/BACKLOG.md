@@ -72,10 +72,10 @@
 | W-33 | Pedal-Input-Graphen (Gas, Bremse, Kupplung, Lenkung) nach Vorbild TinyPedal, im eigenen Overlay-Stil | Robert | ja | ja | mittel | nach 1.0 | ✅ |
 | W-34 | Globale Einstellungen für das ganze Overlay: Schriftgröße und Schriftart gelten als Standard für jedes Widget, bis sie im Widget selbst geändert werden (dann gilt dort der eigene Wert, mit „zurück auf Standard“) | Robert | ja | ja | klein | T3 | ✅ |
 | W-35 | Spielsituation erkennen (Training, Quali, Warm-up, Rennen, Wiederholung, Garage, Hauptmenü) und jedes Widget je Situation ein-/ausblenden und anpassen | Robert | ja (Wiederholung prüfen) | ja | mittel | T2 Erkennung, T3/T7 Einstellungen | ✅ |
-| W-36 | Track-Limits-Punkte statt Strafpunkte in LMU (z. B. „2/4“ bis zur nächsten Strafe), Kopfzeile Standings/Relative | Claude | ja | – | klein | T4 | 💡 |
-| W-37 | Markierung „offene Strafe“ bei einem Auto in Standings/Relative | Claude | ja | teilweise | klein | T4 | 💡 |
+| W-36 | Fehlerpunkte-Anzeige „X“ in Kopfzeile Standings/Relative. LMU: „X 1,5/4“ (Track-Limits-Punkte / Punkte bis zur Strafe). iRacing: „X 6/17/25“ (Strafpunkte / Grenze für Strafe / Grenze für Disqualifikation). Nur eigenes Auto | Robert | ja | ja (Grenze für Strafe prüfen) | klein | T4 | ✅ |
+| W-37 | Markierung offene Strafe bei einem Auto („PEN“, Anzahl). Art der Strafe (SG = Stop-and-Go, DT = Durchfahrt) nur, wenn das Spiel sie meldet | Robert | ja (Anzahl, Art offen) | teilweise | klein | T4 | ✅ |
 | W-38 | Aktueller Fahrer bei Teamrennen: Teamname + wer gerade fährt | Claude | ja | ja | klein | T4 | 💡 |
-| W-39 | Box-Status genauer (LMU): „Box angefordert“, „fährt rein“, „steht“, „fährt raus“; Anzahl Stopps je Auto | Claude | ja | teilweise | klein | T4 | 💡 |
+| W-39 | Box-Status je Auto: „PIT req“ (angefordert), „PIT in“, „PIT“ (steht), „PIT out“; dazu Anzahl Stopps | Robert | ja | ja (ohne „PIT req“) | klein | T4 | ✅ |
 | W-40 | Ausgefallene Autos (DNF, disqualifiziert) markieren statt normal weiterführen | Claude | ja | ja | klein | T4 | 💡 |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
@@ -181,3 +181,8 @@ iRacing nach offizieller SDK-Variablenliste. „prüfen“ = Feld vorhanden, Ver
 | Wettervorhersage | ja (nur über REST, selten abfragen) | nein | |
 
 Ergebnis: Kein Baustein im Entwurf ist unmöglich. Anpassen: Nässe bei iRacing als Stufe; LMU bekommt statt Strafpunkten die Track-Limits-Punkte (W-36). Neue mögliche Bausteine: W-36 bis W-40.
+
+### W-36, W-37, W-39 Entscheidung Robert (12.11.2026) ✅
+- **Fehlerpunkte „X“:** gleiche Bezeichnung in beiden Spielen. LMU liefert Track-Limits-Schritte, Schritte pro Punkt und Schritte pro Strafe → „X 1,5/4“. iRacing liefert die eigenen Strafpunkte und das Disqualifikations-Limit aus den Session-Infos; ob die Grenze für eine Durchfahrtsstrafe auch drinsteht, wird geprüft. Fehlt sie, kann man sie von Hand eintragen. Für Gegner gibt es diese Werte in iRacing nicht.
+- **Strafen:** LMU meldet je Auto die Zahl offener Strafen, aber nicht die Art. iRacing zeigt nur, dass ein Auto die schwarze Flagge hat. Darum vorerst „PEN“ (+ Anzahl in LMU). SG/DT kommen dazu, falls sich eine Quelle findet (z. B. LMU-REST oder Meldungen im Spiel).
+- **Box-Status:** LMU meldet alle vier Zustände direkt. iRacing: „PIT in“, „PIT“, „PIT out“ werden aus Boxengasse + Boxenplatz abgeleitet; „angefordert“ gibt es dort nicht.
