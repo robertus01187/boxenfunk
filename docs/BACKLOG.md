@@ -69,6 +69,7 @@
 | W-30 | Spiel automatisch erkennen (LMU oder iRacing) und das passende Overlay-Preset laden. Beide Presets vorher getrennt einstellbar; im Einstellungsfenster werden nur Bausteine angeboten, die das jeweilige Spiel liefern kann (andere ausgegraut mit Hinweis) | Robert | ja | ja | mittel | T2 Erkennung, T3/T7 Presets | ✅ |
 | W-31 | Herstellerlogos statt Kürzel: App wird ohne Logos ausgeliefert, lädt sie aus einem Logo-Ordner, den der Nutzer selbst füllt (eine Datei pro Marke); fehlt ein Logo, wird das Kürzel gezeigt. Braucht Zuordnung Fahrzeug → Marke | Design-Thread / Robert | ja | ja | klein | T4 | 💡 |
 | W-32 | Sektorzeiten: je Sektor die Zeit, farbig mit +/−-Wert: grün = schneller als meine Bestzeit, rot = langsamer, lila = schnellster Sektor im Feld | Robert | ja | ja | mittel | T4/T7 | ✅ |
+| W-33 | Pedal-Input-Graphen (Gas, Bremse, Kupplung, Lenkung) nach Vorbild TinyPedal, im eigenen Overlay-Stil | Robert | ja | ja | mittel | nach 1.0 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -128,3 +129,8 @@
 
 ### W-32 Sektorzeiten ✅
 - LMU liefert Sektorzeiten für alle Autos. iRacing liefert keine fertigen Sektorzeiten; die App misst sie selbst über die Position auf der Strecke (Sektorgrenzen stehen in den Session-Infos).
+
+### W-33 Pedal-Input-Graphen ✅
+- **Rechtlich:** TinyPedal steht unter GPLv3, Boxenfunk auch. Code übernehmen ist erlaubt, wenn TinyPedal als Quelle genannt wird.
+- **Technisch:** Die Zeichen-Logik aus TinyPedal passt (gleiche Technik, Python + Qt). Die Datenquelle ist unsere eigene Datenschicht; für iRacing gibt es bei TinyPedal nichts, das kommt von uns. Graphen brauchen eine schnellere Aktualisierung (ca. 30–60 Mal pro Sekunde statt 10), das wird nur für dieses Widget erhöht.
+- **Hinweis:** Im ursprünglichen Projektplan waren Input-Graphen ausgeschlossen („dafür bleibt TinyPedal“). Mit diesem Wunsch kommen sie dazu, als Erweiterung nach 1.0.
