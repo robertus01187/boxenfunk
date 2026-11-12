@@ -139,5 +139,10 @@ mit Knopf „zurück auf Standard“. Noch nicht im Muster umgesetzt.
   Ist ein Widget ausgeblendet, zeigt die Vorschau einen Hinweis statt des Widgets.
 - Nässe: LMU in Prozent, iRacing nur als Stufe (trocken, meist trocken, kaum feucht,
   leicht feucht, feucht, sehr nass, extrem nass).
-- LMU hat keine Strafpunkte, dafür Track-Limits-Baustein „TL 2/4“ (W-36). Strafpunkte bleiben iRacing.
+- Fehlerpunkte „X“ (W-36, nur eigenes Auto, Kopfzeile): LMU „X 1,5/4“ (Track-Limits-Punkte / Strafe ab),
+  iRacing „X 6/17/25“ (Strafpunkte / Strafe ab / Disqualifikation ab).
+- Offene Strafe je Auto (W-37): rotes Schild „PEN“, bei LMU mit Anzahl („PEN 2“). SG/DT nicht anzeigen.
+- Box-Status je Auto (W-39), in der Box-Spalte bzw. als Schild beim Namen: „PIT req“ (gelber Rahmen,
+  nur LMU), „PIT in“ (blau blass), „PIT“ (blau), „PIT out“ (grün blass); einzeln abschaltbar.
+  Neue Spalte „Stopps“ (Anzahl Boxenstopps). Team/Fahrer (W-38) und DNF (W-40) nicht gewünscht.
 - Wettervorhersage nur LMU (bestätigt).
