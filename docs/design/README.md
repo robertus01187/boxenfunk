@@ -142,7 +142,9 @@ mit Knopf „zurück auf Standard“. Noch nicht im Muster umgesetzt.
 - Fehlerpunkte „X“ (W-36, nur eigenes Auto, Kopfzeile): LMU „X 1,5/4“ (Track-Limits-Punkte / Strafe ab),
   iRacing „X 6/17/25“ (Strafpunkte / Strafe ab / Disqualifikation ab).
 - Offene Strafe je Auto (W-37): rotes Schild „PEN“, bei LMU mit Anzahl („PEN 2“). SG/DT nicht anzeigen.
-- Box-Status je Auto (W-39), in der Box-Spalte bzw. als Schild beim Namen: „PIT req“ (gelber Rahmen,
-  nur LMU), „PIT in“ (blau blass), „PIT“ (blau), „PIT out“ (grün blass); einzeln abschaltbar.
+- Box-Status je Auto (W-39): immer einheitlich „PIT“ mit farbigem Leuchten (Verlauf + Unterstrich),
+  die Farbe zeigt den Zustand. Farbe und an/aus legt der Nutzer fest. Standard: rot `#e2493b` fährt in die
+  Box, gelb `#d4ae2c` steht in der Box, grün `#1fbf4a` fährt raus, blau `#2f7dff` Box angefordert
+  (standardmäßig aus, nur LMU). Ohne Box-Zustand: „PIT“ + Runden seit Stopp, blass ohne Leuchten.
   Neue Spalte „Stopps“ (Anzahl Boxenstopps). Team/Fahrer (W-38) und DNF (W-40) nicht gewünscht.
 - Wettervorhersage nur LMU (bestätigt).
