@@ -159,3 +159,15 @@ Zwei Entwürfe; **Robert hat am 2026-11-12 Entwurf A (Seitenleiste) komplett gew
 - **B · Eine Seite:** Spiele als Reiter oben, darunter Preset-Leiste (Auswahl, Neu, Kopieren, Umbenennen,
   Mehr …), Widgets als kompakte Liste, Statuszeile mit „Overlay verschieben“, Einstellungen klappen rechts herein.
 - Beide: Spiel wird erkannt, aktives Preset geladen. Löschen immer mit Rückfrage; letztes Preset nicht löschbar.
+
+**Gestaltung von A (2026-11-12, gleicher Look wie die Einstellungsfenster):**
+- Titelleiste: Logo-Zeichen, „BOXEN**FUNK**“ (FUNK in Bernstein), Versions-Plakette.
+- Seitenleiste: Spiel-Schalter LMU / iRacing (blau = aktiv), Bereiche mit Zähler (Widgets „5/7“ an, Presets),
+  unten Status-Karte (grüner Punkt = Spiel läuft, welches Preset geladen ist) und blauer Knopf
+  „Overlay verschieben“ mit Tastenkürzel Strg+F10.
+- Widgets: Kacheln mit Karo-Hintergrund (= durchsichtig) und kleiner echter Vorschau des Widgets,
+  Name, An/Aus-Schalter (grün), Situations-Buchstaben T Q R W G (blau = dort sichtbar), Knopf „Bearbeiten“.
+  Ausgeschaltete Widgets: Vorschau abgedunkelt.
+- Presets: Tabelle, aktives Preset markiert; Umbenennen direkt in der Zeile; Löschen mit Rückfrage in der Zeile.
+- Einstellungen: Gruppen Allgemein, Overlay (Standard-Schrift und -Größe, Tastenkürzel), Spiele
+  (automatisch erkennen, Logo-Ordner, Recorder).
