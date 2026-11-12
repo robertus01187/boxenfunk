@@ -5,7 +5,7 @@
 **Stand:** 2026-11-12 · **Version:** 0.0.1 · **Letzter Thread:** T0 Kickoff & Setup
 
 ## Erledigt
-- T0: Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
+- T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
   `--quit-after`), CI (ruff + pytest auf ubuntu + windows), Release-Workflow (PyInstaller-exe; neue Version in
   `pyproject.toml` + Push nach main → Release `vX.Y.Z` wird automatisch angelegt, inkl. Smoke-Test der exe), ADR-001, GPLv3-Lizenz.
 
@@ -14,7 +14,7 @@
 |---|---|---|
 | D1 | Python 3.12 + PySide6 | ✅ |
 | D2 | exe-Build über GitHub Actions | ✅ |
-| D3 | Lizenz GPL-3.0-or-later | ✅ (vorläufig, Bestätigung Nutzer ausstehend) |
+| D3 | Lizenz GPL-3.0-or-later | ✅ (Nutzer bestätigt 2026-11-12) |
 | D4 | Repo öffentlich | ✅ (Nutzer hat es öffentlich angelegt) |
 
 ## Nächster Schritt
