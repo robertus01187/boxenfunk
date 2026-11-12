@@ -90,3 +90,20 @@ Lizenz/Rating: vorerst ausgeblendet (siehe Abschnitt 7).
 - Bekannt (Standings): nur iRacing = Strafpunkte/Limit, SOF, Lizenz/Rating. Alles andere: beide.
   Wird mit echten Aufnahmen weiter geprüft.
 - Lizenz/Rating ist laut Robert (2026-11-12) vorerst bei beiden ausgeblendet.
+
+## 8. Relative (Entwurf 2026-11-12)
+
+Muster: Artifact „Boxenfunk Relative“ (Quelle im Projektordner `design/relative-einstellungen.html`;
+wegen der Herstellerlogos nicht im Repo).
+
+- Reiter: Allgemein · Kopfzeile · Fußzeile · Animation · Hintergrund · Sonstiges.
+- Fahrerzeile fest: Platz · Startnummer · Name · Marke · Abstand (s; − = vor mir, + = hinter mir).
+- Einstellbar: Autos vor/hinter mir (Standard 3/3), Autos in der Box zeigen, Kopf-/Fußzeile an/aus,
+  Breite, Farben.
+- Kopf- und Fußzeile: Infos per Ziehen aus der Ablage, je Spiel eigene Auswahl. Kopfzeile
+  linksbündig, Fußzeile über die ganze Breite verteilt (links, Mitte, rechts).
+  Standard Kopf: Öl, Wasser, Sprit %. Standard Fuß: Runde, Uhrzeit, Sitzung + Restzeit
+  (iRacing zusätzlich Strafpunkte und SOF).
+- Farben: eigene Zeile Bernstein `#ffb21e` auf warm getöntem Hintergrund, Auto Runde(n) vor mir
+  rot `#ff8a7a`, Runde(n) hinter mir blau `#7fb8ff`, gleiche Runde weiß. Auto in der Box: blass + „BOX“.
+- Nur iRacing: Strafpunkte, SOF, iRating. Nur LMU: Virtuelle Energie.
