@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "boxenfunk"
-version = "0.0.1"
+version = "0.1.0"
 description = "Sim-Racing-Overlay mit Strategie-Rechner für Le Mans Ultimate und iRacing"
 readme = "README.md"
 license = "GPL-3.0-or-later"
@@ -33,6 +33,7 @@ build = [
 
 [project.scripts]
 boxenfunk = "boxenfunk.app:main"
+boxenfunk-recorder = "boxenfunk.recorder.recorder:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/boxenfunk"]
@@ -52,3 +53,5 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+# Zeilenlänge regelt der Formatierer; lange deutsche Texte/Meldungen sind ok.
+ignore = ["E501"]
