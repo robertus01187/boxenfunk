@@ -71,6 +71,12 @@
 | W-32 | Sektorzeiten: je Sektor die Zeit, farbig mit +/−-Wert: grün = schneller als meine Bestzeit, rot = langsamer, lila = schnellster Sektor im Feld | Robert | ja | ja | mittel | T4/T7 | ✅ |
 | W-33 | Pedal-Input-Graphen (Gas, Bremse, Kupplung, Lenkung) nach Vorbild TinyPedal, im eigenen Overlay-Stil | Robert | ja | ja | mittel | nach 1.0 | ✅ |
 | W-34 | Globale Einstellungen für das ganze Overlay: Schriftgröße und Schriftart gelten als Standard für jedes Widget, bis sie im Widget selbst geändert werden (dann gilt dort der eigene Wert, mit „zurück auf Standard“) | Robert | ja | ja | klein | T3 | ✅ |
+| W-35 | Spielsituation erkennen (Training, Quali, Warm-up, Rennen, Wiederholung, Garage, Hauptmenü) und jedes Widget je Situation ein-/ausblenden und anpassen | Robert | ja (Wiederholung prüfen) | ja | mittel | T2 Erkennung, T3/T7 Einstellungen | ✅ |
+| W-36 | Track-Limits-Punkte statt Strafpunkte in LMU (z. B. „2/4“ bis zur nächsten Strafe), Kopfzeile Standings/Relative | Claude | ja | – | klein | T4 | 💡 |
+| W-37 | Markierung „offene Strafe“ bei einem Auto in Standings/Relative | Claude | ja | teilweise | klein | T4 | 💡 |
+| W-38 | Aktueller Fahrer bei Teamrennen: Teamname + wer gerade fährt | Claude | ja | ja | klein | T4 | 💡 |
+| W-39 | Box-Status genauer (LMU): „Box angefordert“, „fährt rein“, „steht“, „fährt raus“; Anzahl Stopps je Auto | Claude | ja | teilweise | klein | T4 | 💡 |
+| W-40 | Ausgefallene Autos (DNF, disqualifiziert) markieren statt normal weiterführen | Claude | ja | ja | klein | T4 | 💡 |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -135,3 +141,43 @@
 - **Rechtlich:** TinyPedal steht unter GPLv3, Boxenfunk auch. Code übernehmen ist erlaubt, wenn TinyPedal als Quelle genannt wird.
 - **Technisch:** Die Zeichen-Logik aus TinyPedal passt (gleiche Technik, Python + Qt). Die Datenquelle ist unsere eigene Datenschicht; für iRacing gibt es bei TinyPedal nichts, das kommt von uns. Graphen brauchen eine schnellere Aktualisierung (ca. 30–60 Mal pro Sekunde statt 10), das wird nur für dieses Widget erhöht.
 - **Hinweis:** Im ursprünglichen Projektplan waren Input-Graphen ausgeschlossen („dafür bleibt TinyPedal“). Mit diesem Wunsch kommen sie dazu, als Erweiterung nach 1.0.
+
+### W-35 Spielsituation erkennen ✅ (Robert, 12.11.2026)
+| Situation | LMU | iRacing |
+|---|---|---|
+| Training / Quali / Warm-up / Rennen | ja (`mSession`) | ja (Sitzungsart in den Session-Infos) |
+| Garage / Box-Menü | ja (`mInGarageStall`, `mInRealtime`) | ja (`IsInGarage`, `IsOnTrack`) |
+| Wiederholung | **offen**: kein eindeutiges Feld bekannt, muss mit einer Aufnahme während einer Wiederholung geprüft werden | ja (`IsReplayPlaying`) |
+| Hauptmenü / Ladebildschirm | ja (`mOptionsLocation`) | ja (Spiel verbunden, aber keine Sitzung) |
+
+Pro Widget und Spiel eine Tabelle „Situation → an/aus + eigene Einstellungen“.
+
+## Datenprüfung Standings und Relative (12.11.2026)
+
+Grundlage: Design-Regeln `docs/design/README.md` (Design-Thread) und die LMU-Datenstruktur `adapters/lmu/lmu_data.py`.
+iRacing nach offizieller SDK-Variablenliste. „prüfen“ = Feld vorhanden, Verhalten mit echter Aufnahme bestätigen.
+
+| Baustein | LMU | iRacing | Bemerkung |
+|---|---|---|---|
+| Sitzung, Zeit gefahren/Rest, Uhrzeit im Spiel | ja | ja | |
+| Runden / ≈ gesamt | ja | ja | Gesamtrunden bei Zeitrennen geschätzt |
+| Strafpunkte / Limit | **nein** → W-36 Track-Limits-Punkte | ja | |
+| SOF | nein | ja | aus iRatings berechnet |
+| Lizenz / Rating | nein | ja | vorerst bei beiden ausgeblendet |
+| Auto, Luft-, Streckentemperatur | ja | ja | |
+| Nässe in % | ja | **nur Stufen** | iRacing meldet „trocken, leicht feucht … nass“ statt Prozent → als Stufe anzeigen |
+| Platz, Startnummer, Name, Klasse | ja | ja | |
+| Plätze ± seit Start | ja | ja | Startplatz LMU `mQualification`, iRacing aus Quali-Ergebnis |
+| Hersteller | ja | ja | über Fahrzeugname → Marke (W-31) |
+| Abstand Führender / Vordermann | ja | ja | |
+| Letzte Runde, eigene Bestzeit, Schnellste im Feld | ja | ja | |
+| Reifenmischung | ja (prüfen bei Gegnern) | ja | |
+| Box-Info (Runden seit Stopp, Stint) | ja | ja | selbst mitgezählt |
+| Trend (3 Runden) | ja | ja | selbst gerechnet |
+| Gegner-VE (Relative) | ja | nein | |
+| Öl-, Wassertemperatur, Sprit % (Relative-Kopf) | ja | ja | nur eigenes Auto |
+| iRating (Relative) | nein | ja | |
+| Sektorzeiten (W-32) | ja | selbst gemessen | |
+| Wettervorhersage | ja (nur über REST, selten abfragen) | nein | |
+
+Ergebnis: Kein Baustein im Entwurf ist unmöglich. Anpassen: Nässe bei iRacing als Stufe; LMU bekommt statt Strafpunkten die Track-Limits-Punkte (W-36). Neue mögliche Bausteine: W-36 bis W-40.
