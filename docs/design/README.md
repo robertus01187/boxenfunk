@@ -78,4 +78,15 @@ Kein Kronen-Symbol (aus der Vorlage gestrichen, Robert 2026-11-12).
 Zeilen: „Zeilen 3 | 5“ = 3 Führende + 5 um mich herum; fehlt ein Platz dazwischen, werden zwei
 Blöcke gezeigt. „Andere Klassen 1 | 3“ = gleiches Prinzip für jede weitere Klasse.
 
-Offene Frage: Lizenz/Rating gibt es so nur bei iRacing; Darstellung bei LMU noch klären.
+Lizenz/Rating: vorerst ausgeblendet (siehe Abschnitt 7).
+
+## 7. Zwei Voreinstellungen: LMU und iRacing
+
+- Jedes Einstellungsfenster hat oben links den Schalter „Voreinstellung für LMU | iRacing“.
+  Beide Voreinstellungen werden getrennt eingestellt und gespeichert.
+- Boxenfunk erkennt später, welches Spiel läuft, und lädt automatisch die passende Voreinstellung.
+- Bausteine, die es im gewählten Spiel nicht gibt, liegen durchgestrichen und blass in der Ablage
+  und lassen sich nicht hineinziehen.
+- Bekannt (Standings): nur iRacing = Strafpunkte/Limit, SOF, Lizenz/Rating. Alles andere: beide.
+  Wird mit echten Aufnahmen weiter geprüft.
+- Lizenz/Rating ist laut Robert (2026-11-12) vorerst bei beiden ausgeblendet.

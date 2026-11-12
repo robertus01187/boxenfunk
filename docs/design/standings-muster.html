@@ -17,6 +17,10 @@ body{background:var(--win);color:var(--txt);font-family:var(--ui);margin:0;
   padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .win{max-width:1240px;margin:0 auto;border:1px solid var(--line);border-radius:8px;background:var(--win);overflow:hidden}
 .titlebar{display:flex;align-items:center;justify-content:center;position:relative;padding:10px 12px 6px;font-weight:700;font-size:17px}
+.titlebar .game{position:absolute;left:12px;display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600;color:var(--txt-dim)}
+.titlebar .game .seg button{padding:3px 10px;font-size:13px}
+.chip.na{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+@media (max-width:900px){.titlebar{flex-direction:column;gap:8px}.titlebar .game{position:static}}
 .titlebar .wc{position:absolute;right:12px;display:flex;gap:16px;color:var(--txt-dim);font-weight:400}
 .tabs{display:flex;justify-content:center;flex-wrap:wrap;padding:4px 8px 10px;border-bottom:1px solid var(--line)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex-wrap:wrap}
@@ -86,7 +90,7 @@ input[type=color]{width:48px;height:30px;border:1px solid var(--line);background
 .c-pit.yel{background:linear-gradient(90deg,transparent,#a8862099 45%,transparent);box-shadow:inset 0 -3px 0 #d4ae2c}
 .c-pit.stint{color:#f1c84b}
 .c-tr{width:2em;padding:0 3px}
-.inf{font-size:1.35em;line-height:1}
+.inf{font-size:1.2em;width:1.67em;line-height:1}
 .g{color:var(--gain)}.l{color:var(--loss)}
 .arrow{width:.85em;height:.85em}
 .flash{animation:fl 1.2s ease}
@@ -98,7 +102,7 @@ input[type=color]{width:48px;height:30px;border:1px solid var(--line);background
 </style>
 
 <div class="win">
-  <div class="titlebar">Standings — Einstellungen <span class="wc" aria-hidden="true">–&nbsp; ☐ &nbsp;✕</span></div>
+  <div class="titlebar">Standings — Einstellungen <span class="game"><span class="gl">Voreinstellung für</span><span class="seg" id="game"><button data-g="lmu" aria-pressed="true">LMU</button><button data-g="ir">iRacing</button></span></span><span class="wc" aria-hidden="true">–&nbsp; ☐ &nbsp;✕</span></div>
   <div class="tabs"><div class="seg" id="tabs" role="tablist">
     <button data-tab="general" aria-pressed="true">Allgemein</button>
     <button data-tab="header">Kopfzeile</button>
@@ -200,7 +204,7 @@ input[type=color]{width:48px;height:30px;border:1px solid var(--line);background
       <div class="chk preview" id="preview"><div class="ov" id="ov"></div></div>
     </div>
 
-    <div class="note"><b>Muster, kein fertiges Programm.</b> Alle Werte sind Beispieldaten. Die Schachbrett-Fläche steht für „durchsichtig“: dort sieht man später das Spiel. Position und Größe des Overlays stellst du später direkt auf dem Bildschirm mit der Maus ein, deshalb fehlen sie hier.</div>
+    <div class="note"><b>Muster, kein fertiges Programm.</b> Alle Werte sind Beispieldaten. Die Schachbrett-Fläche steht für „durchsichtig“: dort sieht man später das Spiel. Position und Größe des Overlays stellst du später direkt auf dem Bildschirm mit der Maus ein, deshalb fehlen sie hier.<br><b>Zwei Voreinstellungen:</b> Oben links wählst du LMU oder iRacing. Beide stellst du getrennt ein, später lädt Boxenfunk automatisch die passende, je nachdem welches Spiel läuft. Durchgestrichene Bausteine gibt es im gewählten Spiel nicht (z.&nbsp;B. Strafpunkte, SOF und Lizenz/Rating nur bei iRacing).</div>
   </div>
 </div>
 
@@ -235,9 +239,16 @@ const HDR={
  sess:['R','Sitzung (Q/R)'], time:['11:06:40/≈22h13m','gefahrene / geschätzte Restzeit'], laps:['182/≈459','Runden / geschätzt gesamt'],
  inc:['⚠ 28/34','Strafpunkte / Limit'], sof:['SOF 4.5k','Stärke des Feldes']
 };
-const DEF={hdrActive:['sess','time','laps','inc','sof'],colActive:['pos','gain','num','name','mk','lic','gap','int','last','tyre','pit','tr'],
+// Was gibt es nur in einem Spiel? (alles andere: beide)
+const ONLY={lic:'ir',inc:'ir',sof:'ir'};
+const GNAME={lmu:'LMU',ir:'iRacing'};
+const DEF={hdrActive:['sess','time','laps','inc','sof'],colActive:['pos','gain','num','name','mk','gap','int','last','tyre','pit','tr'],
  hsize:3,dsize:3,font:'"Exo 2"',cond:true,showhdr:true,rowsTop:3,rowsMe:5,op:88,tint:50,lo:12,le:17,hl:8,align:0,cg:'#52e05a',cl:'#ff7a62',pmode:1,animCar:2};
-let S=JSON.parse(JSON.stringify(DEF));
+const clone=o=>JSON.parse(JSON.stringify(o));
+const PRESETS={lmu:clone(DEF),ir:clone(DEF)};
+PRESETS.lmu.hdrActive=PRESETS.lmu.hdrActive.filter(k=>!ONLY[k]);
+let GAME='lmu', S=PRESETS[GAME];
+const avail=k=>!ONLY[k]||ONLY[k]===GAME;
 const SIZES=[13,15,17,19];
 
 function cell(k,r){
@@ -314,6 +325,7 @@ function chips(poolId,actId,dict,key){
  const pool=$('#'+poolId),act=$('#'+actId);
  const draw=()=>{act.innerHTML='';pool.innerHTML='';
   Object.keys(dict).forEach(k=>{const c=document.createElement('span');c.className='chip';c.draggable=true;c.dataset.k=k;c.textContent=dict[k][0];c.title=dict[k][1]+' (Doppelklick = ein/aus)';
+   if(!avail(k)){c.classList.add('na');c.draggable=false;c.title=dict[k][1]+' – gibt es in '+GNAME[GAME]+' nicht';pool.appendChild(c);return}
    c.ondragstart=e=>{e.dataTransfer.setData('text/plain',k);c.classList.add('dragging')};c.ondragend=()=>c.classList.remove('dragging');
    c.ondblclick=()=>{const a=S[key];a.includes(k)?a.splice(a.indexOf(k),1):a.push(k);draw();render()};
    if(!S[key].includes(k))pool.appendChild(c)});
@@ -322,12 +334,22 @@ function chips(poolId,actId,dict,key){
    n.ondragstart=e=>{e.dataTransfer.setData('text/plain',k);n.classList.add('dragging')};n.ondragend=()=>n.classList.remove('dragging');
    n.ondblclick=()=>{S[key].splice(S[key].indexOf(k),1);draw();render()};act.appendChild(n)});};
  const zone=(el,isAct)=>{el.ondragover=e=>{e.preventDefault();el.classList.add('over')};el.ondragleave=()=>el.classList.remove('over');
-  el.ondrop=e=>{e.preventDefault();el.classList.remove('over');const k=e.dataTransfer.getData('text/plain');if(!dict[k])return;
+  el.ondrop=e=>{e.preventDefault();el.classList.remove('over');const k=e.dataTransfer.getData('text/plain');if(!dict[k]||!avail(k))return;
    const a=S[key];const i=a.indexOf(k);if(i>-1)a.splice(i,1);
    if(isAct){const t=e.target.closest('.chip');let at=a.length;if(t&&t.dataset.k!==k){at=a.indexOf(t.dataset.k);const r=t.getBoundingClientRect();if(e.clientX>r.left+r.width/2)at++}a.splice(at,0,k)}
    draw();render()}};
- zone(pool,false);zone(act,true);draw();
+ zone(pool,false);zone(act,true);draw();REDRAW.push(draw);
 }
+const REDRAW=[];
 chips('hdrPool','hdrActive',HDR,'hdrActive');chips('colPool','colActive',COLS,'colActive');
+// Spiel umschalten = andere Voreinstellung laden
+function syncUI(){
+ ['showhdr','cond'].forEach(id=>$('#'+id).checked=S[id]);
+ ['font','rowsTop','rowsMe','op','tint','lo','le','hl','cg','cl'].forEach(id=>$('#'+id).value=S[id]);
+ $$('[data-seg]').forEach(seg=>{const v=S[seg.dataset.seg];if(v==null)return;[...seg.children].forEach((b,i)=>b.setAttribute('aria-pressed',i===v))});
+ REDRAW.forEach(f=>f());setMode();
+}
+$$('#game button').forEach(b=>b.onclick=()=>{$$('#game button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ const pm=S.pmode;GAME=b.dataset.g;S=PRESETS[GAME];S.pmode=pm;syncUI()});
 setMode();
 </script>
