@@ -116,7 +116,7 @@ Muster als Artifacts „Boxenfunk Inputs“, „Boxenfunk Wetter“, „Boxenfun
 - **Inputs:** laufender Graph (Zeitfenster 3–15 s) für Gas grün `#3ddc54`, Bremse rot `#ff4141`,
   Kupplung blau `#4aa3ff`, Lenkung grau `#d6d6d6` (je an/aus, Farbe frei). Bremslinie wird gelb
   `#ffd21a`, wenn ABS eingreift; Gaslinie ebenso bei TC (vorerst nur LMU). Rechts Balken in %,
-  daneben Gang, Tempo (km/h oder mph) und ein Lenkrad-Symbol, das mitdreht.
+  daneben Gang, Tempo (km/h oder mph) und ein Lenkrad, das mitdreht: Form Rund, F1 oder GT, Größe per Regler.
 - **Wetter:** Kacheln, per Ziehen wählbar: Wetter jetzt (Symbol), Luft, Strecke, Nässe (mit Balken),
   Regen, Wind (Pfeil relativ zum Auto), Bewölkung, Luftfeuchte, Vorhersage (vorerst nur LMU),
   Verlauf Streckentemperatur. Waagerecht oder senkrecht. Regen-Warnung lässt das Overlay kurz
