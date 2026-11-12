@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+*.spec
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Telemetrie-Aufzeichnungen sind zu groß fürs Repo (kleine Ausschnitte → tests/fixtures/)
+recordings/
+*.jsonl.gz
+
+# Lokale Nutzereinstellungen
+config/user/
+*.log

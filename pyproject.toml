@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "boxenfunk"
+version = "0.0.1"
+description = "Sim-Racing-Overlay mit Strategie-Rechner für Le Mans Ultimate und iRacing"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [{ name = "robertus01187" }]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Games/Entertainment :: Simulation",
+]
+dependencies = [
+    "PySide6-Essentials>=6.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "pytest-qt>=4.4",
+    "ruff>=0.6",
+]
+build = [
+    "pyinstaller>=6.10",
+]
+
+[project.scripts]
+boxenfunk = "boxenfunk.app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/boxenfunk"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+qt_api = "pyside6"
+
+[tool.coverage.run]
+source = ["boxenfunk"]
+omit = ["*/overlay/*", "*/app.py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]

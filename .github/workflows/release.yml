@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Installieren
+        run: pip install ".[dev,build]"
+      - name: Tests
+        run: pytest
+      - name: exe bauen
+        run: pyinstaller --noconfirm --onefile --windowed --name Boxenfunk packaging/launcher.py
+      - name: exe-Smoke-Test (startet und beendet sich selbst)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist/Boxenfunk.exe -ArgumentList "--quit-after","3000" -PassThru -Wait
+          if ($p.ExitCode -ne 0) { throw "Boxenfunk.exe Exit-Code $($p.ExitCode)" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Boxenfunk-exe
+          path: dist/Boxenfunk.exe
+      - name: GitHub-Release anlegen
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/Boxenfunk.exe
+          generate_release_notes: true
