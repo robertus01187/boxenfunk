@@ -130,3 +130,14 @@ Muster als Artifacts „Boxenfunk Inputs“, „Boxenfunk Wetter“, „Boxenfun
 Schriftart und Schriftgröße gibt es auch global für alle Widgets. Im Widget-Fenster muss sichtbar
 sein, ob ein Wert vom globalen Standard kommt oder eigen ist (z. B. kleiner Punkt/„Standard“-Hinweis),
 mit Knopf „zurück auf Standard“. Noch nicht im Muster umgesetzt.
+
+## 11. Spielsituation (W-35) und Datenprüfung (2026-11-12)
+
+- Jedes Einstellungsfenster hat unter dem Titel den Schalter „Spielsituation“:
+  Training · Quali · Rennen · Wiederholung · Garage, plus Haken „In dieser Situation zeigen“.
+  Einstellungen gelten je Spiel **und** Situation. Standard: überall an, außer Garage.
+  Ist ein Widget ausgeblendet, zeigt die Vorschau einen Hinweis statt des Widgets.
+- Nässe: LMU in Prozent, iRacing nur als Stufe (trocken, meist trocken, kaum feucht,
+  leicht feucht, feucht, sehr nass, extrem nass).
+- LMU hat keine Strafpunkte, dafür Track-Limits-Baustein „TL 2/4“ (W-36). Strafpunkte bleiben iRacing.
+- Wettervorhersage nur LMU (bestätigt).
