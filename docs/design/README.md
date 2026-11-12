@@ -152,7 +152,7 @@ mit Knopf „zurück auf Standard“. Noch nicht im Muster umgesetzt.
 ## 12. App-Startfenster (Grundriss-Entwürfe 2026-11-12)
 
 Muster: Artifact „Boxenfunk Startfenster“ (Quelle `design/app-startfenster.html` im Projektordner).
-Zwei Entwürfe, Robert wählt noch:
+Zwei Entwürfe; **Robert hat am 2026-11-12 Entwurf A (Seitenleiste) komplett gewählt.** B ist verworfen.
 - **A · Seitenleiste:** links Spiel-Schalter + Bereiche Widgets / Presets / Einstellungen, unten
   „Overlay verschieben“. Widgets als Kacheln (Vorschau, an/aus, Situationen, Bearbeiten).
   Presets als Tabelle mit Aktivieren, Umbenennen, Kopieren, Für anderes Spiel kopieren, Exportieren, Löschen.
