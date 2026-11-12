@@ -45,7 +45,7 @@
 | W-02 | Spar-Ziel: „Spare X % VE pro Runde, dann sparst du einen Stopp“ | Claude | ja | ja | klein | T5 | ✅ |
 | W-03 | Warnung „schnellere Klasse kommt von hinten“ → aufgegangen in W-07 (blaue Flagge mit Meterangabe) | Claude | ja | ja | klein | T4 | ✅ |
 | W-04 | Gegner-Energie in Standings: VE-Stand und „muss noch X-mal an die Box“ | Claude | ja | nein | klein | T4/T6 | ✅ |
-| W-05 | Stint-Übersicht: Runden, Ø-Zeit und Verbrauch je Stint und je Fahrer | Claude | ja | ja | mittel | T6/T7 | 💡 |
+| W-05 | Stint-Übersicht: Runden, Ø-Zeit und Verbrauch je Stint und je Fahrer | Claude | ja | ja | mittel | nach 1.0 | ⏸️ |
 | W-06 | Session-Leiste: Restzeit **und bereits gefahrene Zeit**, Runde, geschätzte Runden bis Rennende, Uhrzeit im Spiel | Claude/Robert | ja | ja | klein | T4 | ✅ |
 | W-07 | Flaggen: Gelb im Sektor, Full Course Yellow, Blaue Flagge (schnellere Klasse oder Überrundung). Bei Gelb und Blau einstellbar mit Abstand in Metern: „+120 m“ = vor mir, „−80 m“ = hinter mir | Claude/Robert | ja | ja | mittel | T4/T7 | ✅ |
 | W-08 | Wetter: Luft- und Streckentemperatur, Regen, Nässe der Strecke in % (wenn nicht trocken), **Vorhersage mit Regenwahrscheinlichkeit** | Claude/Robert | teilweise | offen | mittel | T7 | ✅ |
@@ -53,7 +53,7 @@
 | W-10 | Reifen: Verschleiß, Temperatur, Druck | Claude | ja | teilweise | mittel | nach 1.0 | ⏸️ |
 | W-11 | Radar: Autos direkt neben dir | Claude | ja | teilweise | mittel | nach 1.0 | ⏸️ |
 | W-12 | Streckenkarte mit allen Autos | Claude | ja | teilweise | mittel | nach 1.0 | ⏸️ |
-| W-13 | Team-Ansicht im Browser für Mitfahrer (Stand, Strategie, Stint-Plan) | Claude | ja | ja | groß | nach 1.0 | 💡 |
+| W-13 | Team-Ansicht im Browser für Mitfahrer (Stand, Strategie, Stint-Plan) | Claude | ja | ja | groß | nach 1.0 | ⏸️ |
 | W-18 | Einstellungsfenster je Widget: Reiter oben (Allgemein, Kopfzeile, Fahrerzeile, Animation, Hintergrund, Sonstiges) und darunter eine Live-Vorschau mit Beispieldaten (Training/Quali, Rennen, Animation) | Robert | ja | ja | groß | T3 Gerüst, T7 Ausbau | ✅ |
 | W-19 | Position und Größe jedes Widgets per Maus direkt auf dem Bildschirm ziehen (nicht im Einstellungsfenster) | Robert | ja | ja | mittel | T3 | ✅ |
 | W-20 | Baukasten: Kopfzeile und Fahrerzeile selbst zusammenstellen, Infoblöcke per Ziehen in eine Ablagefläche legen und umsortieren | Robert | ja | ja | groß | T4/T7 | ✅ |
@@ -116,7 +116,7 @@
 - **Zuordnung:** LMU meldet Fahrzeug- und Klassenname, iRacing den Fahrzeugnamen je Auto. Daraus wird per kleiner Tabelle die Marke (z. B. „Porsche 911 GT3 R“ → Porsche). Unbekannte Autos zeigen das Kürzel.
 
 ### Auswahl aus Claudes Vorschlägen (Robert, 12.11.2026)
-- Angenommen: W-02, W-03 (in W-07), W-04, W-06, W-07, W-08, W-09, neu W-32. Zurückgestellt: W-10, W-11, W-12. Noch offen: W-05, W-13.
+- Angenommen: W-02, W-03 (in W-07), W-04, W-06, W-07, W-08, W-09, neu W-32. Zurückgestellt (gemerkt, keine Priorität): W-05, W-10, W-11, W-12, W-13.
 
 ### W-07 Flaggen mit Meterangabe ✅
 - **Blau:** Abstand zum schnelleren Auto hinter mir aus den Streckenpositionen, in beiden Spielen gut machbar.
