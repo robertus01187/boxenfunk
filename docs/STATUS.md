@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-12 · **Version:** 0.1.0 · **Letzter Thread:** T1 Recorder (Umsetzung fertig, Abnahme mit R0 offen)
+**Stand:** 2026-11-12 · **Version:** 0.1.0 · **Letzter Thread:** T1 Recorder (R0 erfolgreich, wartet auf R1)
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
@@ -24,15 +24,14 @@
 | D4 | Repo öffentlich | ✅ (Nutzer hat es öffentlich angelegt) |
 
 ## Nächster Schritt
-- **T1-Abnahme:** Nutzer nimmt R0 (Practice, 5–10 Runden) auf und lädt sie hoch → mit
-  `pruefen --json` auswerten, offene Prüfpunkte in ADR-002 abhaken (VE-Einheit, Gegner-VE, `forced`).
+- R0 aufgenommen und geprüft (siehe ADR-002, Abschnitt „Ergebnis R0“): VE-Einheit, Gegner-VE, Standings ok.
 - R1 (8h Bahrain, 14./15.11.2026) aufnehmen.
 - Danach T2 (Adapter + RaceState; ReplayAdapter baut auf `recorder/delta.py` + `files.read_lines` auf).
 
 ## Offene Punkte
 - Name „Boxenfunk“ behalten?
 - Hotkey/Lenkradknopf zum Ein-/Ausblenden
-- 8h-Rennen allein oder mit Fahrerwechseln?
+- (geklärt) 8h-Rennen: 3 Fahrer mit Wechseln. Anforderung: App soll Fahrerwechsel/Double-Stints selbst erkennen (T5/T6).
 
 ## Hinweise für Claude
 - Diese Session darf keine Tags pushen und keine Releases per API anlegen → Releases entstehen nur über release.yml beim Push nach main.

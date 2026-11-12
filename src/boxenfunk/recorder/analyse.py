@@ -33,6 +33,11 @@ class Lap:
     pit: bool
 
     @property
+    def invalid(self) -> bool:
+        """LMU meldet für ungültige Runden (Track Limits o. Ä.) keine Rundenzeit (mLastLapTime = -1)."""
+        return not self.pit and (self.time is None or self.time <= 0)
+
+    @property
     def ve_used(self) -> float | None:
         if self.ve_start is None or self.ve_end is None:
             return None
@@ -265,6 +270,7 @@ def report(result: dict[str, Any], max_rows: int = 60) -> str:
                 fu = "-" if lap.fuel_used is None else f"{lap.fuel_used:.2f}"
                 w(
                     f"{lap.lap:>4} {_fmt_time(lap.time):>9} {vu:>12} {fu:>9} {'ja' if lap.pit else ''}"
+                    f"{'ungültig' if lap.invalid else ''}"
                 )
         if ses.stops:
             w("Eigene Boxenstopps:")
@@ -285,7 +291,7 @@ def to_json(result: dict[str, Any]) -> dict[str, Any]:
                 "track": ses.track,
                 "minutes": round((ses.last_t - ses.first_t) / 60, 1),
                 "standings": standings(ses.final),
-                "laps": [lap.__dict__ for lap in ses.laps],
+                "laps": [{**lap.__dict__, "invalid": lap.invalid} for lap in ses.laps],
                 "stops": [s.__dict__ for s in ses.stops],
                 "ve_min": min(ses.ve_values) if ses.ve_values else None,
                 "ve_max": max(ses.ve_values) if ses.ve_values else None,
