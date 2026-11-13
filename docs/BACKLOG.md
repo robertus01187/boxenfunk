@@ -83,7 +83,7 @@
 | W-43 | Eigener Fuel-Calculator (separates Widget), intuitiv: „Was muss ich nachtanken, damit ich ins Ziel komme?“ Vorschlag siehe Details | Robert | ja | ja | mittel | T5 | ✅ |
 | W-44 | Abfrage- und Anzeigeraten einstellbar, angelehnt an TinyPedal: Datenrate global, Bildwiederholrate je Widget. Messungen (Verbrauch, Abstände) nutzen immer jeden Datenpunkt, unabhängig von der Anzeigerate. Optional Anzeige der eigenen Rechenlast in den Einstellungen | Robert | ja | ja | klein | T2 Daten, T3 Widgets, T7 Einstellungen | ✅ |
 | W-45 | **Renningenieur-Tool im Browser** für Langstrecke mit Fahrerwechsel: Stints je Fahrer (farbig), Pace, Boxenzeiten, Sprit/VE, Vorschau restlicher Stints, Graphen. Knopf im Startmenü der App öffnet die Seite. Nur aktiv bei Teamrennen | Robert | ja | ja | groß | eigene Phase T8 (siehe Details) | ✅ |
-| W-46 | Rennen online sichern (z. B. Cloudflare) und später wieder aufrufen, mit Zusammenfassung und wichtigen Erkenntnissen | Robert | ja | ja | mittel | T8c | 💡 |
+| W-46 | Rennen online sichern (z. B. Cloudflare) und später wieder aufrufen, mit Zusammenfassung und wichtigen Erkenntnissen | Robert | ja | ja | mittel | T8c | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -237,22 +237,22 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 - Vorschau: wie viele Stints/Runden noch kommen, auf Basis der bisherigen Daten; Strategie-Varianten durchspielen (z. B. Double-Stint ja/nein, wer fährt wann).
 - Graphen zu allem davon.
 
-**Vorschläge Claude (Robert entscheidet):**
-1. Rundenzeit-Verlauf übers ganze Rennen, eingefärbt nach Fahrer, Boxenstopps und Gelbphasen markiert.
-2. Fahrzeit je Fahrer gegen Mindest-/Höchstfahrzeit (Regel einstellbar), Warnung bei Überschreitung.
-3. Konstanz je Fahrer (wie stark streuen die Runden), nicht nur Ø und Bestzeit.
-4. Klassenposition im Rennverlauf (Linie), Stopps der direkten Gegner eingezeichnet.
-5. Sprit/VE pro Runde je Fahrer: wer spart, wer verbraucht mehr.
-6. Wetter/Streckentemperatur unter dem Rundenzeit-Graph, um Pace-Änderungen zu erklären.
-7. Notizfeld je Stint fürs Team („Reifen links vorn blockiert“, „ab Runde 120 Regen“).
-8. Fehlerpunkte/Track-Limits je Stint und Fahrer.
+**Zusätze (Robert hat am 13.11.2026 ausgewählt):**
+1. Rundenzeit-Verlauf übers ganze Rennen, eingefärbt nach Fahrer (ohne Markierung von Stopps und Gelbphasen).
+2. Konstanz je Fahrer (wie stark streuen die Runden), nicht nur Ø und Bestzeit.
+3. Klassenposition im Rennverlauf (Linie), Stopps der direkten Gegner eingezeichnet.
+4. Sprit/VE pro Runde je Fahrer: wer spart, wer verbraucht mehr.
+5. Wetter/Streckentemperatur unter dem Rundenzeit-Graph, um Pace-Änderungen zu erklären.
+6. Notizfeld je Stint fürs Team.
+7. Fehlerpunkte/Track-Limits je Stint und Fahrer.
+- Verworfen: Fahrzeit je Fahrer gegen Mindest-/Höchstfahrzeit.
 
-**Phasen (Vorschlag):**
+**Phasen (von Robert bestätigt 13.11.2026):**
 - **T8a Auswertung aus Aufnahmen:** Seite liest eine fertige Aufnahme (z. B. R1, 8h Bahrain). Geht schon nach T2, braucht keine Overlays. Gut zum Testen mit echten Daten.
 - **T8b Live:** während des Rennens laufend aktualisiert, mit Vorschau und Strategie-Varianten (braucht T5/T6).
 - **T8c Online-Archiv:** W-46.
 
-### W-46 Rennen online sichern 💡
+### W-46 Rennen online sichern ✅ (Robert hat schon ein Cloudflare-Konto)
 - **Machbar:** Cloudflare bietet kostenlos Speicher plus kleine Webseiten (Pages/Workers mit Datenbank). Pro Rennen wird nur eine Zusammenfassung (wenige MB) hochgeladen, nicht die ganze Aufnahme.
 - **Dafür nötig:** ein kostenloses Cloudflare-Konto von Robert; Zugriff nur mit Passwort/Link fürs Team, weil Fahrernamen drinstehen.
 - **Bonus:** Derselbe Weg kann während des Rennens den Live-Stand für Teamkollegen bereitstellen (statt Heimnetz).
