@@ -228,3 +228,5 @@ live mit dem laufenden Rennen verbunden, nur aktiv bei Rennen mit Fahrerwechsel.
   „evtl. P6–P8“. Kreis = eine Runde, Punkte = Autos in Klassenfarbe, weiß = ich jetzt, gestrichelt = ich nach Stopp,
   roter Bogen = Boxenverlust, gelb = Unsicherheit. Liste der Nachbarn mit Abstand in s, schnellere Klassen rot.
   Rechnung: Boxenverlust gelernt oder eigener Wert, tanken voll / wie geplant / bis Ziel, Reifen- und Fahrerwechsel einrechnen.
+  Haken „Aus Boxenmenü übernehmen“ (W-50): Reifen-/Fahrerwechsel automatisch, grünes „auto“-Schild; iRacing liefert
+  den Fahrerwechsel nicht → dort von Hand. Die Haken bleiben als Ersatz.
