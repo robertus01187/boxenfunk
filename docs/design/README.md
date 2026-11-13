@@ -171,3 +171,24 @@ Zwei Entwürfe; **Robert hat am 2026-11-12 Entwurf A (Seitenleiste) komplett gew
 - Presets: Tabelle, aktives Preset markiert; Umbenennen direkt in der Zeile; Löschen mit Rückfrage in der Zeile.
 - Einstellungen: Gruppen Allgemein, Overlay (Standard-Schrift und -Größe, Tastenkürzel), Spiele
   (automatisch erkennen, Logo-Ordner, Recorder).
+
+## 13. VE & Sprit, Strategie, Sprit-Rechner (Entwürfe 2026-11-13)
+
+Inputs, Wetter und Delta-Balken hat Robert am 2026-11-13 abgenommen.
+
+- **Standings:** neue Spalte **VE** (nur LMU, in iRacing durchgestrichen): kleiner Balken + Prozent, rot unter 20 %, gelb unter 35 %.
+  Neu in „Allgemein“: Regler **Abstand Top / um mich** (0–30 px), direkt daneben Haken **Schnitt**
+  (an = echte Lücke, das Spiel scheint durch; aus = Lücke mit Hintergrund gefüllt, gestrichelte Linie). Für beide Spiele.
+- **VE & Sprit** (Muster `design/ve-einstellungen.html`): Zeilen VE und Sprit mit Balken, Menge und Restrunden;
+  in LMU wird der knappere Wert gelb markiert. Baustein **+1 Runde**: „Letzte Runde“ neben „Erlaubt (+1)“,
+  grün = passt, rot = „x pro Runde sparen“ (mehr liften). Bausteine per Ziehen & Ablegen. Einstellbar: rechnen mit
+  knapperem Wert / VE / Sprit (iRacing: nur Sprit), Ziel +1 oder +2 Runden, Durchschnitt über 3/5/10 Runden.
+- **Strategie** (Muster `design/strategie-einstellungen.html`): Zeitleiste des Rennens mit Stints in Fahrerfarben
+  (gefahren dunkler, geplant gestreift), Jetzt-Strich, grünes Boxenfenster; Bausteine Nächster Stopp, Standzeit
+  (Tanken/Reifen/Fahrerwechsel), Nach dem Stopp (Position, vor/hinter wem), Fahrerplan (Fahrzeit je Fahrer), Stopps übrig.
+  Fahrerwechsel automatisch erkennen, Doppel-Stints planen. Reiter „Fahrer“ für Farben.
+- **Sprit-Rechner** (Muster `design/sprit-rechner.html`): eigenes Widget. Reiter „Vor dem Rennen planen“ in zwei Schritten
+  (Renndauer in Zeit oder Runden; Rundenzeit, Verbrauch, VE nur LMU, Tank; Knopf „Werte aus letztem Training holen“)
+  → große Ergebnisse: Runden gesamt, Boxenstopps, Runden pro Stint, Stint-Balken, Satz „Starte mit … Du musst n× an die Box“,
+  Tabelle gleicher Stopps zusammengefasst. Live-Widget: „Noch n Stopps“, nächster Stopp (Runde, Menge), Rest, Im Tank,
+  Bedarf bis Ziel, Reicht bis Ziel?. Sicherheits-Reserve in Runden; letzter Stopp nur bis ins Ziel. Taktik gehört ins Strategie-Widget.
