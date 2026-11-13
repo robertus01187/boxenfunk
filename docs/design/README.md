@@ -160,7 +160,7 @@ Zwei Entwürfe; **Robert hat am 2026-11-12 Entwurf A (Seitenleiste) komplett gew
   Mehr …), Widgets als kompakte Liste, Statuszeile mit „Overlay verschieben“, Einstellungen klappen rechts herein.
 - Beide: Spiel wird erkannt, aktives Preset geladen. Löschen immer mit Rückfrage; letztes Preset nicht löschbar.
 
-**Gestaltung von A (2026-11-12, gleicher Look wie die Einstellungsfenster):**
+**Gestaltung von A (2026-11-12, gleicher Look wie die Einstellungsfenster; von Robert am 2026-11-13 abgenommen):**
 - Titelleiste: Logo-Zeichen, „BOXEN**FUNK**“ (FUNK in Bernstein), Versions-Plakette.
 - Seitenleiste: Spiel-Schalter LMU / iRacing (blau = aktiv), Bereiche mit Zähler (Widgets „5/7“ an, Presets),
   unten Status-Karte (grüner Punkt = Spiel läuft, welches Preset geladen ist) und blauer Knopf
