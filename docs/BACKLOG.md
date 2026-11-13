@@ -84,6 +84,8 @@
 | W-44 | Abfrage- und Anzeigeraten einstellbar, angelehnt an TinyPedal: Datenrate global, Bildwiederholrate je Widget. Messungen (Verbrauch, Abstände) nutzen immer jeden Datenpunkt, unabhängig von der Anzeigerate. Optional Anzeige der eigenen Rechenlast in den Einstellungen | Robert | ja | ja | klein | T2 Daten, T3 Widgets, T7 Einstellungen | ✅ |
 | W-45 | **Renningenieur-Tool im Browser** für Langstrecke mit Fahrerwechsel: Stints je Fahrer (farbig), Pace, Boxenzeiten, Sprit/VE, Vorschau restlicher Stints, Graphen. Knopf im Startmenü der App öffnet die Seite. Nur aktiv bei Teamrennen | Robert | ja | ja | groß | eigene Phase T8 (siehe Details) | ✅ |
 | W-46 | Rennen online sichern (z. B. Cloudflare) und später wieder aufrufen, mit Zusammenfassung und wichtigen Erkenntnissen | Robert | ja | ja | mittel | T8c | ✅ |
+| W-47 | „Circle of Doom“ / Box-Ausfahrt-Vorschau: zeigt jederzeit, wo ich lande, wenn ich jetzt an die Box fahre: Platz (Klasse/gesamt) und die Autos direkt vor und hinter mir mit Abstand | Robert | ja | ja | mittel | T6 (Grundversion mit Standard-Boxenverlust ggf. früher) | ✅ |
+| W-48 | Zuschauer-Modus (LMU, Langstrecke): Wenn ein Teamkollege fährt und ich zusehe, Strategie-, Sprit-/VE- und Stint-Daten für unser Auto weiter anzeigen, um mit dem Fahrer zu sprechen | Robert | offen (mit R1 prüfen) | ja | mittel | T5/T6, nach Prüfung mit R1 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -257,3 +259,17 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 - **Dafür nötig:** ein kostenloses Cloudflare-Konto von Robert; Zugriff nur mit Passwort/Link fürs Team, weil Fahrernamen drinstehen.
 - **Bonus:** Derselbe Weg kann während des Rennens den Live-Stand für Teamkollegen bereitstellen (statt Heimnetz).
 - **Hinweis:** Widerspricht dem bisherigen Grundsatz „keine Online-Dienste“ (Projektplan 2.4). Gilt nur für diese freiwillige Funktion, die Overlays bleiben rein lokal.
+
+### W-47 Circle of Doom ✅ (Robert, 13.11.2026)
+- Ist im Kern die Wiedereinstiegs-Prognose aus dem Projektplan (Abschnitt 6.3), nur dauerhaft sichtbar statt erst beim geplanten Stopp.
+- Rechnung: aktueller Abstand zur Box + Boxenverlust (Boxengasse + Standzeit für die geplante Füllmenge, ggf. Fahrerwechsel) → Position der anderen Autos zu diesem Zeitpunkt hochrechnen → Platz und Nachbarn.
+- Anzeige: „Raus auf P7 (Klasse) / P15 gesamt“, darunter die Autos davor/dahinter mit Abstand in Sekunden, schnellere Klasse markiert. Optional als Kreis-/Streckenband-Grafik.
+- Genauigkeit hängt am Boxenverlust: Anfangs Standardwert je Strecke, wird mit jedem Stopp gelernt (W-15). Unsicherheit wird angezeigt (z. B. „P7, evtl. P6–P8“).
+- Beide Spiele liefern die nötigen Daten (Streckenposition und Rundenzeiten aller Autos).
+
+### W-48 Zuschauer-Modus LMU ✅ (Robert, 13.11.2026) – Machbarkeit offen
+- **Was wir wissen:** LMU stellt den Rennstand und die Energie-/Spritwerte **aller** Autos bereit, auch wenn man selbst nicht fährt (Gegner-VE war in R0 sichtbar). Unser eigenes Teamauto ist dann einfach „eins der Autos“ → Rundenzeiten, Abstände, Boxenstopps, VE/Sprit, Reifen sollten auch beim Zusehen gehen.
+- **Was wahrscheinlich fehlt:** Daten, die es nur für das selbst gefahrene Auto gibt (z. B. Pedale, genaue Reifen-/Bremstemperaturen). Für Strategie braucht man die nicht.
+- **Eigenes Auto erkennen:** Beim Zusehen ist man nicht „der Spieler“. Darum: Auto per Startnummer/Teamname festlegen oder automatisch über den Fahrernamen aus früheren Stints.
+- **Prüfung:** Die 8h-Aufnahme R1 läuft auch, wenn Teamkollegen fahren → zeigt direkt, welche Werte beim Zusehen ankommen.
+- iRacing: Beim Zusehen im Teamrennen liefert das SDK die Daten aller Autos ebenso; Sprit des eigenen Teamautos nur, wenn man im Auto sitzt → dort nur eingeschränkt.
