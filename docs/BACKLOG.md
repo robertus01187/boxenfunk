@@ -87,6 +87,7 @@
 | W-47 | „Circle of Doom“ / Box-Ausfahrt-Vorschau: zeigt jederzeit, wo ich lande, wenn ich jetzt an die Box fahre: Platz (Klasse/gesamt) und die Autos direkt vor und hinter mir mit Abstand | Robert | ja | ja | mittel | T6 (Grundversion mit Standard-Boxenverlust ggf. früher) | ✅ |
 | W-48 | Zuschauer-Modus (LMU, Langstrecke): Wenn ein Teamkollege fährt und ich zusehe, Strategie-, Sprit-/VE- und Stint-Daten für unser Auto weiter anzeigen, um mit dem Fahrer zu sprechen | Robert | offen (mit R1 prüfen) | teilweise | mittel | T5/T6, nach Prüfung mit R1 | ✅ |
 | W-49 | Flaggen-Widget als Stapel (erweitert W-07): Grün, Grün mit „PIT“ (Stopp angefordert), Gelb mit Metern vor/hinter mir, Weiß (letzte Runde), Karo (Ziel), Blau mit Metern nach hinten, Orange mit Restrunden bei wenig Sprit/VE. Meter-Reichweite und Sprit-Grenze einstellbar (Standard 2–3 Runden). Nur aktive Flaggen erscheinen, untereinander ohne Überlappen; Stapel als Ganzes verschiebbar, einzelne Flaggen auch | Robert | ja | ja (ohne „PIT“) | mittel | T4 (Flaggen), T5 (Orange) | ✅ |
+| W-50 | Boxeneinstellungen aus LMU lesen (Reifenwechsel, Fahrerwechsel, Füllmenge), damit Circle of Doom und Strategie die Standzeit ohne Haken von Hand richtig rechnen. Haken bleiben als Ersatz | Robert | teilweise (über REST, prüfen) | teilweise | mittel | T5/T6 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -288,3 +289,10 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 
 ### W-04 VE-Anzeige in Standings – Aussehen (Robert, 13.11.2026)
 - Gleich großer Balken, der die Farbe wechselt: grün → gelb-orange ab einstellbarer Grenze → rot, wenn fast leer. Design im Design-Thread.
+
+### W-50 Boxeneinstellungen aus LMU lesen ✅ (Robert, 13.11.2026, über den Design-Thread) – Machbarkeit offen
+- **Shared Memory:** enthält keine Boxenmenü-Einstellungen (in `lmu_data.py` gibt es keine solchen Felder). Daher kann auch die Aufnahme R1 das nicht zeigen.
+- **REST-Schnittstelle von LMU (localhost:6397):** liefert laut Projektplan Boxenstopp-Einstellungen/MFD, voraussichtlich das ganze Boxenmenü (Sprit/VE, Reifen, Fahrer, Reparatur). **Risiko:** Eine frühere Abfrage dieser Art ließ das Menü im Spiel flackern (TinyPedal Issue #116). Deshalb nur selten abfragen (z. B. alle paar Sekunden, nur außerhalb der Box) und abschaltbar.
+- **Prüfen:** kleines Testprogramm für Roberts PC (wie der Recorder), das die REST-Antwort einmal speichert. Danach steht fest, welche Punkte lesbar sind. Geplant vor bzw. in T5.
+- **Ersatz:** Wenn nichts lesbar ist, bleiben die Haken „Reifenwechsel / Fahrerwechsel einrechnen“; zusätzlich lernt die App nach jedem Stopp, ob Reifen/Fahrer gewechselt wurden (Fahrername, Reifenverschleiß zurückgesetzt).
+- iRacing: Die Boxendienste des eigenen Autos (Tanken, Reifen) stehen im SDK (`PitSvFlags`, `PitSvFuel`) → dort wohl direkt lesbar; Fahrerwechsel nicht. Spalte iRacing daher eher „teilweise“, wird mit R2 geprüft.
