@@ -85,7 +85,7 @@
 | W-45 | **Renningenieur-Tool im Browser** für Langstrecke mit Fahrerwechsel: Stints je Fahrer (farbig), Pace, Boxenzeiten, Sprit/VE, Vorschau restlicher Stints, Graphen. Knopf im Startmenü der App öffnet die Seite. Nur aktiv bei Teamrennen | Robert | ja | ja | groß | eigene Phase T8 (siehe Details) | ✅ |
 | W-46 | Rennen online sichern (z. B. Cloudflare) und später wieder aufrufen, mit Zusammenfassung und wichtigen Erkenntnissen | Robert | ja | ja | mittel | T8c | ✅ |
 | W-47 | „Circle of Doom“ / Box-Ausfahrt-Vorschau: zeigt jederzeit, wo ich lande, wenn ich jetzt an die Box fahre: Platz (Klasse/gesamt) und die Autos direkt vor und hinter mir mit Abstand | Robert | ja | ja | mittel | T6 (Grundversion mit Standard-Boxenverlust ggf. früher) | ✅ |
-| W-48 | Zuschauer-Modus (LMU, Langstrecke): Wenn ein Teamkollege fährt und ich zusehe, Strategie-, Sprit-/VE- und Stint-Daten für unser Auto weiter anzeigen, um mit dem Fahrer zu sprechen | Robert | offen (mit R1 prüfen) | ja | mittel | T5/T6, nach Prüfung mit R1 | ✅ |
+| W-48 | Zuschauer-Modus (LMU, Langstrecke): Wenn ein Teamkollege fährt und ich zusehe, Strategie-, Sprit-/VE- und Stint-Daten für unser Auto weiter anzeigen, um mit dem Fahrer zu sprechen | Robert | offen (mit R1 prüfen) | teilweise | mittel | T5/T6, nach Prüfung mit R1 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
