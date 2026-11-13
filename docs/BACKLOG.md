@@ -35,6 +35,7 @@
 | T5 | Sprit-/VE-Rechner |
 | T6 | Strategie-Rechner (Undercut/Normal, Wiedereinstieg, Verkehr) |
 | T7 | Einstellungen, Feinschliff, Version 1.0 |
+| T8 | Renningenieur-Tool im Browser (W-45/W-46) |
 | nach 1.0 | Erweiterungen |
 
 ## Wünsche
@@ -45,7 +46,7 @@
 | W-02 | Spar-Ziel: „Spare X % VE pro Runde, dann sparst du einen Stopp“ | Claude | ja | ja | klein | T5 | ✅ |
 | W-03 | Warnung „schnellere Klasse kommt von hinten“ → aufgegangen in W-07 (blaue Flagge mit Meterangabe) | Claude | ja | ja | klein | T4 | ✅ |
 | W-04 | Gegner-Energie in Standings: VE-Stand und „muss noch X-mal an die Box“ | Claude | ja | nein | klein | T4/T6 | ✅ |
-| W-05 | Stint-Übersicht: Runden, Ø-Zeit und Verbrauch je Stint und je Fahrer | Claude | ja | ja | mittel | nach 1.0 | ⏸️ |
+| W-05 | Stint-Übersicht: Runden, Ø-Zeit und Verbrauch je Stint und je Fahrer → aufgegangen in W-45 | Claude | ja | ja | mittel | nach 1.0 | ✅ (in W-45) |
 | W-06 | Session-Leiste: Restzeit **und bereits gefahrene Zeit**, Runde, geschätzte Runden bis Rennende, Uhrzeit im Spiel | Claude/Robert | ja | ja | klein | T4 | ✅ |
 | W-07 | Flaggen: Gelb im Sektor, Full Course Yellow, Blaue Flagge (schnellere Klasse oder Überrundung). Bei Gelb und Blau einstellbar mit Abstand in Metern: „+120 m“ = vor mir, „−80 m“ = hinter mir | Claude/Robert | ja | ja | mittel | T4/T7 | ✅ |
 | W-08 | Wetter: Luft- und Streckentemperatur, Regen, Nässe der Strecke in % (wenn nicht trocken), **Vorhersage mit Regenwahrscheinlichkeit** | Claude/Robert | teilweise | offen | mittel | T7 | ✅ |
@@ -53,7 +54,7 @@
 | W-10 | Reifen: Verschleiß, Temperatur, Druck | Claude | ja | teilweise | mittel | nach 1.0 | ⏸️ |
 | W-11 | Radar: Autos direkt neben dir | Claude | ja | teilweise | mittel | nach 1.0 | ⏸️ |
 | W-12 | Streckenkarte mit allen Autos | Claude | ja | teilweise | mittel | nach 1.0 | ⏸️ |
-| W-13 | Team-Ansicht im Browser für Mitfahrer (Stand, Strategie, Stint-Plan) | Claude | ja | ja | groß | nach 1.0 | ⏸️ |
+| W-13 | Team-Ansicht im Browser für Mitfahrer (Stand, Strategie, Stint-Plan) → aufgegangen in W-45 | Claude | ja | ja | groß | nach 1.0 | ✅ (in W-45) |
 | W-18 | Einstellungsfenster je Widget: Reiter oben (Allgemein, Kopfzeile, Fahrerzeile, Animation, Hintergrund, Sonstiges) und darunter eine Live-Vorschau mit Beispieldaten (Training/Quali, Rennen, Animation) | Robert | ja | ja | groß | T3 Gerüst, T7 Ausbau | ✅ |
 | W-19 | Position und Größe jedes Widgets per Maus direkt auf dem Bildschirm ziehen (nicht im Einstellungsfenster) | Robert | ja | ja | mittel | T3 | ✅ |
 | W-20 | Baukasten: Kopfzeile und Fahrerzeile selbst zusammenstellen, Infoblöcke per Ziehen in eine Ablagefläche legen und umsortieren | Robert | ja | ja | groß | T4/T7 | ✅ |
@@ -81,6 +82,8 @@
 | W-42 | VE-Widget: Restrunden mit der vorhandenen VE und mit dem Sprit (der knappere Wert zählt). Per Ziehen zuschaltbar: „Verbrauch für +1 Runde“ neben dem tatsächlichen Verbrauch der letzten Runde → sofort sehen, ob mehr geliftet werden muss oder es passt (baut auf W-02 auf) | Robert | ja | ja (nur Sprit) | mittel | T5 | ✅ |
 | W-43 | Eigener Fuel-Calculator (separates Widget), intuitiv: „Was muss ich nachtanken, damit ich ins Ziel komme?“ Vorschlag siehe Details | Robert | ja | ja | mittel | T5 | ✅ |
 | W-44 | Abfrage- und Anzeigeraten einstellbar, angelehnt an TinyPedal: Datenrate global, Bildwiederholrate je Widget. Messungen (Verbrauch, Abstände) nutzen immer jeden Datenpunkt, unabhängig von der Anzeigerate. Optional Anzeige der eigenen Rechenlast in den Einstellungen | Robert | ja | ja | klein | T2 Daten, T3 Widgets, T7 Einstellungen | ✅ |
+| W-45 | **Renningenieur-Tool im Browser** für Langstrecke mit Fahrerwechsel: Stints je Fahrer (farbig), Pace, Boxenzeiten, Sprit/VE, Vorschau restlicher Stints, Graphen. Knopf im Startmenü der App öffnet die Seite. Nur aktiv bei Teamrennen | Robert | ja | ja | groß | eigene Phase T8 (siehe Details) | ✅ |
+| W-46 | Rennen online sichern (z. B. Cloudflare) und später wieder aufrufen, mit Zusammenfassung und wichtigen Erkenntnissen | Robert | ja | ja | mittel | T8c | 💡 |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -221,3 +224,36 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
   2. *Anzeigerate* je Widget: Standard 10-mal pro Sekunde, Inputs/Delta 30–60-mal. Einstellbar wie in TinyPedal.
 - **Genauigkeit:** Verbrauch, Rundenzeiten und Stopp-Erkennung rechnen mit allen gelesenen Datenpunkten, nicht mit dem, was gerade angezeigt wird. Eine langsame Anzeige macht die Messung also nicht ungenauer.
 - **Messwert bisher:** Der Recorder braucht bei 60 Autos und 5 Messungen pro Sekunde ca. 2 % eines Kerns (ADR-002). Grafikkarte: Overlays sind einfache 2D-Fenster, kein messbarer FPS-Verlust erwartet; wird in T3 mit Roberts In-Game-Test geprüft.
+
+### W-45 Renningenieur-Tool ✅ (Robert, 13.11.2026)
+**Wo:** Boxenfunk startet einen kleinen Webserver auf Roberts PC; Knopf „Renningenieur“ im Startmenü der App öffnet die Seite im Browser. Teamkollegen sehen sie über W-46 (Internet) oder im selben Netzwerk.
+**Wann aktiv:** nur bei Teamrennen. Erkennung: LMU wechselnder Fahrername im eigenen Auto bzw. mehrere Fahrer im Team; iRacing meldet Teamrennen direkt.
+
+**Mindestinhalt (Robert):**
+- Stints als farbige Leiste, eine Farbe pro Fahrer; Anzahl Stints gesamt und je Fahrer.
+- Je Stint: Ø-Rundenzeit über alle Runden, schnellste Runde.
+- Zeit in der Box je Stopp (Standzeit und Boxengasse gesamt).
+- Sprit/VE je Stint: verbraucht, Rest beim Stopp („zu viel getankt / zu knapp“ → Empfehlung zur Füllmenge).
+- Vorschau: wie viele Stints/Runden noch kommen, auf Basis der bisherigen Daten; Strategie-Varianten durchspielen (z. B. Double-Stint ja/nein, wer fährt wann).
+- Graphen zu allem davon.
+
+**Vorschläge Claude (Robert entscheidet):**
+1. Rundenzeit-Verlauf übers ganze Rennen, eingefärbt nach Fahrer, Boxenstopps und Gelbphasen markiert.
+2. Fahrzeit je Fahrer gegen Mindest-/Höchstfahrzeit (Regel einstellbar), Warnung bei Überschreitung.
+3. Konstanz je Fahrer (wie stark streuen die Runden), nicht nur Ø und Bestzeit.
+4. Klassenposition im Rennverlauf (Linie), Stopps der direkten Gegner eingezeichnet.
+5. Sprit/VE pro Runde je Fahrer: wer spart, wer verbraucht mehr.
+6. Wetter/Streckentemperatur unter dem Rundenzeit-Graph, um Pace-Änderungen zu erklären.
+7. Notizfeld je Stint fürs Team („Reifen links vorn blockiert“, „ab Runde 120 Regen“).
+8. Fehlerpunkte/Track-Limits je Stint und Fahrer.
+
+**Phasen (Vorschlag):**
+- **T8a Auswertung aus Aufnahmen:** Seite liest eine fertige Aufnahme (z. B. R1, 8h Bahrain). Geht schon nach T2, braucht keine Overlays. Gut zum Testen mit echten Daten.
+- **T8b Live:** während des Rennens laufend aktualisiert, mit Vorschau und Strategie-Varianten (braucht T5/T6).
+- **T8c Online-Archiv:** W-46.
+
+### W-46 Rennen online sichern 💡
+- **Machbar:** Cloudflare bietet kostenlos Speicher plus kleine Webseiten (Pages/Workers mit Datenbank). Pro Rennen wird nur eine Zusammenfassung (wenige MB) hochgeladen, nicht die ganze Aufnahme.
+- **Dafür nötig:** ein kostenloses Cloudflare-Konto von Robert; Zugriff nur mit Passwort/Link fürs Team, weil Fahrernamen drinstehen.
+- **Bonus:** Derselbe Weg kann während des Rennens den Live-Stand für Teamkollegen bereitstellen (statt Heimnetz).
+- **Hinweis:** Widerspricht dem bisherigen Grundsatz „keine Online-Dienste“ (Projektplan 2.4). Gilt nur für diese freiwillige Funktion, die Overlays bleiben rein lokal.
