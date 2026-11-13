@@ -4,7 +4,8 @@ Kostenloses Sim-Racing-Overlay für **Le Mans Ultimate** und **iRacing** mit Sta
 Sprit-/VE-Rechner und Strategie-Rechner (Undercut vs. Normal, Rejoin-Prognose, Verkehrslage).
 
 > Status: **v0.1.0 – Recorder.** Die Overlay-App zeigt bisher nur ein Statusfenster; neu ist der
-> Recorder zum Aufzeichnen von LMU-Rennen ([Anleitung](docs/anleitung-aufnahme.md)).
+> Recorder zum Aufzeichnen von LMU-Rennen ([Anleitung](docs/anleitung-aufnahme.md)) und
+> iRacing-Rennen ([Anleitung](docs/anleitung-iracing.md)).
 > Aktueller Stand: [docs/STATUS.md](docs/STATUS.md)
 
 ## Installation (Windows)

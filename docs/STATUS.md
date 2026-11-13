@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-12 · **Version:** 0.1.0 · **Letzter Thread:** T1 Recorder (Umsetzung fertig, Abnahme mit R0 offen)
+**Stand:** 2026-11-13 · **Version:** 0.2.0 (iRacing-Recorder, noch nicht freigegeben) · **Letzter Thread:** T1 Recorder (Umsetzung fertig, Abnahme mit R0 offen)
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
@@ -14,6 +14,11 @@
   Auswertung `Boxenfunk-Recorder pruefen <Datei|Ordner>` rekonstruiert Standings, eigene Runden/VE,
   Boxenstopps. Format + offene Prüfpunkte: ADR-002. Nutzer-Anleitung: `docs/anleitung-aufnahme.md`.
   Getestet mit simuliertem Multiclass-Rennen (tests/unit/fake_lmu.py), echte Daten fehlen noch.
+
+- iRacing-Recorder (v0.2.0, Branch `claude/project-thread-04uhgp`): `Boxenfunk-iRacing-Recorder.exe`,
+  eigenes Programm + eigener Ordner, gleiches Format (ADR-002 Nachtrag), Auswertung per `pruefen`.
+  Getestet mit simuliertem Rennen, auch über den echten `pyirsdk`-Lesepfad (Speicherabbild). Anleitung:
+  `docs/anleitung-iracing.md`. Echte Aufnahme fehlt noch.
 
 ## Entscheidungen
 | ID | Entscheidung | Status |
@@ -39,7 +44,7 @@
 - Nutzer ist kein Programmierer: einfache Sprache, keine Fachbegriffe.
 
 ## Technische Schulden
-- Recorder nur für LMU; iRacing-Recorder folgt (vor R2).
+- iRacing-Recorder: noch keine echte Aufnahme geprüft.
 - Recorder-Fenster: Status als neue Zeile alle 10 s (kein schönes Live-Feld).
 - exe ist nicht signiert (SmartScreen-Warnung).
 - `--onefile` startet etwas langsamer (Entpacken); ggf. später `--onedir`.

@@ -2,6 +2,19 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.2.0] – 2026-11-13
+### Hinzugefügt
+- `Boxenfunk-iRacing-Recorder.exe`: zeichnet iRacing-Daten (iRacing SDK über `pyirsdk`, nur lesend) auf:
+  alle Autos mit Position, Abstand, Rundenzeiten, Box-Status, Klasse, Auto/Marke, dazu Session-Infos,
+  Wetter und eigenes Auto. Gleiches Dateiformat wie der LMU-Recorder, eigener Ordner
+  `Boxenfunk-Aufnahmen-iRacing`.
+- Auswertung einer iRacing-Aufnahme (`pruefen` oder Datei auf die exe ziehen): Endstand je Klasse,
+  Rundenzeiten aller Autos, Boxenbesuche, eigene Runden mit Sprit.
+- Anleitung `docs/anleitung-iracing.md`.
+
+### Unverändert
+- LMU-Recorder (`Boxenfunk-Recorder.exe`): kein Code geändert.
+
 ## [0.1.0] – 2026-11-12
 ### Hinzugefügt
 - `Boxenfunk-Recorder.exe`: zeichnet Le-Mans-Ultimate-Daten (Shared Memory, nur lesend) für spätere
