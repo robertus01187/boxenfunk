@@ -1,6 +1,6 @@
-"""Boxenfunk-Recorder: zeichnet die LMU-Live-Daten in Dateien auf.
+"""Boxenfunk-LMU-Recorder: zeichnet die LMU-Live-Daten in Dateien auf.
 
-Bedienung für Endnutzer: ``Boxenfunk-Recorder.exe`` doppelklicken, Rennen fahren,
+Bedienung für Endnutzer: ``Boxenfunk-LMU-Recorder.exe`` doppelklicken, Rennen fahren,
 danach Fenster schließen. Die Dateien liegen im Ordner ``Boxenfunk-Aufnahmen`` neben der exe.
 """
 
@@ -271,11 +271,11 @@ def _pause_if_frozen() -> None:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        prog="Boxenfunk-Recorder",
+        prog="Boxenfunk-LMU-Recorder",
         description="Zeichnet Le-Mans-Ultimate-Daten auf. "
-        "'Boxenfunk-Recorder pruefen <Datei oder Ordner>' zeigt eine Zusammenfassung einer Aufnahme.",
+        "'Boxenfunk-LMU-Recorder pruefen <Datei oder Ordner>' zeigt eine Zusammenfassung einer Aufnahme.",
     )
-    p.add_argument("--version", action="version", version=f"Boxenfunk-Recorder {__version__}")
+    p.add_argument("--version", action="version", version=f"Boxenfunk-LMU-Recorder {__version__}")
     p.add_argument("--ordner", type=Path, default=None, help="Zielordner für die Aufnahmen")
     p.add_argument("--hz", type=float, default=5.0, help="Messpunkte pro Sekunde (Standard 5)")
     p.add_argument(
@@ -308,7 +308,7 @@ def main(argv: list[str] | None = None) -> int:
 
     from boxenfunk.adapters.lmu.shm import LmuSharedMemory
 
-    print(f"Boxenfunk-Recorder {__version__}")
+    print(f"Boxenfunk-LMU-Recorder {__version__}")
     print("Liest nur mit, verändert nichts am Spiel. Beenden: Fenster schließen oder Strg+C.")
     print(f"Aufnahmen landen in: {folder}\n")
 

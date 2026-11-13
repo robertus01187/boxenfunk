@@ -30,7 +30,7 @@ darf das Spiel nicht stören und muss auch nach einem Absturz lesbar sein.
    auswerten zu können.
 7. **Rotation** jede Stunde (`<prefix>_<start>_teilNN`), **Durchspülen** alle 5 s (gzip sync flush):
    bei Absturz gehen max. ~5 s verloren, `files.read_lines()` liest abgeschnittene Dateien.
-8. **Auswertung** `Boxenfunk-Recorder pruefen <Datei|Ordner>` (`recorder/analyse.py`): Sessions,
+8. **Auswertung** `Boxenfunk-LMU-Recorder pruefen <Datei|Ordner>` (`recorder/analyse.py`): Sessions,
    Endstand gesamt/Klasse, eigene Runden mit VE-/Sprit-Verbrauch, Boxenstopps, VE-Einheit.
 
 ## Messwerte (synthetisch, 60 Autos)

@@ -4,7 +4,7 @@ Der iRacing-Recorder liest nur mit, was iRacing ohnehin für Overlays bereitstel
 andere Overlay-Programme tun). Er verändert nichts am Spiel und hat keinen Einfluss auf dein Rennen.
 In iRacing musst du **nichts einstellen**.
 
-Der LMU-Recorder (`Boxenfunk-Recorder.exe`) bleibt genau wie er ist. Für iRacing gibt es ein
+Der LMU-Recorder (`Boxenfunk-LMU-Recorder.exe`) bleibt davon unberührt. Für iRacing gibt es ein
 eigenes Programm.
 
 ## Einmalig

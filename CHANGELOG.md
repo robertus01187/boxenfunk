@@ -2,6 +2,12 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.2.1] – 2026-11-13
+### Geändert
+- LMU-Recorder heißt jetzt `Boxenfunk-LMU-Recorder.exe` (vorher `Boxenfunk-Recorder.exe`), damit er
+  neben dem iRacing-Recorder eindeutig ist. Funktion unverändert; Aufnahmen landen weiter in
+  `Boxenfunk-Aufnahmen`.
+
 ## [0.2.0] – 2026-11-13
 ### Hinzugefügt
 - `Boxenfunk-iRacing-Recorder.exe`: zeichnet iRacing-Daten (iRacing SDK über `pyirsdk`, nur lesend) auf:

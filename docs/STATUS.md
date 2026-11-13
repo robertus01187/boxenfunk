@@ -9,9 +9,9 @@
   `--quit-after`), CI (ruff + pytest auf ubuntu + windows), Release-Workflow (PyInstaller-exe; neue Version in
   `pyproject.toml` + Push nach main → Release `vX.Y.Z` wird automatisch angelegt, inkl. Smoke-Test der exe), ADR-001, GPLv3-Lizenz.
 
-- T1 (Umsetzung): `Boxenfunk-Recorder.exe` (Konsole) zeichnet LMU-Shared-Memory mit 5 Hz als
+- T1 (Umsetzung): `Boxenfunk-LMU-Recorder.exe` (Konsole) zeichnet LMU-Shared-Memory mit 5 Hz als
   `.jsonl.gz` auf (nur Änderungen, Keyframe/60 s, Rotation/Stunde, Rohkopie/5 min, absturzsicher).
-  Auswertung `Boxenfunk-Recorder pruefen <Datei|Ordner>` rekonstruiert Standings, eigene Runden/VE,
+  Auswertung `Boxenfunk-LMU-Recorder pruefen <Datei|Ordner>` rekonstruiert Standings, eigene Runden/VE,
   Boxenstopps. Format + offene Prüfpunkte: ADR-002. Nutzer-Anleitung: `docs/anleitung-aufnahme.md`.
   Getestet mit simuliertem Multiclass-Rennen (tests/unit/fake_lmu.py), echte Daten fehlen noch.
 
