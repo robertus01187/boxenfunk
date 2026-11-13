@@ -214,3 +214,17 @@ live mit dem laufenden Rennen verbunden, nur aktiv bei Rennen mit Fahrerwechsel.
   mit Stopps, Stints, Zeitunterschied; Klick zeigt Variante in Leiste und Tabelle.
 - Hinweise vom Renningenieur (aus den Daten berechnet), Knöpfe „Rennen speichern“ / „Zusammenfassung teilen“ (später).
 - Fahrerfarben (geprüft auf Farbsehschwäche, dunkler Hintergrund): #2596cc, #c48014, #9b70f0.
+
+## 15. Flaggen, Circle of Doom, VE-Balken (Entwürfe 2026-11-13)
+
+- **Standings VE (LMU):** kurzer senkrechter Balken, immer gleich groß, wechselt nur die Farbe: grün → gelb-orange
+  (Standard unter 35 %) → rot (unter 15 %), daneben „80%“. Farben und Grenzen einstellbar (Reiter Fahrerzeile).
+- **Flaggen** (Muster `design/flaggen-einstellungen.html`, W-49): Stapel untereinander, nur aktive Flaggen erscheinen,
+  kein Überlappen. Ganzer Stapel per Maus verschiebbar, einzelne Flagge über „eigener Platz“ herauslösbar.
+  Flaggen: Karo (Ziel), Weiß (letzte Runde), Gelb (▲ m vor / ▼ m hinter dir, Reichweite einstellbar; ohne erkennbares Auto
+  nur „Sektor 2“), Blau (m nach hinten, einstellbar), Orange „SPRIT noch x Rd“ (Grenze Standard 2 Rd), Grün + „PIT“
+  (Stopp angefordert, nur LMU), Grün (nach Gelb x s). Reihenfolge = Wichtigkeit per Ziehen. Aussehen ganze Fläche oder Streifen.
+- **Circle of Doom** (Muster `design/circle-of-doom-einstellungen.html`, W-47): Kopf „Box jetzt → raus auf P7 Klasse · P15 gesamt“,
+  „evtl. P6–P8“. Kreis = eine Runde, Punkte = Autos in Klassenfarbe, weiß = ich jetzt, gestrichelt = ich nach Stopp,
+  roter Bogen = Boxenverlust, gelb = Unsicherheit. Liste der Nachbarn mit Abstand in s, schnellere Klassen rot.
+  Rechnung: Boxenverlust gelernt oder eigener Wert, tanken voll / wie geplant / bis Ziel, Reifen- und Fahrerwechsel einrechnen.
