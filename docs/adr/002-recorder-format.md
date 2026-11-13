@@ -54,3 +54,21 @@ darf das Spiel nicht stören und muss auch nach einem Absturz lesbar sein.
 - + Rohkopien als Rückversicherung gegen Strukturfehler.
 - − Delta-Format braucht den Decoder (`recorder/delta.py`) zum Lesen; der ReplayAdapter (T2) baut darauf auf.
 - − Ändert ein LMU-Update die Struktur, muss `lmu_data.py` nachgezogen werden (Kopf enthält `gameVersion` + Strukturgrößen).
+
+## Nachtrag 2026-11-13: iRacing-Recorder
+
+- Eigenes Programm `Boxenfunk-iRacing-Recorder` (`recorder/iracing_recorder.py`), der LMU-Recorder
+  bleibt unverändert. Datenquelle: iRacing SDK (Shared Memory) über `pyirsdk` (MIT, GPLv3-verträglich).
+- Gleiches Zeilenformat (`DeltaEncoder`/`DeltaDecoder`, Keyframe/60 s, Datei/Stunde, Rohkopie/5 min),
+  Kopfzeile `"sim": "iRacing"`, Dateipräfix `iRacing_`, eigener Ordner `Boxenfunk-Aufnahmen-iRacing`.
+- Abschnitte: `i` = alle Einzelwerte (Session, Wetter, eigenes Auto), `tel` = sonstige Listen,
+  `c[CarIdx].s` = alle `CarIdx*`-Werte des Autos, `c[CarIdx].v` = Fahrer/Auto/Klasse aus `DriverInfo`
+  plus `res` = Ergebniszeile (`ResultsPositions`) der laufenden Session.
+- Zusätzlich `si` in Keyframes und bei Änderung: restliche Session-Infos (WeekendInfo, SessionInfo ohne
+  Ergebnislisten, QualifyResultsInfo, SplitTimeInfo, DriverInfo ohne Fahrerliste).
+- Weggelassen: Fahrwerks-/Lenkkraft-Rohwerte, PC-Auslastung, 360-Hz-Teilwerte (`*_ST`),
+  `CarIdxRPM`/`CarIdxSteer`; iRacing-Kundennummern (`UserID`) werden entfernt, auch in der Rohkopie.
+- Rohkopie (`.roh.gz`) = komplettes iRacing-Speicherabbild; lässt sich später mit `pyirsdk`
+  (`startup(test_file=...)`) wieder einlesen.
+- Offen (mit erster echter Aufnahme prüfen): Dateigröße pro Stunde, Verzögerung von
+  `CarIdxLastLapTime`, Verhalten bei Wiederholungen (Replay) und Fahrerwechseln in Teamrennen.

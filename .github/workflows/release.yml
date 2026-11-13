@@ -42,6 +42,7 @@ jobs:
         run: |
           pyinstaller --noconfirm --onefile --windowed --copy-metadata boxenfunk --name Boxenfunk packaging/launcher.py
           pyinstaller --noconfirm --onefile --console --copy-metadata boxenfunk --exclude-module PySide6 --name Boxenfunk-Recorder packaging/recorder_launcher.py
+          pyinstaller --noconfirm --onefile --console --copy-metadata boxenfunk --exclude-module PySide6 --name Boxenfunk-iRacing-Recorder packaging/iracing_recorder_launcher.py
       - name: exe-Smoke-Test (startet und beendet sich selbst)
         if: steps.ver.outputs.neu == 'true'
         shell: pwsh
@@ -57,6 +58,15 @@ jobs:
           if ($v -notmatch "${{ steps.ver.outputs.tag }}".TrimStart("v")) { throw "falsche Version: $v" }
           $p = Start-Process -FilePath dist/Boxenfunk-Recorder.exe -ArgumentList "--dauer","3","--ohne-pause","--ordner","$env:RUNNER_TEMP\rec" -PassThru -Wait -NoNewWindow
           if ($p.ExitCode -ne 0) { throw "Boxenfunk-Recorder.exe Exit-Code $($p.ExitCode)" }
+      - name: iRacing-Recorder-Smoke-Test (Version, 3 s ohne Spiel laufen, beendet sich selbst)
+        if: steps.ver.outputs.neu == 'true'
+        shell: pwsh
+        run: |
+          $v = & dist/Boxenfunk-iRacing-Recorder.exe --version
+          Write-Host $v
+          if ($v -notmatch "${{ steps.ver.outputs.tag }}".TrimStart("v")) { throw "falsche Version: $v" }
+          $p = Start-Process -FilePath dist/Boxenfunk-iRacing-Recorder.exe -ArgumentList "--dauer","3","--ohne-pause","--ordner","$env:RUNNER_TEMP\irrec" -PassThru -Wait -NoNewWindow
+          if ($p.ExitCode -ne 0) { throw "Boxenfunk-iRacing-Recorder.exe Exit-Code $($p.ExitCode)" }
       - if: steps.ver.outputs.neu == 'true'
         uses: actions/upload-artifact@v4
         with:
@@ -64,6 +74,7 @@ jobs:
           path: |
             dist/Boxenfunk.exe
             dist/Boxenfunk-Recorder.exe
+            dist/Boxenfunk-iRacing-Recorder.exe
       - name: GitHub-Release anlegen
         if: steps.ver.outputs.neu == 'true'
         uses: softprops/action-gh-release@v2
@@ -74,4 +85,5 @@ jobs:
           files: |
             dist/Boxenfunk.exe
             dist/Boxenfunk-Recorder.exe
+            dist/Boxenfunk-iRacing-Recorder.exe
           generate_release_notes: true
