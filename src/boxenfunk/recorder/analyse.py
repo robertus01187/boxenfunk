@@ -298,7 +298,7 @@ def to_json(result: dict[str, Any]) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(prog="Boxenfunk-Recorder pruefen")
+    p = argparse.ArgumentParser(prog="Boxenfunk-LMU-Recorder pruefen")
     p.add_argument("pfad", type=Path, help="Aufnahmedatei (.jsonl.gz) oder Ordner")
     p.add_argument("--json", action="store_true", help="Ergebnis als JSON ausgeben")
     args = p.parse_args(argv)
