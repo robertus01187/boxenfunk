@@ -206,8 +206,10 @@ live mit dem laufenden Rennen verbunden, nur aktiv bei Rennen mit Fahrerwechsel.
 - Stint-Tabelle: Runden, Ø alle Runden, Ø sauber (ohne Ein-/Ausfahrt), Schnellste, Box-Standzeit, VE genutzt,
   Rest beim Stopp (in % und Runden, rot unter 1 Runde, gelb über 2), Fehlerpunkte, automatischer Hinweis.
 - Grafiken: Rundenzeiten (Punkte je Fahrer, Linie = Stint-Ø, Box-Runden blass), Rest-VE je Stint mit 1-Runde-Linie,
-  Boxzeit je Stopp aufgeteilt (Tanken, Reifen gleichzeitig, Fahrerwechsel), Fahrzeit gegen Mindest-/Höchstzeit (Vorschlag),
-  Klassenposition im Verlauf (Vorschlag). Überall Maus-Hinweise.
+  Boxzeit je Stopp aufgeteilt (Tanken, Reifen gleichzeitig, Fahrerwechsel),
+  Klassenposition im Verlauf mit Gegner-Stopps (Dreiecke), Streckentemperatur/Wetter. Überall Maus-Hinweise.
+- Stint-Tabelle hat eine Spalte „Notiz“ zum Eintippen.
+- Robert 2026-11-13: KEINE Stopp-/Gelbphasen-Striche im Rundenzeit-Graph, KEINE Fahrzeit-Regel (Mindest-/Höchstzeit). Rest angenommen.
 - Vorschau & Strategie: Restzeit/-runden, Varianten als Karten (wie bisher, sparen = 1 Stopp weniger, Doppel-Stints)
   mit Stopps, Stints, Zeitunterschied; Klick zeigt Variante in Leiste und Tabelle.
 - Hinweise vom Renningenieur (aus den Daten berechnet), Knöpfe „Rennen speichern“ / „Zusammenfassung teilen“ (später).
