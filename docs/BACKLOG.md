@@ -80,6 +80,7 @@
 | W-41 | Autostart: Schalter in den Einstellungen; Boxenfunk startet mit Windows unsichtbar im Hintergrund (Symbol unten rechts in der Taskleiste), wartet auf LMU oder iRacing, blendet die Overlays mit dem passenden Preset ein und beim Beenden des Spiels wieder aus | Robert | ja | ja | klein | T3 Hintergrundbetrieb, T7 Autostart-Schalter | ✅ |
 | W-42 | VE-Widget: Restrunden mit der vorhandenen VE und mit dem Sprit (der knappere Wert zählt). Per Ziehen zuschaltbar: „Verbrauch für +1 Runde“ neben dem tatsächlichen Verbrauch der letzten Runde → sofort sehen, ob mehr geliftet werden muss oder es passt (baut auf W-02 auf) | Robert | ja | ja (nur Sprit) | mittel | T5 | ✅ |
 | W-43 | Eigener Fuel-Calculator (separates Widget), intuitiv: „Was muss ich nachtanken, damit ich ins Ziel komme?“ Vorschlag siehe Details | Robert | ja | ja | mittel | T5 | ✅ |
+| W-44 | Abfrage- und Anzeigeraten einstellbar, angelehnt an TinyPedal: Datenrate global, Bildwiederholrate je Widget. Messungen (Verbrauch, Abstände) nutzen immer jeden Datenpunkt, unabhängig von der Anzeigerate. Optional Anzeige der eigenen Rechenlast in den Einstellungen | Robert | ja | ja | klein | T2 Daten, T3 Widgets, T7 Einstellungen | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -212,3 +213,11 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 - **Letzter Stopp:** zeigt die genaue Menge „nur bis ins Ziel“ statt voll.
 - **Vor dem Rennen (Planungsmodus):** Renndauer und Verbrauch aus dem Training übernehmen → Stopp-Plan fürs ganze Rennen.
 - Abgrenzung: Der Fuel-Calculator rechnet nur Menge und Stopps. Wann sich der Stopp taktisch lohnt (Undercut, Verkehr), macht der Strategie-Rechner (T6).
+
+### W-44 Abfrageraten und Leistung ✅ (Robert, 13.11.2026)
+- **Roberts PC:** Ryzen 7 9800X3D, RX 9070 XT, 32 GB DDR5. Ziel aus dem Projektplan: < 3 % CPU.
+- **Zwei Raten getrennt:**
+  1. *Datenrate* (wie oft Spieldaten gelesen werden): so schnell, wie das Spiel sie liefert. LMU aktualisiert Rennstand/Abstände nur wenige Male pro Sekunde, Fahrzeugdaten (Pedale, Sprit) viel öfter; iRacing 60-mal pro Sekunde. Schneller lesen bringt keine Genauigkeit.
+  2. *Anzeigerate* je Widget: Standard 10-mal pro Sekunde, Inputs/Delta 30–60-mal. Einstellbar wie in TinyPedal.
+- **Genauigkeit:** Verbrauch, Rundenzeiten und Stopp-Erkennung rechnen mit allen gelesenen Datenpunkten, nicht mit dem, was gerade angezeigt wird. Eine langsame Anzeige macht die Messung also nicht ungenauer.
+- **Messwert bisher:** Der Recorder braucht bei 60 Autos und 5 Messungen pro Sekunde ca. 2 % eines Kerns (ADR-002). Grafikkarte: Overlays sind einfache 2D-Fenster, kein messbarer FPS-Verlust erwartet; wird in T3 mit Roberts In-Game-Test geprüft.
