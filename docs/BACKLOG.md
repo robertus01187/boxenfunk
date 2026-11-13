@@ -78,6 +78,8 @@
 | W-39 | Box-Status je Auto: „PIT req“ (angefordert), „PIT in“, „PIT“ (steht), „PIT out“; dazu Anzahl Stopps | Robert | ja | ja (ohne „PIT req“) | klein | T4 | ✅ |
 | W-40 | Ausgefallene Autos (DNF, disqualifiziert) markieren statt normal weiterführen | Claude | ja | ja | klein | T4 | 💡 |
 | W-41 | Autostart: Schalter in den Einstellungen; Boxenfunk startet mit Windows unsichtbar im Hintergrund (Symbol unten rechts in der Taskleiste), wartet auf LMU oder iRacing, blendet die Overlays mit dem passenden Preset ein und beim Beenden des Spiels wieder aus | Robert | ja | ja | klein | T3 Hintergrundbetrieb, T7 Autostart-Schalter | ✅ |
+| W-42 | VE-Widget: Restrunden mit der vorhandenen VE und mit dem Sprit (der knappere Wert zählt). Per Ziehen zuschaltbar: „Verbrauch für +1 Runde“ neben dem tatsächlichen Verbrauch der letzten Runde → sofort sehen, ob mehr geliftet werden muss oder es passt (baut auf W-02 auf) | Robert | ja | ja (nur Sprit) | mittel | T5 | ✅ |
+| W-43 | Eigener Fuel-Calculator (separates Widget), intuitiv: „Was muss ich nachtanken, damit ich ins Ziel komme?“ Vorschlag siehe Details | Robert | ja | ja | mittel | T5 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -193,3 +195,20 @@ Ergebnis: Kein Baustein im Entwurf ist unmöglich. Anpassen: Nässe bei iRacing 
 - **Warten:** Ohne Spiel schaut die App alle paar Sekunden nach, ob eine Datenquelle offen ist. Verbraucht praktisch keine Leistung.
 - **Taskleisten-Symbol:** zeigt den Zustand (wartet / LMU / iRacing), Rechtsklick öffnet Einstellungen oder beendet die App.
 - Baut auf W-30 (Spiel erkennen) und W-35 (Situation erkennen) auf.
+
+### W-04 VE pro Fahrer in Standings (LMU) – Hinweis 13.11.2026
+- Robert hat bemerkt, dass die VE-Spalte im Standings-Entwurf fehlt. Die Funktion ist als W-04 schon angenommen; der Design-Thread ergänzt die Spalte (nur LMU-Preset).
+
+### W-42 VE-Widget ✅ (Robert, 13.11.2026)
+- **Grundanzeige:** Restrunden mit VE und Restrunden mit Sprit. Das kleinere ist das, was zählt, und wird hervorgehoben.
+- **Baustein „+1 Runde“:** Ziel-Verbrauch pro Runde, damit eine Runde mehr drin ist, direkt neben dem Verbrauch der letzten Runde. Farbe: grün = passt, rot = mehr liften.
+- In iRacing gibt es keine VE, dort zeigt das Widget nur Sprit.
+
+### W-43 Fuel-Calculator ✅ (Robert, 13.11.2026) – Vorschlag Claude
+Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein und wie viel tanke ich?“**
+- **Oben groß:** „Noch 2 Stopps“ und „Nächster Stopp: Runde 34, 68 l / 85 % VE nachfüllen“.
+- **Darunter klein:** Restzeit bzw. Restrunden, Ø-Verbrauch (letzte 5 saubere Runden), Restmenge im Tank, benötigte Menge bis zum Ziel.
+- **Reserve:** einstellbar (Standard 0,3 Runden), wird mit eingerechnet.
+- **Letzter Stopp:** zeigt die genaue Menge „nur bis ins Ziel“ statt voll.
+- **Vor dem Rennen (Planungsmodus):** Renndauer und Verbrauch aus dem Training übernehmen → Stopp-Plan fürs ganze Rennen.
+- Abgrenzung: Der Fuel-Calculator rechnet nur Menge und Stopps. Wann sich der Stopp taktisch lohnt (Undercut, Verkehr), macht der Strategie-Rechner (T6).
