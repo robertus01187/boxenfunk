@@ -192,3 +192,23 @@ Inputs, Wetter und Delta-Balken hat Robert am 2026-11-13 abgenommen.
   → große Ergebnisse: Runden gesamt, Boxenstopps, Runden pro Stint, Stint-Balken, Satz „Starte mit … Du musst n× an die Box“,
   Tabelle gleicher Stopps zusammengefasst. Live-Widget: „Noch n Stopps“, nächster Stopp (Runde, Menge), Rest, Im Tank,
   Bedarf bis Ziel, Reicht bis Ziel?. Sicherheits-Reserve in Runden; letzter Stopp nur bis ins Ziel. Taktik gehört ins Strategie-Widget.
+
+Stand 2026-11-13: **VE & Sprit von Robert abgenommen.** Strategie und Sprit-Rechner gefallen ihm noch nicht ganz,
+werden später überarbeitet.
+
+## 14. Renningenieur-Seite (Vorschau 2026-11-13)
+
+Muster `design/renningenieur.html`. Eigene Seite im Browser (Knopf „Renningenieur“ im Startfenster über „Overlay verschieben“),
+live mit dem laufenden Rennen verbunden, nur aktiv bei Rennen mit Fahrerwechsel. Inhalt (Wunsch W-45):
+- Kopf: Rennzeit mit Fortschritt, Runde, Klassenplatz, aktueller Stint + Fahrer, nächster Stopp.
+- Stint-Leiste über die Renndauer in Fahrerfarben (gefahren voll, geplant gestreift, Jetzt-Strich), Fahrerkarten mit
+  Anzahl Stints (+ geplant), Fahrzeit, Ø saubere Runde, Schnellste, Konstanz (Vorschlag), VE pro Runde, Fehlerpunkte.
+- Stint-Tabelle: Runden, Ø alle Runden, Ø sauber (ohne Ein-/Ausfahrt), Schnellste, Box-Standzeit, VE genutzt,
+  Rest beim Stopp (in % und Runden, rot unter 1 Runde, gelb über 2), Fehlerpunkte, automatischer Hinweis.
+- Grafiken: Rundenzeiten (Punkte je Fahrer, Linie = Stint-Ø, Box-Runden blass), Rest-VE je Stint mit 1-Runde-Linie,
+  Boxzeit je Stopp aufgeteilt (Tanken, Reifen gleichzeitig, Fahrerwechsel), Fahrzeit gegen Mindest-/Höchstzeit (Vorschlag),
+  Klassenposition im Verlauf (Vorschlag). Überall Maus-Hinweise.
+- Vorschau & Strategie: Restzeit/-runden, Varianten als Karten (wie bisher, sparen = 1 Stopp weniger, Doppel-Stints)
+  mit Stopps, Stints, Zeitunterschied; Klick zeigt Variante in Leiste und Tabelle.
+- Hinweise vom Renningenieur (aus den Daten berechnet), Knöpfe „Rennen speichern“ / „Zusammenfassung teilen“ (später).
+- Fahrerfarben (geprüft auf Farbsehschwäche, dunkler Hintergrund): #2596cc, #c48014, #9b70f0.
