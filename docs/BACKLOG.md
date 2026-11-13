@@ -86,6 +86,7 @@
 | W-46 | Rennen online sichern (z. B. Cloudflare) und später wieder aufrufen, mit Zusammenfassung und wichtigen Erkenntnissen | Robert | ja | ja | mittel | T8c | ✅ |
 | W-47 | „Circle of Doom“ / Box-Ausfahrt-Vorschau: zeigt jederzeit, wo ich lande, wenn ich jetzt an die Box fahre: Platz (Klasse/gesamt) und die Autos direkt vor und hinter mir mit Abstand | Robert | ja | ja | mittel | T6 (Grundversion mit Standard-Boxenverlust ggf. früher) | ✅ |
 | W-48 | Zuschauer-Modus (LMU, Langstrecke): Wenn ein Teamkollege fährt und ich zusehe, Strategie-, Sprit-/VE- und Stint-Daten für unser Auto weiter anzeigen, um mit dem Fahrer zu sprechen | Robert | offen (mit R1 prüfen) | teilweise | mittel | T5/T6, nach Prüfung mit R1 | ✅ |
+| W-49 | Flaggen-Widget als Stapel (erweitert W-07): Grün, Grün mit „PIT“ (Stopp angefordert), Gelb mit Metern vor/hinter mir, Weiß (letzte Runde), Karo (Ziel), Blau mit Metern nach hinten, Orange mit Restrunden bei wenig Sprit/VE. Meter-Reichweite und Sprit-Grenze einstellbar (Standard 2–3 Runden). Nur aktive Flaggen erscheinen, untereinander ohne Überlappen; Stapel als Ganzes verschiebbar, einzelne Flaggen auch | Robert | ja | ja (ohne „PIT“) | mittel | T4 (Flaggen), T5 (Orange) | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -273,3 +274,17 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 - **Eigenes Auto erkennen:** Beim Zusehen ist man nicht „der Spieler“. Darum: Auto per Startnummer/Teamname festlegen oder automatisch über den Fahrernamen aus früheren Stints.
 - **Prüfung:** Die 8h-Aufnahme R1 läuft auch, wenn Teamkollegen fahren → zeigt direkt, welche Werte beim Zusehen ankommen.
 - iRacing: Beim Zusehen im Teamrennen liefert das SDK die Daten aller Autos ebenso; Sprit des eigenen Teamautos nur, wenn man im Auto sitzt → dort nur eingeschränkt.
+
+### W-49 Flaggen-Widget ✅ (Robert, 13.11.2026, aus dem Design-Thread)
+| Flagge | LMU | iRacing | Woher |
+|---|---|---|---|
+| Grün | ja | ja | Rennphase bzw. Session-Flaggen |
+| Grün + „PIT“ (Stopp angefordert) | ja | **nein** | LMU meldet „Box angefordert“ (`mPitState`); iRacing kennt keine Anforderung → im iRacing-Preset ausgegraut |
+| Gelb mit Metern vor/hinter | ja | ja | Spiel meldet Gelb je Sektor; Stelle = langsames/stehendes Auto, Abstand selbst gerechnet. Findet sich keins: nur „Gelb S2“ |
+| Weiß (letzte Runde) | ja (berechnet) | ja | LMU hat keine weiße Flagge; die App erkennt die letzte Runde aus Restzeit/Runden |
+| Karo | ja | ja | |
+| Blau mit Metern nach hinten | ja | ja | Spiel meldet Blau für mein Auto; Abstand zum schnelleren Auto selbst gerechnet |
+| Orange (Sprit/VE knapp, Restrunden) | ja | ja | aus dem Sprit-/VE-Rechner (W-42), Grenze einstellbar |
+
+### W-04 VE-Anzeige in Standings – Aussehen (Robert, 13.11.2026)
+- Gleich großer Balken, der die Farbe wechselt: grün → gelb-orange ab einstellbarer Grenze → rot, wenn fast leer. Design im Design-Thread.
