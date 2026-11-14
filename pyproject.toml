@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "boxenfunk"
-version = "0.2.1"
+version = "0.3.0"
 description = "Sim-Racing-Overlay mit Strategie-Rechner für Le Mans Ultimate und iRacing"
 readme = "README.md"
 license = "GPL-3.0-or-later"

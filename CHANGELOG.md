@@ -2,6 +2,17 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.3.0] – 2026-11-14
+### Hinzugefügt
+- Overlay-Prototyp für Le Mans Ultimate in `Boxenfunk.exe`: Standings, Relative, Delta, Inputs,
+  VE & Sprit live über dem Spiel (durchsichtig, im Rennen klickt man hindurch). Startfenster mit
+  Widgets an/aus, Größe S–XL, „Overlays verschieben“ (Positionen werden gespeichert), Logo-Ordner.
+- Datenschicht (Teil von T2): gemeinsames Datenmodell `RaceState`, LMU-Übersetzer (live und aus
+  Aufnahme gleich), Verlauf `SessionTracker` (Runden, Trend, Startplätze, VE-/Sprit-Verbrauch),
+  Wiedergabe von Aufnahmen (`--abspielen`, `--tempo`, `--ab-rennen`).
+- Schrift Exo 2 (SIL Open Font License) im Programm enthalten.
+- Anleitung `docs/anleitung-prototyp.md`.
+
 ## [0.2.1] – 2026-11-13
 ### Geändert
 - LMU-Recorder heißt jetzt `Boxenfunk-LMU-Recorder.exe` (vorher `Boxenfunk-Recorder.exe`), damit er

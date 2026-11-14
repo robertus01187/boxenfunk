@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-13 · **Version:** 0.2.0 (iRacing-Recorder, noch nicht freigegeben) · **Letzter Thread:** T1 Recorder (Umsetzung fertig, Abnahme mit R0 offen)
+**Stand:** 2026-11-14 · **Version:** 0.3.0 (Overlay-Prototyp LMU, wartet auf Freigabe) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
@@ -19,6 +19,14 @@
   eigenes Programm + eigener Ordner, gleiches Format (ADR-002 Nachtrag), Auswertung per `pruefen`.
   Getestet mit simuliertem Rennen, auch über den echten `pyirsdk`-Lesepfad (Speicherabbild). Anleitung:
   `docs/anleitung-iracing.md`. Echte Aufnahme fehlt noch.
+
+- Overlay-Prototyp (v0.3.0, Branch `claude/project-thread-zmgetj`): `Boxenfunk.exe` zeigt Standings,
+  Relative, Delta, Inputs, VE & Sprit live über LMU (Qt, rahmenlose durchklickbare Fenster,
+  `overlay/`). Vorgezogener Teil von T2: `model/race_state.py`, `adapters/lmu/translate.py`,
+  `adapters/sources.py` (Live + `ReplaySource`), `core/tracker.py`, `core/views.py`.
+  Geprüft mit der LMU-Aufnahme eines 1h-Rennens (Bahrain, 38 Autos, Hyper+GT3): VE-Verbrauch je
+  Runde stimmt mit der Recorder-Auswertung überein (5,37 %), Abstände über `mTimeBehindNext`.
+  Anleitung `docs/anleitung-prototyp.md`. Noch nicht live in LMU getestet.
 
 ## Entscheidungen
 | ID | Entscheidung | Status |
@@ -44,6 +52,9 @@
 - Nutzer ist kein Programmierer: einfache Sprache, keine Fachbegriffe.
 
 ## Technische Schulden
+- Prototyp: keine Einstellungsfenster je Widget, kein Hotkey, keine Presets je Spiel, nur LMU.
+  Relative-Abstand aus Streckenposition × geschätzter Rundenzeit (einfach, ggf. später genauer).
+  Live-Quelle baut pro Abfrage den kompletten Snapshot (ca. 3 ms bei 20 Hz), später gezielter lesen.
 - iRacing-Recorder: noch keine echte Aufnahme geprüft.
 - Recorder-Fenster: Status als neue Zeile alle 10 s (kein schönes Live-Feld).
 - exe ist nicht signiert (SmartScreen-Warnung).

@@ -40,7 +40,7 @@ jobs:
       - name: exe bauen
         if: steps.ver.outputs.neu == 'true'
         run: |
-          pyinstaller --noconfirm --onefile --windowed --copy-metadata boxenfunk --name Boxenfunk packaging/launcher.py
+          pyinstaller --noconfirm --onefile --windowed --copy-metadata boxenfunk --add-data "src/boxenfunk/overlay/fonts:boxenfunk/overlay/fonts" --name Boxenfunk packaging/launcher.py
           pyinstaller --noconfirm --onefile --console --copy-metadata boxenfunk --exclude-module PySide6 --name Boxenfunk-LMU-Recorder packaging/recorder_launcher.py
           pyinstaller --noconfirm --onefile --console --copy-metadata boxenfunk --exclude-module PySide6 --name Boxenfunk-iRacing-Recorder packaging/iracing_recorder_launcher.py
       - name: exe-Smoke-Test (startet und beendet sich selbst)
