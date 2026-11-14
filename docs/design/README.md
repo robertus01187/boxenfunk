@@ -230,3 +230,12 @@ live mit dem laufenden Rennen verbunden, nur aktiv bei Rennen mit Fahrerwechsel.
   Rechnung: Boxenverlust gelernt oder eigener Wert, tanken voll / wie geplant / bis Ziel, Reifen- und Fahrerwechsel einrechnen.
   Haken „Aus Boxenmenü übernehmen“ (W-50): Reifen-/Fahrerwechsel automatisch, grünes „auto“-Schild; iRacing liefert
   den Fahrerwechsel nicht → dort von Hand. Die Haken bleiben als Ersatz.
+
+## 16. Input-Graph: LED-Leisten (Entwurf 2026-11-14, W-52)
+
+Links und rechts neben dem Input-Graphen je eine LED-Leiste (6 oder 8 LEDs, rund oder eckig). Links = linke Räder,
+rechts = rechte Räder. Obere Hälfte = Vorderrad blockiert, untere Hälfte = Hinterrad blockiert oder dreht durch.
+ABS greift = alle LEDs flackern gelb, TC greift = alle flackern blau; das betroffene Rad hat Vorrang.
+Reiter „LEDs“: ganz an/aus, Aus-Zustand leicht sichtbar/unsichtbar, jede Anzeige einzeln an/aus mit eigener Farbe
+(Blockieren rot, Durchdrehen violett, ABS gelb, TC blau), Empfindlichkeit (Schlupf-Schwelle in %).
+iRacing meldet nur „ABS greift“ → TC, Blockieren, Durchdrehen und Empfindlichkeit im iRacing-Preset durchgestrichen.
