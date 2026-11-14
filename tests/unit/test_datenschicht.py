@@ -260,3 +260,59 @@ def test_relative_uses_game_time_into_lap():
     }
     rel = {e.car.car_id: e.gap for e in SessionTracker().relative(to_race_state(snap))}
     assert abs(rel["2"] + 3.5) < 1e-9 and abs(rel["3"] - 2.8) < 1e-9
+
+
+def _flag_snap(sector=(0, 0, 0), blue=False, slow_dist=None, behind_cls="Hyper", behind_laps=6):
+    def car(place, dist, tinto, cls="GT3", laps=5, speed=50.0, **kw):
+        s = {
+            "mPlace": place,
+            "mLapDist": dist,
+            "mTimeIntoLap": tinto,
+            "mEstimatedLapTime": 120.0,
+            "mVehicleClass": cls,
+            "mTotalLaps": laps,
+            "mLocalVel": {"x": 0.0, "y": 0.0, "z": speed},
+        }
+        s.update(kw)
+        return {"s": s}
+
+    cars = {
+        "1": car(2, 1000.0, 24.0, mIsPlayer=1, mFlag=6 if blue else 0),
+        "2": car(1, 900.0, 22.6, cls=behind_cls, laps=behind_laps),
+    }
+    if slow_dist is not None:
+        cars["3"] = car(3, 1000.0 + slow_dist, 30.0, speed=2.0)
+    return {
+        "i": {
+            "mSession": 10,
+            "mLapDist": 5000.0,
+            "mGamePhase": 5,
+            "mCurrentET": 100.0,
+            "mSectorFlag": list(sector),
+        },
+        "c": cars,
+    }
+
+
+def test_flags_yellow_distance_like_tinypedal():
+    from boxenfunk.core.flags import FlagState
+
+    fs = FlagState()
+    assert fs.update(to_race_state(_flag_snap(sector=(1, 0, 0), slow_dist=230)), None)[0].info == (
+        "▲ 230 m"
+    )
+    # Mehr als 500 m vor mir: keine Flagge (wie TinyPedal)
+    far = to_race_state(_flag_snap(sector=(1, 0, 0), slow_dist=700))
+    assert FlagState().update(far, None) == []
+    # Gelb vorbei → kurz Grün
+    flags = FlagState()
+    flags.update(to_race_state(_flag_snap(sector=(1, 0, 0), slow_dist=100)), None)
+    assert [f.kind for f in flags.update(to_race_state(_flag_snap()), None)] == ["gruen"]
+
+
+def test_flags_blue_shows_class_of_lapping_car():
+    from boxenfunk.core.flags import FlagState, class_label
+
+    f = FlagState().update(to_race_state(_flag_snap(blue=True)), None)
+    assert f[0].kind == "blau" and f[0].info.startswith("HYPERCAR") and "1.4 s" in f[0].info
+    assert class_label("LMP2 ELMS") == "LMP2" and class_label("LMGT3") == "GT3"

@@ -27,18 +27,27 @@ class StandingsRow:
 def gap_between(st: RaceState, car: CarState, ref: CarState) -> str:
     """Abstand von ``car`` hinter ``ref`` (ref liegt vorn), als Text.
 
-    Liegt ``car`` eine Runde oder mehr zurück: "+1L". Sonst Summe der Abstände zum jeweils
-    davor liegenden Auto (``gap_ahead``) über die Gesamtwertung, so wie das Spiel sie misst.
+    Wie TinyPedal (``calc_time_gap_behind``): Mehr als eine Runde Rückstand → "+1L". Sonst
+    Unterschied der vom Spiel geschätzten Zeit seit Start/Ziel; liegt ``car`` auf der Strecke
+    scheinbar vorn, eine geschätzte Rundenzeit dazu. Fehlen die Werte: Summe der Abstände zum
+    jeweils davor liegenden Auto, so wie das Spiel sie meldet.
     """
     L = st.track_length or 1.0
     behind = (ref.laps + ref.lap_dist / L) - (car.laps + car.lap_dist / L)
-    if behind >= 1.0:
+    if behind > 1.0:
         return f"+{int(behind)}L"
-    total = 0.0
-    for c in st.cars[ref.position : car.position]:
-        if c.gap_ahead is None:
-            return ""
-        total += c.gap_ahead
+    if behind < 0:  # schon vorbei, Platz noch nicht umgestellt (TinyPedal zeigt dann 0)
+        return "0.0"
+    if ref.time_into_lap is not None and car.time_into_lap is not None and car.est_lap_time:
+        total = ref.time_into_lap - car.time_into_lap
+        if total < 0:
+            total += car.est_lap_time
+    else:
+        total = 0.0
+        for c in st.cars[ref.position : car.position]:
+            if c.gap_ahead is None:
+                return ""
+            total += c.gap_ahead
     if total < 0:
         return ""
     return f"{total:.0f}" if total >= 100 else f"{total:.1f}"

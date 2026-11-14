@@ -13,6 +13,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
 from PySide6.QtSvg import QSvgRenderer
 
+from boxenfunk.core.flags import Flag, FlagState
 from boxenfunk.core.views import energy_view, standings_blocks
 from boxenfunk.model.race_state import CarState, PitState, SessionKind
 from boxenfunk.overlay.base import (
@@ -821,4 +822,102 @@ class EnergyOverlay(Overlay):
         text(p, 0, y, w - 12 * s, 26 * s, " · ".join(parts) or "–", WHITE, RIGHT)
 
 
-ALL_OVERLAYS = (StandingsOverlay, RelativeOverlay, DeltaOverlay, InputsOverlay, EnergyOverlay)
+# --- Flaggen ------------------------------------------------------------------
+
+# Farben aus dem Flaggen-Muster: (Fläche, Schrift)
+FLAG_COLORS = {
+    "ziel": (QColor("#ffffff"), QColor("#111111")),
+    "fcy": (QColor("#ffd21f"), QColor("#1d1700")),
+    "gelb": (QColor("#ffd21f"), QColor("#1d1700")),
+    "blau": (QColor("#2f7dff"), QColor("#ffffff")),
+    "sprit": (QColor("#ff8a1f"), QColor("#1f0e00")),
+    "pit": (QColor("#2fd34a"), QColor("#0b1a0e")),
+    "gruen": (QColor("#2fd34a"), QColor("#0b1a0e")),
+}
+
+FLAG_SAMPLES = [Flag("gelb", "GELB", "▲ 230 m"), Flag("blau", "BLAU", "HYPERCAR  ▼ 1.4 s")]
+
+
+class FlagsOverlay(Overlay):
+    """Stapel aus Flaggen-Kacheln, nur die gerade gültigen (Rechenweg wie TinyPedal)."""
+
+    key = "flaggen"
+    title = "Flaggen"
+
+    W, H, GAP = 260, 40, 6
+
+    def __init__(self, scale: float = 1.0) -> None:
+        self.logic = FlagState()
+        self.flags: list[Flag] = []
+        super().__init__(scale)
+
+    def on_data(self) -> None:
+        if self.state is None:
+            self.flags = []
+            return
+        self.flags = self.logic.update(self.state, self.tracker)
+
+    def _shown(self) -> list[Flag]:
+        # Im Verschiebe-Modus Beispiel-Kacheln, damit man Platz und Größe sieht
+        return self.flags or ([] if self.locked else FLAG_SAMPLES)
+
+    def preferred_size(self) -> tuple[float, float]:
+        n = max(1, len(self._shown()))
+        return self.W * self.scale, (n * (self.H + self.GAP) - self.GAP) * self.scale
+
+    def paint_placeholder(self, p: QPainter) -> None:
+        if not self.locked:
+            self.paint_overlay(p)
+
+    def paint_overlay(self, p: QPainter) -> None:
+        s = self.scale
+        w, h, gap = self.W * s, self.H * s, self.GAP * s
+        y = 0.0
+        for f in self._shown():
+            bg, fg = FLAG_COLORS.get(f.kind, (DIM, WHITE))
+            path = QPainterPath()
+            path.addRoundedRect(QRectF(0, y, w, h), 5 * s, 5 * s)
+            p.save()
+            p.setClipPath(path)
+            p.fillRect(QRectF(0, y, w, h), bg)
+            ic = 42 * s
+            if f.kind == "ziel":  # Karo
+                sq = h / 4
+                for i in range(int(ic / sq) + 1):
+                    for j in range(4):
+                        if (i + j) % 2 == 0:
+                            p.fillRect(QRectF(i * sq, y + j * sq, sq, sq), QColor("#111"))
+            else:
+                p.fillRect(QRectF(0, y, ic, h), QColor(0, 0, 0, 24))
+                self._flag_icon(p, ic / 2, y + h / 2, h * 0.3, fg)
+            p.setFont(ov_font(16.5 * s, 700))
+            text(p, ic + 10 * s, y, w, h, f.name, fg)
+            p.setFont(ov_font(15 * s, 600))
+            text(p, ic, y, w - ic - 11 * s, h, f.info, fg, RIGHT)
+            p.restore()
+            y += h + gap
+
+    @staticmethod
+    def _flag_icon(p: QPainter, cx: float, cy: float, r: float, col: QColor) -> None:
+        pen = QPen(col, max(1.5, r * 0.22))
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        p.setPen(pen)
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        x0 = cx - r * 0.8
+        p.drawLine(QPointF(x0, cy - r), QPointF(x0, cy + r * 1.1))
+        path = QPainterPath(QPointF(x0, cy - r))
+        path.cubicTo(x0 + r * 0.7, cy - r * 1.4, x0 + r * 1.0, cy - r * 0.4, x0 + r * 1.7, cy - r)
+        path.lineTo(x0 + r * 1.7, cy + r * 0.1)
+        path.cubicTo(x0 + r * 1.0, cy + r * 0.5, x0 + r * 0.7, cy - r * 0.3, x0, cy + r * 0.1)
+        p.drawPath(path)
+
+
+ALL_OVERLAYS = (
+    StandingsOverlay,
+    RelativeOverlay,
+    DeltaOverlay,
+    InputsOverlay,
+    EnergyOverlay,
+    FlagsOverlay,
+)

@@ -78,6 +78,8 @@ class CarState:
     fuel_capacity: float | None = None
     tyre_compound: str = ""  # z. B. "Medium"
     is_player: bool = False
+    speed: float = 0.0  # m/s (aus der Wertung, 5-mal pro Sekunde)
+    blue_flag: bool = False  # Spiel zeigt diesem Auto Blau
 
 
 @dataclass(slots=True)
@@ -127,6 +129,7 @@ class RaceState:
     track_temp: float | None = None
     wetness: float | None = None  # 0 = trocken, 1 = nass
     rain: float | None = None
+    sector_yellow: bool = False  # irgendwo auf der Strecke Gelb (lokale Gelbphase)
     cars: list[CarState] = field(default_factory=list)  # sortiert nach Gesamtplatz
     player: PlayerState | None = None
     player_id: str | None = None

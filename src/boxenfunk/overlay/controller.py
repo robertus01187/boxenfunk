@@ -33,6 +33,7 @@ from boxenfunk.overlay.base import Overlay
 from boxenfunk.overlay.widgets import (
     DeltaOverlay,
     EnergyOverlay,
+    FlagsOverlay,
     InputsOverlay,
     Logos,
     RelativeOverlay,
@@ -48,6 +49,7 @@ DEFAULT_POS = {
     "delta": (0.44, 0.04),
     "inputs": (0.40, 0.84),
     "energie": (0.72, 0.30),
+    "flaggen": (0.44, 0.16),
 }
 
 CONTROL_STYLE = """
@@ -108,13 +110,17 @@ class Controller(QObject):
         self.cfg = load_config(self.cfg_path)
         self.logo_dir = logo_dir or (app_dir() / "Boxenfunk-Logos")
         logos = Logos(self.logo_dir)
-        scale = SCALES.get(self.cfg.get("groesse", "M"), 1.0)
+        # Größe je Widget (im Verschiebe-Modus an der Ecke ziehen). Alte Einstellung S/M/L/XL
+        # gilt als Startwert für alle.
+        base = SCALES.get(self.cfg.get("groesse", "M"), 1.0)
+        sizes = self.cfg.get("skalen", {})
         self.overlays: list[Overlay] = [
-            StandingsOverlay(scale, logos),
-            RelativeOverlay(scale, logos),
-            DeltaOverlay(scale),
-            InputsOverlay(scale),
-            EnergyOverlay(scale),
+            StandingsOverlay(sizes.get("standings", base), logos),
+            RelativeOverlay(sizes.get("relative", base), logos),
+            DeltaOverlay(sizes.get("delta", base)),
+            InputsOverlay(sizes.get("inputs", base)),
+            EnergyOverlay(sizes.get("energie", base)),
+            FlagsOverlay(sizes.get("flaggen", base)),
         ]
         self.overlays[0].only_my_class = self.cfg.get("standings_klassen") == "meine"
         self.enabled = {o.key: self.cfg.get("an", {}).get(o.key, True) for o in self.overlays}
@@ -187,20 +193,6 @@ class Controller(QObject):
         cls_row.addStretch(1)
         lay.addLayout(cls_row)
 
-        row = QHBoxLayout()
-        row.addWidget(QLabel("Größe"))
-        grp = QButtonGroup(w)
-        cur = self.cfg.get("groesse", "M")
-        for name in SCALES:
-            b = QPushButton(name)
-            b.setCheckable(True)
-            b.setChecked(name == cur)
-            b.clicked.connect(lambda _=False, n=name: self._set_scale(n))
-            grp.addButton(b)
-            row.addWidget(b)
-        row.addStretch(1)
-        lay.addLayout(row)
-
         self.move_btn = QPushButton("Overlays verschieben")
         self.move_btn.setCheckable(True)
         self.move_btn.toggled.connect(self._toggle_move)
@@ -229,8 +221,8 @@ class Controller(QObject):
 
         hint = QLabel(
             "LMU im Modus „Rahmenloses Fenster“ (Borderless) starten, sonst liegen die Overlays "
-            "hinter dem Spiel.\n„Overlays verschieben“ drücken, Widgets mit der Maus ziehen, "
-            "nochmal drücken zum Festsetzen. Im Rennen klickt man durch die Overlays hindurch.\n"
+            "hinter dem Spiel.\n„Overlays verschieben“ drücken, Widgets mit der Maus ziehen und an "
+            "der gelben Ecke unten rechts größer oder kleiner ziehen. Nochmal drücken zum Festsetzen. Im Rennen klickt man durch die Overlays hindurch.\n"
             "Dieses Fenster schließen = Boxenfunk beenden."
         )
         hint.setObjectName("hint")
@@ -243,12 +235,6 @@ class Controller(QObject):
         self.enabled[key] = on
         self._save()
         self._refresh_visibility()
-
-    def _set_scale(self, name: str) -> None:
-        self.cfg["groesse"] = name
-        for o in self.overlays:
-            o.set_scale(SCALES[name])
-        self._save()
 
     def _set_classes(self, key: str) -> None:
         self.cfg["standings_klassen"] = key
@@ -330,6 +316,7 @@ class Controller(QObject):
 
     def _save(self) -> None:
         self.cfg["positionen"] = {o.key: [o.x(), o.y()] for o in self.overlays}
+        self.cfg["skalen"] = {o.key: o.scale for o in self.overlays}
         self.cfg["an"] = dict(self.enabled)
         save_config(self.cfg_path, self.cfg)
 

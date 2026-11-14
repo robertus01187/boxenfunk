@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-14 · **Version:** 0.3.4 (Prototyp: Relative mit LMU-Werten, Standings mit Klassen-Schalter) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
+**Stand:** 2026-11-14 · **Version:** 0.4.0 (Prototyp mit Flaggen, Größe per Maus; TinyPedal als Vorlage) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,

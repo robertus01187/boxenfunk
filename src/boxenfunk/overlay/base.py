@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QPoint, QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen
+from PySide6.QtCore import QPoint, QPointF, QRectF, Qt, Signal
+from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen, QPolygonF
 from PySide6.QtWidgets import QWidget
 
 from boxenfunk.core.tracker import SessionTracker
@@ -115,7 +115,9 @@ class Overlay(QWidget):
         self.tracker: SessionTracker | None = None
         self._locked = True
         self._drag_from: QPoint | None = None
+        self._resize_from: tuple[QPoint, float, int] | None = None
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setMouseTracking(True)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         self.setWindowTitle(f"Boxenfunk – {self.title}")
         self._apply_flags()
@@ -157,17 +159,44 @@ class Overlay(QWidget):
         if (w, h) != (self.width(), self.height()):
             self.setFixedSize(max(10, int(w)), max(10, int(h)))
 
+    # Ecke unten rechts: dort ziehen ändert die Größe (alles wächst gleichmäßig mit)
+    HANDLE = 18
+    MIN_SCALE, MAX_SCALE = 0.4, 3.0
+
+    def _in_handle(self, pos) -> bool:
+        return pos.x() >= self.width() - self.HANDLE and pos.y() >= self.height() - self.HANDLE
+
     def mousePressEvent(self, e) -> None:  # noqa: N802 (Qt-Name)
-        if not self._locked and e.button() == Qt.MouseButton.LeftButton:
-            self._drag_from = e.globalPosition().toPoint() - self.frameGeometry().topLeft()
+        if self._locked or e.button() != Qt.MouseButton.LeftButton:
+            return
+        g = e.globalPosition().toPoint()
+        if self._in_handle(e.position().toPoint()):
+            self._resize_from = (g, self.scale, max(1, self.width()))
+        else:
+            self._drag_from = g - self.frameGeometry().topLeft()
 
     def mouseMoveEvent(self, e) -> None:  # noqa: N802
-        if self._drag_from is not None:
-            self.move(e.globalPosition().toPoint() - self._drag_from)
+        g = e.globalPosition().toPoint()
+        if self._resize_from is not None:
+            start, s0, w0 = self._resize_from
+            new_w = max(20, w0 + (g.x() - start.x()))
+            scale = min(self.MAX_SCALE, max(self.MIN_SCALE, s0 * new_w / w0))
+            self.set_scale(round(scale, 3))
+            self.update()
+        elif self._drag_from is not None:
+            self.move(g - self._drag_from)
+        elif not self._locked:
+            cur = (
+                Qt.CursorShape.SizeFDiagCursor
+                if self._in_handle(e.position().toPoint())
+                else Qt.CursorShape.SizeAllCursor
+            )
+            self.setCursor(cur)
 
     def mouseReleaseEvent(self, e) -> None:  # noqa: N802
-        if self._drag_from is not None:
+        if self._drag_from is not None or self._resize_from is not None:
             self._drag_from = None
+            self._resize_from = None
             self.moved.emit()
 
     # -- Daten und Zeichnen --
@@ -197,10 +226,15 @@ class Overlay(QWidget):
             p.setPen(QPen(YELLOW, 2, Qt.PenStyle.DashLine))
             p.setBrush(Qt.BrushStyle.NoBrush)
             p.drawRect(QRectF(self.rect()).adjusted(1, 1, -1, -1))
+            # Griff zum Vergrößern/Verkleinern
+            w, h, k = self.width(), self.height(), self.HANDLE
+            p.setPen(Qt.PenStyle.NoPen)
+            p.setBrush(YELLOW)
+            p.drawPolygon(QPolygonF([QPointF(w, h - k), QPointF(w, h), QPointF(w - k, h)]))
             p.setFont(ov_font(11 * self.scale))
             p.setPen(YELLOW)
             p.drawText(
-                QRectF(self.rect()).adjusted(6, 2, -6, -2),
+                QRectF(self.rect()).adjusted(6, 2, -6 - self.HANDLE, -2),
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom,
                 self.title,
             )

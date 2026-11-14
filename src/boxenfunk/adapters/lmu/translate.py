@@ -150,6 +150,8 @@ def _car(cid: str, c: dict[str, Any]) -> CarState:
         fuel_capacity=_num(v.get("mFuelCapacity")),
         tyre_compound=v.get("mFrontTireCompoundName", "") or "",
         is_player=bool(s.get("mIsPlayer")),
+        speed=speed_kmh(s.get("mLocalVel")) / 3.6,
+        blue_flag=s.get("mFlag") == 6,
     )
 
 
@@ -228,6 +230,8 @@ def to_race_state(snap: dict[str, Any]) -> RaceState:
         track_temp=_num(i.get("mTrackTemp")),
         wetness=_num(i.get("mAvgPathWetness")),
         rain=_num(i.get("mRaining")),
+        # Wie TinyPedal: Gelb, wenn irgendein Sektor-Wert 1 ist
+        sector_yellow=any(v == 1 for v in (i.get("mSectorFlag") or [])),
         cars=cars,
         player=player,
         player_id=player_id,
