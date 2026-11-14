@@ -207,7 +207,9 @@ class SessionTracker:
             if car.in_garage:
                 continue  # steht in der Garage, nicht auf der Strecke
             d = self.timing.offset(st, me, car)
-            gap = self.timing.gap(st, me, car)
+            gap = _game_gap(me, car)
+            if gap is None:
+                gap = self.timing.gap(st, me, car)
             if gap is None:  # Verlauf reicht noch nicht: grob schätzen
                 gap = -d / L * lap_t
             my_total = me.laps + me.lap_dist / L
@@ -230,6 +232,19 @@ class SessionTracker:
                 if abs(abs(p.gap_car_behind) - abs(e.gap)) < 1.0:
                     e.gap = abs(p.gap_car_behind)
         return entries[max(0, idx - ahead) : idx + behind + 1]
+
+
+def _game_gap(me: CarState, car: CarState) -> float | None:
+    """Abstand wie im Spiel: Unterschied der vom Spiel geschätzten Zeit seit Start/Ziel.
+
+    So rechnet LMU selbst (deckt sich mit mTimeGapCarAhead/Behind auf ~0,01 s) und so macht es
+    auch TinyPedal (GPLv3). Negativ = vor mir. None, wenn das Spiel die Werte nicht liefert.
+    """
+    lt = me.est_lap_time
+    if not lt or me.time_into_lap is None or car.time_into_lap is None:
+        return None
+    ahead = (car.time_into_lap - me.time_into_lap) % lt  # 0 … Rundenzeit
+    return -ahead if ahead < lt / 2 else lt - ahead
 
 
 def _used(start: float | None, end: float | None) -> float | None:
