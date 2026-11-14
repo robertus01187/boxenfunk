@@ -97,9 +97,12 @@ class Controller(QObject):
         cfg_path: Path | None = None,
         logo_dir: Path | None = None,
         check_updates: bool = False,
+        recorder_factory=None,
+        rec_dir: Path | None = None,
     ) -> None:
         super().__init__()
         self.source = source
+        self.recording = Aufnahme(recorder_factory, rec_dir)
         self.tracker = SessionTracker()
         self.cfg_path = cfg_path or config_path()
         self.cfg = load_config(self.cfg_path)
@@ -188,6 +191,19 @@ class Controller(QObject):
         self.move_btn.toggled.connect(self._toggle_move)
         lay.addWidget(self.move_btn)
 
+        rec_row = QHBoxLayout()
+        self.rec_btn = QPushButton("● Aufnahme starten")
+        self.rec_btn.setCheckable(True)
+        self.rec_btn.toggled.connect(self._toggle_recording)
+        rec_row.addWidget(self.rec_btn, 1)
+        rec_dir_btn = QPushButton("Aufnahmen-Ordner öffnen")
+        rec_dir_btn.clicked.connect(self._open_recordings)
+        rec_row.addWidget(rec_dir_btn)
+        lay.addLayout(rec_row)
+        self.rec_label = QLabel("")
+        self.rec_label.setObjectName("hint")
+        lay.addWidget(self.rec_label)
+
         self.update_btn = QPushButton("Nach Update suchen")
         self.update_btn.clicked.connect(self._update_clicked)
         lay.addWidget(self.update_btn)
@@ -205,7 +221,7 @@ class Controller(QObject):
         hint.setObjectName("hint")
         hint.setWordWrap(True)
         lay.addWidget(hint)
-        w.resize(440, 520)
+        w.resize(460, 600)
         return w
 
     def _toggle(self, key: str, on: bool) -> None:
@@ -321,6 +337,8 @@ class Controller(QObject):
                 o.set_data(st, self.tracker if st is not None else None)
         self._refresh_visibility()
         self.status.setText(getattr(self.source, "status", ""))
+        if self.recording.running:
+            self.rec_label.setText(self.recording.status())
         if self._found_release is not None and not self.update_btn.text().startswith(
             ("Lade", "Suche")
         ):
@@ -347,7 +365,29 @@ class Controller(QObject):
         self.window.show()
         self._refresh_visibility()
 
+    # -- Aufnahme (eingebauter LMU-Recorder) --
+
+    def _toggle_recording(self, on: bool) -> None:
+        if on:
+            ok, msg = self.recording.start()
+            if not ok:
+                self.rec_btn.blockSignals(True)
+                self.rec_btn.setChecked(False)
+                self.rec_btn.blockSignals(False)
+            self.rec_label.setText(msg)
+        else:
+            self.rec_label.setText(self.recording.stop())
+        self.rec_btn.setText(
+            "■ Aufnahme beenden" if self.recording.running else "● Aufnahme starten"
+        )
+
+    def _open_recordings(self) -> None:
+        self.recording.folder.mkdir(parents=True, exist_ok=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.recording.folder)))
+
     def close(self) -> None:
+        if self.recording.running:
+            self.recording.stop()
         self.timer.stop()
         self.fast_timer.stop()
         self._save()
@@ -363,3 +403,63 @@ def make_source(replay: str | None, speed: float, skip_to_race: bool):
     from boxenfunk.adapters.sources import LmuLiveSource
 
     return LmuLiveSource()
+
+
+class Aufnahme:
+    """Der LMU-Recorder als Knopf im Prototyp: läuft in einem eigenen Hintergrund-Faden.
+
+    Schreibt in denselben Ordner wie der eigenständige Recorder (``Boxenfunk-Aufnahmen`` neben
+    der exe), im selben Format. Liest den Spielspeicher getrennt von den Overlays.
+    """
+
+    def __init__(self, factory=None, folder: Path | None = None) -> None:
+        from boxenfunk.recorder.recorder import default_folder
+
+        self.folder = folder or default_folder()
+        self._factory = factory or self._default_factory
+        self._thread: threading.Thread | None = None
+        self._stop = threading.Event()
+        self._rec = None
+        self.last_log = ""
+
+    def _default_factory(self, folder: Path, log):
+        from boxenfunk.adapters.lmu.shm import LmuSharedMemory
+        from boxenfunk.recorder.recorder import Recorder
+
+        return Recorder(LmuSharedMemory(), folder, log=log)
+
+    @property
+    def running(self) -> bool:
+        return self._thread is not None and self._thread.is_alive()
+
+    def _log(self, msg: str) -> None:
+        self.last_log = msg
+
+    def start(self) -> tuple[bool, str]:
+        if self.running:
+            return True, "Aufnahme läuft schon"
+        try:
+            self._rec = self._factory(self.folder, self._log)
+        except Exception as e:
+            return False, f"Aufnahme konnte nicht starten: {e}"
+        self._stop.clear()
+        self._thread = threading.Thread(
+            target=self._rec.run, kwargs={"stop": self._stop}, daemon=True
+        )
+        self._thread.start()
+        return True, f"Aufnahme läuft · Ordner: {self.folder}"
+
+    def stop(self) -> str:
+        if self._thread is None:
+            return ""
+        self._stop.set()
+        self._thread.join(timeout=5)
+        frames = self._rec.frames if self._rec else 0
+        self._thread = None
+        return f"Aufnahme beendet · {frames} Messpunkte gespeichert in {self.folder}"
+
+    def status(self) -> str:
+        frames = self._rec.frames if self._rec else 0
+        if frames == 0:
+            return "● Aufnahme bereit · wartet, bis du auf der Strecke bist"
+        return f"● Aufnahme läuft · {frames} Messpunkte"
