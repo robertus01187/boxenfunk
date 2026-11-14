@@ -1,7 +1,7 @@
 # Anleitung: Overlay-Prototyp in Le Mans Ultimate ausprobieren
 
 Ab Version 0.3.0 zeigt `Boxenfunk.exe` die ersten Overlays live über LMU:
-**Standings, Relative, Delta, Inputs und VE & Sprit**. Das ist ein Prototyp: Aussehen nach den
+**Standings, Relative, Delta, Inputs, VE & Sprit und Flaggen**. Das ist ein Prototyp: Aussehen nach den
 Entwürfen aus dem Design-Thread, aber noch ohne Einstellungsfenster je Widget, ohne Taste zum
 Ein-/Ausblenden und nur für LMU.
 
