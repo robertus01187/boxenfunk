@@ -14,6 +14,7 @@ from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap, QPolygo
 from PySide6.QtSvg import QSvgRenderer
 
 from boxenfunk.core.flags import Flag, FlagState
+from boxenfunk.core.heatmap import COMPOUND_COLOR, COMPOUND_SYMBOL, brake_color, tyre_color
 from boxenfunk.core.views import energy_view, standings_blocks
 from boxenfunk.model.race_state import CarState, PitState, SessionKind
 from boxenfunk.overlay.base import (
@@ -195,6 +196,12 @@ class StandingsOverlay(Overlay):
             skip.add("ve")
         return [(n, w * self.fs) for n, w in self.COLS if n not in skip]
 
+    can_stretch_h = False  # Höhe ergibt sich aus den Zeilen
+
+    def min_size(self) -> tuple[float, float]:
+        w, h = self.preferred_size()
+        return w * 0.85, h
+
     def on_data(self) -> None:
         if self.state is None or self.tracker is None:
             self._blocks = []
@@ -250,6 +257,9 @@ class StandingsOverlay(Overlay):
 
         y = hh + 6 * s
         cols = self._cols()
+        # Breiter gezogen: der Platz geht an die Namen-Spalte
+        extra = max(0.0, self.width() - 8 * s - sum(w for _, w in cols))
+        cols = [(n, w + extra if n == "name" else w) for n, w in cols]
         width = sum(w for _, w in cols)
         for cls, rows in self._blocks:
             self._class_label(p, cls, y, width)
@@ -364,8 +374,9 @@ class StandingsOverlay(Overlay):
         elif c.pit_state == PitState.ANGEFORDERT:
             text(p, x + 3 * s, y, w, rh, "BOX", ORANGE)
         else:
-            p.setFont(ov_font(fs * 0.7))
-            text(p, x + 3 * s, y, w, rh, "PIT", DIM)
+            # Runden seit dem letzten Boxenbesuch (Stint), kein Boxen-Hinweis
+            p.setFont(ov_font(fs * 0.55))
+            text(p, x + 3 * s, y, w, rh, "STINT", DIM)
             p.setFont(ov_font(fs))
             text(p, x, y, w - 4 * s, rh, str(stint), WHITE, RIGHT)
 
@@ -412,13 +423,24 @@ class RelativeOverlay(Overlay):
     def rh(self) -> float:
         return 28 * self.scale
 
+    @property
+    def slots(self) -> int:
+        """Zeilen für Autos: aus der Höhe, immer ungerade (eigenes Auto in der Mitte)."""
+        n = int((max(self.height(), 1) - 2.4 * self.rh) / self.rh + 0.01)
+        n = max(3, min(15, n))
+        return n if n % 2 else n - 1
+
     def on_data(self) -> None:
+        k = (self.slots - 1) // 2
         self._entries = (
-            self.tracker.relative(self.state, 3, 3) if self.state and self.tracker else []
+            self.tracker.relative(self.state, k, k) if self.state and self.tracker else []
         )
 
     def preferred_size(self) -> tuple[float, float]:
         return 21 * self.fs, self.rh * (7 + 2.4)
+
+    def min_size(self) -> tuple[float, float]:
+        return 15 * self.fs, self.rh * (3 + 2.4)
 
     def paint_overlay(self, p: QPainter) -> None:
         st = self.state
@@ -439,13 +461,15 @@ class RelativeOverlay(Overlay):
             head.append(f"VE {st.player.energy * 100:.1f}%")
         text(p, 12 * s, 0, w - 24 * s, rh * 1.2, "   ".join(head), WHITE)
         top = rh * 1.2
-        # Eigenes Auto immer in der Mitte (3 Plätze davor, 3 dahinter), wie im Spiel
+        # Eigenes Auto immer in der Mitte, so viele Zeilen wie die Höhe hergibt
+        n_slots = self.slots
+        mid = n_slots // 2
         me_idx = next((n for n, e in enumerate(self._entries) if e.car.is_player), 0)
-        for slot in range(7):
+        for slot in range(n_slots):
             p.fillRect(QRectF(0, top + slot * rh, w, rh), ROW_A if slot % 2 == 0 else ROW_B)
         for k, e in enumerate(self._entries):
-            slot = 3 + k - me_idx
-            if not 0 <= slot < 7:
+            slot = mid + k - me_idx
+            if not 0 <= slot < n_slots:
                 continue
             y = top + slot * rh
             c = e.car
@@ -463,7 +487,8 @@ class RelativeOverlay(Overlay):
             p.setFont(ov_font(fs, 600, italic=True))
             text(p, 2.9 * fs, y, 3.2 * fs, rh, f"#{c.number}", col, RIGHT)
             p.setFont(ov_font(fs))
-            name_w = 9.5 * fs
+            logo_x = w - 4.8 * fs
+            name_w = max(2 * fs, logo_x - 6.8 * fs)
             p.save()
             p.setClipRect(QRectF(6.5 * fs, y, name_w, rh))
             text(p, 6.5 * fs, y, name_w * 2, rh, c.driver, col)
@@ -471,12 +496,12 @@ class RelativeOverlay(Overlay):
             if c.in_pits:
                 p.setFont(ov_font(fs * 0.65, 700))
                 text(p, 6.5 * fs + name_w - 2.2 * fs, y, 2.2 * fs, rh, "PIT", ORANGE, RIGHT)
-            draw_logo(p, self.logos, c, 16.2 * fs, y, 2 * fs, rh)
+            draw_logo(p, self.logos, c, logo_x, y, 2 * fs, rh)
             p.setFont(ov_font(fs))
             gap = "0.0" if c.is_player else f"{e.gap:+.1f}".replace("-", "−")
             text(p, 0, y, w - 10 * s, rh, gap, col, RIGHT)
         # Fuß: Runde, Restzeit (fest unten)
-        y = top + 7 * rh
+        y = top + n_slots * rh
         me = st.player_car()
         p.setFont(ov_font(fs))
         if me is not None:
@@ -503,6 +528,9 @@ class DeltaOverlay(Overlay):
     def preferred_size(self) -> tuple[float, float]:
         return 330 * self.scale, 112 * self.scale
 
+    def min_size(self) -> tuple[float, float]:
+        return 200 * self.scale, 60 * self.scale
+
     def on_data(self) -> None:
         p = self.state.player if self.state else None
         if p is not None and p.delta_best is not None:
@@ -521,6 +549,10 @@ class DeltaOverlay(Overlay):
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(QColor(20, 27, 38, 225))
         p.drawRoundedRect(QRectF(0, 0, w, h), 6 * s, 6 * s)
+        # Höher gezogen: Inhalt mittig. Zu flach: unten wird zuerst die geschätzte Runde,
+        # dann die Bestzeit ausgeblendet.
+        oy = max(0.0, (h - 112 * s) / 2)
+        p.translate(0, oy)
         valid = (
             d is not None and best is not None and me is not None and not me.in_pits and abs(d) < 60
         )
@@ -559,8 +591,12 @@ class DeltaOverlay(Overlay):
             length = -frac * bw / 2
             p.fillRect(QRectF(mid, by, -length, bh).normalized(), GAIN if d < 0 else RED)
         p.fillRect(QRectF(mid - 1 * s, by - 3 * s, 2 * s, bh + 6 * s), WHITE)
+        if h < 80 * s:
+            return
         p.setFont(ov_font(12 * s))
         text(p, 12 * s, 62 * s, w, 18 * s, f"Bestzeit {fmt_lap(best)}", WHITE)
+        if h < 108 * s:
+            return
         p.setPen(QPen(QColor(255, 255, 255, 40), 1))
         p.drawLine(QPointF(12 * s, 82 * s), QPointF(w - 12 * s, 82 * s))
         p.setFont(ov_font(11 * s, 700))
@@ -585,6 +621,9 @@ class InputsOverlay(Overlay):
 
     def preferred_size(self) -> tuple[float, float]:
         return 470 * self.scale, 110 * self.scale
+
+    def min_size(self) -> tuple[float, float]:
+        return 300 * self.scale, 64 * self.scale
 
     def on_data(self) -> None:
         st = self.state
@@ -620,7 +659,9 @@ class InputsOverlay(Overlay):
             p.fillRect(
                 QRectF(lx, 10 * s, led_w, h - 20 * s), col if on else QColor(255, 255, 255, 25)
             )
-        gx, gy, gw, gh = 26 * s, 10 * s, 300 * s, h - 20 * s
+        # Der Graph nimmt die ganze freie Breite und Höhe
+        gx, gy, gh = 26 * s, 10 * s, h - 20 * s
+        gw = max(60 * s, w - gx - 144 * s)
         p.fillRect(QRectF(gx, gy, gw, gh), QColor(255, 255, 255, 12))
         p.setPen(QPen(QColor(255, 255, 255, 25), 1))
         for q in (0.25, 0.5, 0.75):
@@ -670,24 +711,20 @@ class InputsOverlay(Overlay):
             text(p, x - 4 * s, gy + gh - 13 * s, 24 * s, 13 * s, f"{v * 100:.0f}", WHITE, CENTER)
         # Lenkrad (falls Lenkung bekannt), Gang, Tempo
         cx = bx + 44 * s + (w - bx - 44 * s) / 2
-        if pl.steering is not None:
-            self._wheel(p, cx, 26 * s, 15 * s, pl.steering)
+        # Rechter Teil mittig in der Höhe; ist es zu flach, fällt zuerst das Lenkrad weg
+        wheel = pl.steering is not None and h >= 100 * s
+        block = 110 * s if wheel else 80 * s
+        oy = (h - block) / 2 - (0 if wheel else 6 * s)
+        if wheel:
+            self._wheel(p, cx, oy + 26 * s, 15 * s, pl.steering)
         gear = {-1: "R", 0: "N"}.get(pl.gear, str(pl.gear))
+        gy0 = oy + (38 * s if wheel else 14 * s)
         p.setFont(ov_font(30 * s, 700))
-        text(
-            p,
-            cx - 40 * s,
-            38 * s if pl.steering is not None else 14 * s,
-            80 * s,
-            36 * s,
-            gear,
-            WHITE,
-            CENTER,
-        )
+        text(p, cx - 40 * s, gy0, 80 * s, 36 * s, gear, WHITE, CENTER)
         p.setFont(ov_font(18 * s, 700))
-        text(p, cx - 50 * s, 70 * s, 100 * s, 22 * s, f"{pl.speed_kmh:.0f}", WHITE, CENTER)
+        text(p, cx - 50 * s, gy0 + 32 * s, 100 * s, 22 * s, f"{pl.speed_kmh:.0f}", WHITE, CENTER)
         p.setFont(ov_font(10 * s))
-        text(p, cx - 50 * s, 88 * s, 100 * s, 14 * s, "km/h", DIM, CENTER)
+        text(p, cx - 50 * s, gy0 + 50 * s, 100 * s, 14 * s, "km/h", DIM, CENTER)
 
     @staticmethod
     def _wheel(p: QPainter, cx, cy, r, steering: float) -> None:
@@ -728,9 +765,19 @@ class EnergyOverlay(Overlay):
         box = 92 if main and main.allowed_per_lap is not None else 0
         return 340 * s, (14 + rows * 36 + box + 60) * s
 
+    def min_size(self) -> tuple[float, float]:
+        rows = max(1, (1 if self._ve else 0) + (1 if self._fuel else 0))
+        return 300 * self.scale, (12 + rows * 36) * self.scale
+
     def paint_overlay(self, p: QPainter) -> None:
         s = self.scale
         w, h = self.width(), self.height()
+        dx = w - 340 * s  # zusätzliche Breite: Zahlen rücken nach rechts
+        rows = (1 if self._ve else 0) + (1 if self._fuel else 0)
+        # Was nicht mehr in die Höhe passt, fällt weg: zuerst die Zeilen unten, dann der Kasten
+        room = h - (12 + rows * 36) * s
+        show_box = room >= 92 * s
+        show_lines = room - (92 * s if show_box else 0) >= 52 * s
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(QColor(20, 27, 38, 225))
         p.drawRoundedRect(QRectF(0, 0, w, h), 6 * s, 6 * s)
@@ -748,25 +795,26 @@ class EnergyOverlay(Overlay):
             p.setFont(ov_font(12 * s))
             text(p, 12 * s, y, 60 * s, 30 * s, label, WHITE)
             frac = v.level / v.capacity if v.capacity else 0
-            p.fillRect(QRectF(66 * s, y + 12 * s, 100 * s, 6 * s), QColor(255, 255, 255, 30))
+            bar = 100 * s + dx
+            p.fillRect(QRectF(66 * s, y + 12 * s, bar, 6 * s), QColor(255, 255, 255, 30))
             p.fillRect(
-                QRectF(66 * s, y + 12 * s, 100 * s * max(0, min(1, frac)), 6 * s),
+                QRectF(66 * s, y + 12 * s, bar * max(0, min(1, frac)), 6 * s),
                 VE_BLUE if v.kind == "energy" else ORANGE,
             )
             p.setFont(ov_font(19 * s, 700))
             val = f"{v.level * 100:.1f}" if v.kind == "energy" else f"{v.level:.1f}"
             unit = "%" if v.kind == "energy" else "L"
-            text(p, 170 * s, y, 70 * s, 30 * s, val, WHITE, RIGHT)
+            text(p, 170 * s + dx, y, 70 * s, 30 * s, val, WHITE, RIGHT)
             p.setFont(ov_font(11 * s))
-            text(p, 242 * s, y + 3 * s, 20 * s, 30 * s, unit, DIM)
+            text(p, 242 * s + dx, y + 3 * s, 20 * s, 30 * s, unit, DIM)
             p.setFont(ov_font(19 * s, 700))
             laps = f"{v.laps_left:.1f}" if v.laps_left is not None else "–"
-            text(p, 250 * s, y, 66 * s, 30 * s, laps, WHITE, RIGHT)
+            text(p, 250 * s + dx, y, 66 * s, 30 * s, laps, WHITE, RIGHT)
             p.setFont(ov_font(11 * s))
-            text(p, 318 * s, y + 3 * s, 20 * s, 30 * s, "Rd", DIM)
+            text(p, 318 * s + dx, y + 3 * s, 20 * s, 30 * s, "Rd", DIM)
             y += 36 * s
         main = self._ve if lim != "fuel" and self._ve else self._fuel
-        if main and main.allowed_per_lap is not None:
+        if show_box and main and main.allowed_per_lap is not None:
             ok = main.save_per_lap is not None and main.save_per_lap <= 0
             bg = QColor(40, 110, 60, 200) if ok else QColor(120, 40, 40, 200)
             edge = GAIN if ok else RED
@@ -787,17 +835,19 @@ class EnergyOverlay(Overlay):
                 WHITE,
             )
             p.setFont(ov_font(11 * s))
-            text(p, 20 * s, y + 20 * s, 140 * s, 14 * s, "Diese Runde (geschätzt)", DIM, CENTER)
-            text(p, 170 * s, y + 20 * s, 140 * s, 14 * s, "Erlaubt (+1)", DIM, CENTER)
+            half = (w - 40 * s) / 2
+            c2 = 30 * s + half
+            text(p, 20 * s, y + 20 * s, half, 14 * s, "Diese Runde (geschätzt)", DIM, CENTER)
+            text(p, c2, y + 20 * s, half, 14 * s, "Erlaubt (+1)", DIM, CENTER)
             p.setFont(ov_font(21 * s, 700))
             cur = main.est_per_lap if main.est_per_lap is not None else main.last_lap
             last = f"{cur * k:.2f}{u}" if cur is not None else "–"
-            text(p, 20 * s, y + 34 * s, 140 * s, 26 * s, last, WHITE, CENTER)
+            text(p, 20 * s, y + 34 * s, half, 26 * s, last, WHITE, CENTER)
             text(
                 p,
-                170 * s,
+                c2,
                 y + 34 * s,
-                140 * s,
+                half,
                 26 * s,
                 f"{main.allowed_per_lap * k:.2f}{u}",
                 edge,
@@ -813,8 +863,13 @@ class EnergyOverlay(Overlay):
                 text(p, 10 * s, y + 60 * s, w - 20 * s, 22 * s, msg, edge, CENTER)
             y += 92 * s
         # Letzte Runde und Ø der letzten 5 Runden
+        if not show_lines:
+            return
         p.setFont(ov_font(13 * s))
-        for label, attr in (("Letzte Runde", "last_lap"), ("Schnitt letzte 5 Runden", "avg_per_lap")):
+        for label, attr in (
+            ("Letzte Runde", "last_lap"),
+            ("Schnitt letzte 5 Runden", "avg_per_lap"),
+        ):
             parts = []
             if self._ve and getattr(self._ve, attr) is not None:
                 parts.append(f"{getattr(self._ve, attr) * 100:.2f} %")
@@ -848,6 +903,7 @@ class FlagsOverlay(Overlay):
     title = "Flaggen"
 
     W, H, GAP = 260, 40, 6
+    can_stretch_h = False  # Höhe ergibt sich aus der Zahl der Flaggen
 
     def __init__(self, scale: float = 1.0) -> None:
         self.logic = FlagState()
@@ -874,7 +930,7 @@ class FlagsOverlay(Overlay):
 
     def paint_overlay(self, p: QPainter) -> None:
         s = self.scale
-        w, h, gap = self.W * s, self.H * s, self.GAP * s
+        w, h, gap = self.width(), self.H * s, self.GAP * s
         y = 0.0
         for f in self._shown():
             bg, fg = FLAG_COLORS.get(f.kind, (DIM, WHITE))
@@ -916,6 +972,131 @@ class FlagsOverlay(Overlay):
         p.drawPath(path)
 
 
+# --- Reifen -------------------------------------------------------------------
+
+TYRE_NAMES = ("VL", "VR", "HL", "HR")
+
+
+class TyresOverlay(Overlay):
+    """Vier Reifen: Lauffläche links/Mitte/rechts, Abnutzung, Druck, Bremse.
+
+    Datenquellen und Farben wie TinyPedal (Widgets tyre_temperature, tyre_inner_layer,
+    tyre_wear, tyre_pressure, brake_temperature): Farbe je nach Mischung (weich/mittel/hart/nass).
+    """
+
+    key = "reifen"
+    title = "Reifen"
+
+    def preferred_size(self) -> tuple[float, float]:
+        return 340 * self.scale, 216 * self.scale
+
+    def min_size(self) -> tuple[float, float]:
+        return 200 * self.scale, 110 * self.scale
+
+    def paint_overlay(self, p: QPainter) -> None:
+        pl = self.state.player if self.state else None
+        if pl is None or len(pl.tyre_temp_ico) < 4:
+            return
+        s = self.scale
+        w, h = self.width(), self.height()
+        pad = 5 * s
+        tw, th = (w - 3 * pad) / 2, (h - 3 * pad) / 2
+        for i in range(4):
+            x = pad + (i % 2) * (tw + pad)
+            y = pad + (i // 2) * (th + pad)
+            self._tyre(p, i, pl, x, y, tw, th)
+
+    def _tyre(self, p: QPainter, i: int, pl, x: float, y: float, tw: float, th: float) -> None:
+        s = self.scale
+        ctype = pl.tyre_compound_type[i] if i < len(pl.tyre_compound_type) else 0
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(x, y, tw, th), 5 * s, 5 * s)
+        p.fillPath(path, QColor(20, 27, 38, 225))
+
+        # Oben: drei Streifen Lauffläche (links / Mitte / rechts), Farbe nach Mischung
+        m = 5 * s
+        sh = min(24 * s, th * 0.3)
+        sw = (tw - 2 * m) / 3
+        ico = pl.tyre_temp_ico[i]
+        p.setFont(ov_font(min(13 * s, sh * 0.62), 700))
+        for k, t in enumerate(ico[:3]):
+            r = QRectF(x + m + k * sw, y + m, sw - 1 * s, sh)
+            p.fillRect(r, QColor(tyre_color(ctype, t)))
+            text(p, r.x(), r.y(), r.width(), r.height(), f"{t:.0f}°", QColor("#111"), CENTER)
+
+        body_y = y + m + sh + 4 * s
+        foot_h = 18 * s if th >= 90 * s else 0.0  # Druck/Bremse nur, wenn genug Höhe da ist
+        body_h = y + th - m - foot_h - body_y
+        if body_h <= 4 * s:
+            return
+
+        # Links: Ring = Rest-Gummi, Mitte = Mischung (nur wenn breit genug)
+        ring = tw >= 120 * s and body_h >= 28 * s
+        tx = x + m
+        if ring:
+            rr = min(body_h, 50 * s) / 2 - 2 * s
+            cx, cy = x + m + rr + 3 * s, body_y + body_h / 2
+            wear = pl.tyre_wear[i] if i < len(pl.tyre_wear) else 1.0
+            pen = QPen(QColor(255, 255, 255, 40), 4 * s)
+            p.setPen(pen)
+            p.setBrush(Qt.BrushStyle.NoBrush)
+            box = QRectF(cx - rr, cy - rr, 2 * rr, 2 * rr)
+            p.drawEllipse(box)
+            col = GAIN if wear > 0.5 else (YELLOW if wear > 0.25 else RED)
+            pen.setColor(col)
+            pen.setCapStyle(Qt.PenCapStyle.FlatCap)
+            p.setPen(pen)
+            p.drawArc(box, 90 * 16, int(-360 * 16 * max(0.0, min(1.0, wear))))
+            p.setFont(ov_font(rr * 0.8, 700))
+            sym = COMPOUND_SYMBOL.get(ctype, "?")
+            text(
+                p,
+                box.x(),
+                box.y(),
+                box.width(),
+                box.height(),
+                sym,
+                QColor(COMPOUND_COLOR.get(ctype, "#AAA")),
+                CENTER,
+            )
+            tx = cx + rr + 8 * s
+
+        # Rechts: Mittel der Lauffläche groß, darunter innere Schicht und Abnutzung
+        avg = sum(ico[:3]) / max(1, len(ico[:3]))
+        big = min(24 * s, body_h * 0.55)
+        p.setFont(ov_font(big, 700))
+        text(
+            p,
+            tx,
+            body_y,
+            x + tw - m - tx,
+            body_h * 0.6,
+            f"{avg:.0f}°",
+            QColor(tyre_color(ctype, avg)),
+        )
+        if body_h >= 34 * s:
+            inner = pl.tyre_inner[i] if i < len(pl.tyre_inner) else float("nan")
+            wear = pl.tyre_wear[i] if i < len(pl.tyre_wear) else None
+            p.setFont(ov_font(11 * s))
+            parts = []
+            if inner == inner:
+                parts.append(f"innen {inner:.0f}°")
+            if wear is not None:
+                parts.append(f"{wear * 100:.0f}%")
+            text(
+                p, tx, body_y + body_h * 0.58, x + tw - m - tx, body_h * 0.42, "  ".join(parts), DIM
+            )
+
+        if foot_h:
+            fy = y + th - m - foot_h
+            p.setFont(ov_font(11 * s))
+            if i < len(pl.tyre_pressure):
+                text(p, x + m, fy, tw, foot_h, f"{pl.tyre_pressure[i]:.0f} kPa", WHITE)
+            if i < len(pl.brake_temp):
+                bt = pl.brake_temp[i]
+                text(p, x, fy, tw - m, foot_h, f"Bremse {bt:.0f}°", QColor(brake_color(bt)), RIGHT)
+
+
 ALL_OVERLAYS = (
     StandingsOverlay,
     RelativeOverlay,
@@ -923,4 +1104,5 @@ ALL_OVERLAYS = (
     InputsOverlay,
     EnergyOverlay,
     FlagsOverlay,
+    TyresOverlay,
 )

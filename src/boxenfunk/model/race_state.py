@@ -105,6 +105,12 @@ class PlayerState:
     tyre_wear: list[float] = field(default_factory=list)  # 4 Räder, 1 = neu
     tyre_temp: list[float] = field(default_factory=list)  # 4 Räder, Mittel der Lauffläche
     tyre_compound: str = ""
+    # Je Rad (VL, VR, HL, HR), wie TinyPedal aus mWheels gelesen, alles in °C bzw. kPa
+    tyre_temp_ico: list[list[float]] = field(default_factory=list)  # Lauffläche links/Mitte/rechts
+    tyre_inner: list[float] = field(default_factory=list)  # innere Gummischicht, Mittel
+    tyre_pressure: list[float] = field(default_factory=list)
+    brake_temp: list[float] = field(default_factory=list)
+    tyre_compound_type: list[int] = field(default_factory=list)  # 0 weich, 1 mittel, 2 hart, 3 nass
     track_limits_points: float | None = None
     gap_car_ahead: float | None = None  # vom Spiel: Sekunden zum Auto direkt vor mir (Strecke)
     gap_car_behind: float | None = None  # vom Spiel: Sekunden zum Auto direkt hinter mir

@@ -344,3 +344,16 @@ def test_consumption_reacts_within_lap_like_tinypedal():
         level -= 0.00025
         c.update(level, 3, k * 50.0, t, 50, False, False, True)
     assert c.estimate is not None and c.estimate < 0.04
+
+
+def test_tyre_heatmap_like_tinypedal():
+    from boxenfunk.core.heatmap import TYRE_80, brake_color, select_grade, tyre_color
+
+    # TinyPedal TYRE_80: ab 80 °C grün (#4F4), ab 120 °C rot, darunter blau
+    assert select_grade(TYRE_80, 85) == "#4F4"
+    assert select_grade(TYRE_80, 125) == "#F44"
+    assert select_grade(TYRE_80, 20) == "#44F"
+    # Mittel (TYRE_90) ist um 10 °C verschoben, nass (TYRE_50) um 30 °C nach unten
+    assert tyre_color(1, 85) == "#4F8"
+    assert tyre_color(3, 55) == "#4F4"
+    assert brake_color(450) == "#4F4"
