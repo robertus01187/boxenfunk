@@ -251,3 +251,11 @@ Muster `design/reifen-einstellungen.html`. iRacing liefert Reifentemperaturen nu
   Druck, Bremstemperatur; Mitte „Nächster Stopp: …“ (aus dem Boxenmenü, wenn lesbar).
 - Färben nach Temperatur oder Abnutzung; Grenzen kalt/heiß/abgefahren und Farben einstellbar; °C·kPa oder °F·psi;
   Lauffläche oder Kern.
+
+## 18. Styles (Entwurf 2026-11-14, Platzhalternamen)
+
+Vorschau: `design/styles.html` im Projektordner, umschaltbar. Es geht nur um Farben, Verläufe und Zahlenfarben, der Aufbau der Widgets bleibt gleich. Jeder Style ist ein Satz Farb-Variablen (Text, Hintergrund, Zeilen, schneller/langsamer, schnellste Runde, Stint, Runden-Abzeichen, eigene Zeile, Klassenfarben, Reifenfarben).
+
+- **design_1** (aus den drei RACE.-Vorlagen): fast schwarze Flächen, Positionsfeld voll in Klassenfarbe, Klassen-Kopf mit kleinem Farbquadrat. Lizenz als gefüllte Pille (A blau, B grün, C gelb, D orange), iRating weiß umrandet. Schnellste Runde lila, Gewinne grün, Runden-Abzeichen orange umrandet, Stint-Zeit gelb. Relative: Zeilen mit Farbverlauf vom linken Rand in Klassenfarbe, eigene Zeile hell umrandet. Fortschrittsbalken rot. Sprit-Zeilen mit farbigem Streifen links.
+- **design_2** (aus der Türkis-Vorlage): durchsichtige, leicht weichgezeichnete Flächen, Klassenname und Position in Klassenfarbe (Türkis, Grün). Lizenz als umrandete Pille in Lizenzfarbe. Pfeile ⌃/⌄ für Gewinne/Verluste, Delta grün/rot mit Leuchten. Reifen und Input-Graph mit senkrechten Farbverläufen, Schaltlichter grün → gelb → rot, Fortschritt grün → türkis.
+- **design_3** (unser aktueller Stand): Exo 2, dunkelblaue Zeilen, Klassen-Schild gefüllt mit Linie über die ganze Breite, eigene Zeile türkis mit Rand links, schnellste Runde grün unterstrichen.
