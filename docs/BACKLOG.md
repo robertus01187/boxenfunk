@@ -90,6 +90,7 @@
 | W-49 | Flaggen-Widget als Stapel (erweitert W-07): Grün, Grün mit „PIT“ (Stopp angefordert), Gelb mit Metern vor/hinter mir, Weiß (letzte Runde), Karo (Ziel), Blau mit Metern nach hinten, Orange mit Restrunden bei wenig Sprit/VE. Meter-Reichweite und Sprit-Grenze einstellbar (Standard 2–3 Runden). Nur aktive Flaggen erscheinen, untereinander ohne Überlappen; Stapel als Ganzes verschiebbar, einzelne Flaggen auch | Robert | ja | ja (ohne „PIT“) | mittel | T4 (Flaggen), T5 (Orange) | ✅ |
 | W-50 | Boxeneinstellungen aus LMU lesen (Reifenwechsel, Fahrerwechsel, Füllmenge), damit Circle of Doom und Strategie die Standzeit ohne Haken von Hand richtig rechnen. Haken bleiben als Ersatz | Robert | teilweise (über REST, prüfen) | teilweise | mittel | T5/T6 | ✅ |
 | W-51 | Sprachansagen wie CrewChief, direkt in Boxenfunk, nur LMU + iRacing: Renningenieur-Stimme (Sprit/VE, Boxenfenster, Flaggen, Abstände, Rundenzeiten, Strategie) und Spotter („Auto links/rechts“), mit Einstellungen (was angesagt wird, Lautstärke, Stimme). Später evtl. Sprachbefehle | Robert | ja | ja | groß | eigene Phase T9 nach 1.0 | ✅ |
+| W-52 | LED-Leisten links/rechts am Input-Graph: Blockieren/Durchdrehen vorne = obere 3 LEDs der Seite, hinten = untere 3; ABS greift = alle LEDs flackern gelb, TC greift = alle blau. An/aus, Farben frei, einzelne Anzeigen abschaltbar | Robert | ja | teilweise (ABS ja, TC und Radschlupf prüfen) | mittel | mit W-33 (nach 1.0) | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -308,3 +309,12 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 - **Spotter** („Auto links/rechts“): LMU über Positionen aller Autos, iRacing liefert links/rechts direkt. Braucht schnelle Datenrate (W-44).
 - **Aufwand:** groß. CrewChief ist über Jahre gewachsen. Darum schrittweise: T9a wichtigste Ansagen (Sprit/VE, Box, Flaggen, letzte Runde), T9b Spotter, T9c Strategie-Ansagen, später Sprachbefehle („Wie viel Sprit?“).
 - **Hinweis:** Bis dahin kann CrewChief einfach parallel laufen; es unterstützt LMU und iRacing bereits.
+
+### W-52 LED-Leisten am Input-Graph ✅ (Robert, 14.11.2026, über den Design-Thread)
+| Anzeige | LMU | iRacing |
+|---|---|---|
+| ABS greift | ja (`mABSActive`) | ja (`BrakeABSactive`) |
+| TC greift | ja (`mTCActive`) | **voraussichtlich nein** (kein allgemeines Signal; nur die eingestellte TC-Stufe) → im iRacing-Preset ausgegraut, mit R2 prüfen |
+| Blockieren / Durchdrehen je Rad | ja: Raddrehzahl je Rad (`mRotation`) und Radius gegen Fahrzeugtempo → Schlupf selbst gerechnet (wie TinyPedal) | **voraussichtlich nein**: iRacing liefert live keine Raddrehzahlen → höchstens grobe Schätzung, mit R2 prüfen |
+- Schwellen für „blockiert/durchdrehend“ einstellbar (Schlupf in %), damit es nicht bei jedem kleinen Rutscher leuchtet.
+- Braucht die schnelle Datenrate des Input-Graphen (W-44).
