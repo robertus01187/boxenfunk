@@ -36,6 +36,7 @@
 | T6 | Strategie-Rechner (Undercut/Normal, Wiedereinstieg, Verkehr) |
 | T7 | Einstellungen, Feinschliff, Version 1.0 |
 | T8 | Renningenieur-Tool im Browser (W-45/W-46) |
+| T9 | Sprachansagen / Funk (W-51) |
 | nach 1.0 | Erweiterungen |
 
 ## Wünsche
@@ -88,6 +89,7 @@
 | W-48 | Zuschauer-Modus (LMU, Langstrecke): Wenn ein Teamkollege fährt und ich zusehe, Strategie-, Sprit-/VE- und Stint-Daten für unser Auto weiter anzeigen, um mit dem Fahrer zu sprechen | Robert | offen (mit R1 prüfen) | teilweise | mittel | T5/T6, nach Prüfung mit R1 | ✅ |
 | W-49 | Flaggen-Widget als Stapel (erweitert W-07): Grün, Grün mit „PIT“ (Stopp angefordert), Gelb mit Metern vor/hinter mir, Weiß (letzte Runde), Karo (Ziel), Blau mit Metern nach hinten, Orange mit Restrunden bei wenig Sprit/VE. Meter-Reichweite und Sprit-Grenze einstellbar (Standard 2–3 Runden). Nur aktive Flaggen erscheinen, untereinander ohne Überlappen; Stapel als Ganzes verschiebbar, einzelne Flaggen auch | Robert | ja | ja (ohne „PIT“) | mittel | T4 (Flaggen), T5 (Orange) | ✅ |
 | W-50 | Boxeneinstellungen aus LMU lesen (Reifenwechsel, Fahrerwechsel, Füllmenge), damit Circle of Doom und Strategie die Standzeit ohne Haken von Hand richtig rechnen. Haken bleiben als Ersatz | Robert | teilweise (über REST, prüfen) | teilweise | mittel | T5/T6 | ✅ |
+| W-51 | Sprachansagen wie CrewChief, direkt in Boxenfunk, nur LMU + iRacing: Renningenieur-Stimme (Sprit/VE, Boxenfenster, Flaggen, Abstände, Rundenzeiten, Strategie) und Spotter („Auto links/rechts“), mit Einstellungen (was angesagt wird, Lautstärke, Stimme). Später evtl. Sprachbefehle | Robert | ja | ja | groß | eigene Phase T9 nach 1.0 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -296,3 +298,13 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 - **Prüfen:** kleines Testprogramm für Roberts PC (wie der Recorder), das die REST-Antwort einmal speichert. Danach steht fest, welche Punkte lesbar sind. Geplant vor bzw. in T5.
 - **Ersatz:** Wenn nichts lesbar ist, bleiben die Haken „Reifenwechsel / Fahrerwechsel einrechnen“; zusätzlich lernt die App nach jedem Stopp, ob Reifen/Fahrer gewechselt wurden (Fahrername, Reifenverschleiß zurückgesetzt).
 - iRacing: Die Boxendienste des eigenen Autos (Tanken, Reifen) stehen im SDK (`PitSvFlags`, `PitSvFuel`) → dort wohl direkt lesbar; Fahrerwechsel nicht. Spalte iRacing daher eher „teilweise“, wird mit R2 geprüft.
+
+### W-51 Sprachansagen wie CrewChief ✅ (Robert, 14.11.2026)
+- **Lizenz CrewChief:** Der Programmcode von CrewChief V4 steht unter der **MIT-Lizenz** (gitlab.com/mr_belowski/CrewChiefV4, Datei LICENSE, „Britton IT Ltd“). MIT ist mit unserer GPLv3 vereinbar → Logik und Ideen dürfen übernommen werden, mit Namensnennung. CrewChief ist aber in C# geschrieben, wir in Python → Übernahme heißt nachbauen, nicht kopieren.
+- **Sprachaufnahmen:** Die Stimmen-Pakete von CrewChief (aufgenommene Sätze) werden separat heruntergeladen; ihre Lizenz ist nicht eindeutig geklärt → **nicht mitliefern**. Wege:
+  1. Eigene Sprachausgabe per Text-zu-Sprache (Windows-Stimmen oder eine kostenlose Offline-Stimme). Klingt etwas künstlicher, kann aber jeden Satz sagen (z. B. „Box in 2 Runden, 68 Liter“).
+  2. Wer CrewChief installiert hat, kann dessen Stimmen-Ordner in den Einstellungen angeben (wie bei den Logos, W-31). Muss später geprüft werden, ob das passt.
+- **Was Boxenfunk besser kann:** Ansagen direkt aus unserer Strategie (Circle of Doom, Gegner-Stopps, Fahrerwechsel, Spar-Ziel), die CrewChief so nicht hat.
+- **Spotter** („Auto links/rechts“): LMU über Positionen aller Autos, iRacing liefert links/rechts direkt. Braucht schnelle Datenrate (W-44).
+- **Aufwand:** groß. CrewChief ist über Jahre gewachsen. Darum schrittweise: T9a wichtigste Ansagen (Sprit/VE, Box, Flaggen, letzte Runde), T9b Spotter, T9c Strategie-Ansagen, später Sprachbefehle („Wie viel Sprit?“).
+- **Hinweis:** Bis dahin kann CrewChief einfach parallel laufen; es unterstützt LMU und iRacing bereits.
