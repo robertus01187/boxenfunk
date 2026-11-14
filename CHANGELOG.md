@@ -2,6 +2,21 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.5.0] – 2026-11-15
+### Hinzugefügt
+- Reifen-Widget (Datenquellen und Farben wie TinyPedal): je Rad Lauffläche links/Mitte/rechts,
+  Mittelwert groß, innere Gummischicht, Abnutzung als Ring mit Mischung (S/M/H/W), Druck in kPa
+  und Bremstemperatur. Farben je Mischung wie TinyPedal (weich ideal ab 80 °C, mittel ab 90 °C,
+  hart ab 100 °C, nass ab 50 °C; blau = kalt, grün = passt, gelb/rot = heiß).
+- Widgets strecken: im Verschiebe-Modus an einer Kante ziehen macht das Widget nur breiter oder
+  höher, die Ecke unten rechts vergrößert weiter alles gleichmäßig. Jedes Widget hat eine
+  Mindestgröße. Wird es eng, fällt zuerst Unwichtiges weg (Delta: geschätzte Runde, dann
+  Bestzeit; Inputs: Lenkrad; VE & Sprit: untere Zeilen, dann der Kasten; Reifen: Druck/Bremse,
+  dann Ring). Relative zeigt mehr Autos, wenn es höher ist. Der Input-Graph wird breiter/höher.
+### Geändert
+- Standings: Die kleine Zahl nach dem Boxenstatus heißt jetzt „STINT“ (Runden seit dem letzten
+  Stopp). Vorher stand dort „PIT“, das sah aus, als wären alle Autos in der Box.
+
 ## [0.4.0] – 2026-11-14
 Ab jetzt ist TinyPedal (GPLv3, github.com/TinyPedal/TinyPedal) die Vorlage für Rechenwege und
 Funktionen (Roberts Vorgabe).

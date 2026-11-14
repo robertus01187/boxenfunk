@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-14 · **Version:** 0.4.0 (Prototyp mit Flaggen, Größe per Maus; TinyPedal als Vorlage) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
+**Stand:** 2026-11-15 · **Version:** 0.5.0 (Prototyp mit Reifen, Flaggen, Größe und Strecken per Maus; TinyPedal als Vorlage) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
@@ -57,7 +57,7 @@
 
 ## Technische Schulden
 - Prototyp: keine Einstellungsfenster je Widget, kein Hotkey, keine Presets je Spiel, nur LMU.
-  Relative-Abstand aus Streckenposition × geschätzter Rundenzeit (einfach, ggf. später genauer).
+  Relative-Abstand wie TinyPedal aus der Differenz von mTimeIntoLap (seit 0.3.4).
   Live-Quelle baut pro Abfrage den kompletten Snapshot (ca. 3 ms bei 20 Hz), später gezielter lesen.
 - iRacing-Recorder: noch keine echte Aufnahme geprüft.
 - Recorder-Fenster: Status als neue Zeile alle 10 s (kein schönes Live-Feld).

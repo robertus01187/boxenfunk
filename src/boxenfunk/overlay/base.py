@@ -154,24 +154,63 @@ class Overlay(QWidget):
         self.scale = scale
         self.relayout()
 
+    # Strecken: Breite/Höhe als Faktor zur natürlichen Größe. Widgets zeichnen in die echte
+    # Fenstergröße und blenden Teile aus, wenn der Platz nicht reicht.
+    can_stretch_w = True
+    can_stretch_h = True
+    stretch_w = 1.0
+    stretch_h = 1.0
+
+    def min_size(self) -> tuple[float, float]:
+        """Kleinste sinnvolle Größe (Pixel). Kleiner lässt sich das Widget nicht ziehen."""
+        w, h = self.preferred_size()
+        return w * 0.6, h * 0.6
+
+    def set_stretch(self, sw: float, sh: float) -> None:
+        self.stretch_w = sw if self.can_stretch_w else 1.0
+        self.stretch_h = sh if self.can_stretch_h else 1.0
+        self.relayout()
+
     def relayout(self) -> None:
         w, h = self.preferred_size()
-        if (w, h) != (self.width(), self.height()):
+        mw, mh = self.min_size()
+        w = max(mw, w * self.stretch_w)
+        h = max(mh, h * self.stretch_h)
+        if (int(w), int(h)) != (self.width(), self.height()):
             self.setFixedSize(max(10, int(w)), max(10, int(h)))
 
-    # Ecke unten rechts: dort ziehen ändert die Größe (alles wächst gleichmäßig mit)
+    # Ecke unten rechts: alles gleichmäßig größer/kleiner. Ränder: nur breiter/höher.
     HANDLE = 18
+    EDGE = 8
     MIN_SCALE, MAX_SCALE = 0.4, 3.0
 
     def _in_handle(self, pos) -> bool:
         return pos.x() >= self.width() - self.HANDLE and pos.y() >= self.height() - self.HANDLE
 
+    def _edge_at(self, pos) -> str:
+        """Welcher Rand unter der Maus liegt: Buchstaben aus "lrtb" (leer = keiner)."""
+        e = ""
+        if self.can_stretch_w:
+            if pos.x() <= self.EDGE:
+                e += "l"
+            elif pos.x() >= self.width() - self.EDGE:
+                e += "r"
+        if self.can_stretch_h:
+            if pos.y() <= self.EDGE:
+                e += "t"
+            elif pos.y() >= self.height() - self.EDGE:
+                e += "b"
+        return e
+
     def mousePressEvent(self, e) -> None:  # noqa: N802 (Qt-Name)
         if self._locked or e.button() != Qt.MouseButton.LeftButton:
             return
         g = e.globalPosition().toPoint()
-        if self._in_handle(e.position().toPoint()):
+        pos = e.position().toPoint()
+        if self._in_handle(pos):
             self._resize_from = (g, self.scale, max(1, self.width()))
+        elif edge := self._edge_at(pos):
+            self._stretch_from = (g, edge, self.geometry(), *self.preferred_size())
         else:
             self._drag_from = g - self.frameGeometry().topLeft()
 
@@ -183,20 +222,52 @@ class Overlay(QWidget):
             scale = min(self.MAX_SCALE, max(self.MIN_SCALE, s0 * new_w / w0))
             self.set_scale(round(scale, 3))
             self.update()
+        elif getattr(self, "_stretch_from", None) is not None:
+            start, edge, geo, nw, nh = self._stretch_from
+            dx, dy = g.x() - start.x(), g.y() - start.y()
+            mw, mh = self.min_size()
+            x, y, w, h = geo.x(), geo.y(), geo.width(), geo.height()
+            if "r" in edge:
+                w = max(mw, geo.width() + dx)
+            if "l" in edge:
+                w = max(mw, geo.width() - dx)
+                x = geo.x() + geo.width() - w
+            if "b" in edge:
+                h = max(mh, geo.height() + dy)
+            if "t" in edge:
+                h = max(mh, geo.height() - dy)
+                y = geo.y() + geo.height() - h
+            self.set_stretch(w / nw if nw else 1.0, h / nh if nh else 1.0)
+            self.move(int(x), int(y))
+            self.update()
         elif self._drag_from is not None:
             self.move(g - self._drag_from)
         elif not self._locked:
-            cur = (
-                Qt.CursorShape.SizeFDiagCursor
-                if self._in_handle(e.position().toPoint())
-                else Qt.CursorShape.SizeAllCursor
-            )
+            pos = e.position().toPoint()
+            edge = self._edge_at(pos)
+            if self._in_handle(pos):
+                cur = Qt.CursorShape.SizeFDiagCursor
+            elif edge in ("l", "r"):
+                cur = Qt.CursorShape.SizeHorCursor
+            elif edge in ("t", "b"):
+                cur = Qt.CursorShape.SizeVerCursor
+            elif edge in ("lt", "rb"):
+                cur = Qt.CursorShape.SizeFDiagCursor
+            elif edge:
+                cur = Qt.CursorShape.SizeBDiagCursor
+            else:
+                cur = Qt.CursorShape.SizeAllCursor
             self.setCursor(cur)
 
     def mouseReleaseEvent(self, e) -> None:  # noqa: N802
-        if self._drag_from is not None or self._resize_from is not None:
+        if (
+            self._drag_from is not None
+            or self._resize_from is not None
+            or getattr(self, "_stretch_from", None) is not None
+        ):
             self._drag_from = None
             self._resize_from = None
+            self._stretch_from = None
             self.moved.emit()
 
     # -- Daten und Zeichnen --
@@ -219,7 +290,9 @@ class Overlay(QWidget):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         p.setRenderHint(QPainter.RenderHint.TextAntialiasing)
         if self.state is not None and self.tracker is not None:
+            p.save()
             self.paint_overlay(p)
+            p.restore()
         else:
             self.paint_placeholder(p)
         if not self._locked:

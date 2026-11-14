@@ -38,6 +38,7 @@ from boxenfunk.overlay.widgets import (
     Logos,
     RelativeOverlay,
     StandingsOverlay,
+    TyresOverlay,
 )
 
 SCALES = {"S": 0.8, "M": 1.0, "L": 1.25, "XL": 1.5}
@@ -50,6 +51,7 @@ DEFAULT_POS = {
     "inputs": (0.40, 0.84),
     "energie": (0.72, 0.30),
     "flaggen": (0.44, 0.16),
+    "reifen": (0.84, 0.72),
 }
 
 CONTROL_STYLE = """
@@ -121,7 +123,12 @@ class Controller(QObject):
             InputsOverlay(sizes.get("inputs", base)),
             EnergyOverlay(sizes.get("energie", base)),
             FlagsOverlay(sizes.get("flaggen", base)),
+            TyresOverlay(sizes.get("reifen", base)),
         ]
+        # Gestreckte Breite/Höhe je Widget (im Verschiebe-Modus an den Kanten ziehen)
+        for o in self.overlays:
+            sw, sh = self.cfg.get("strecken", {}).get(o.key, (1.0, 1.0))
+            o.set_stretch(float(sw), float(sh))
         self.overlays[0].only_my_class = self.cfg.get("standings_klassen") == "meine"
         self.enabled = {o.key: self.cfg.get("an", {}).get(o.key, True) for o in self.overlays}
         self.has_data = False
@@ -317,6 +324,7 @@ class Controller(QObject):
     def _save(self) -> None:
         self.cfg["positionen"] = {o.key: [o.x(), o.y()] for o in self.overlays}
         self.cfg["skalen"] = {o.key: o.scale for o in self.overlays}
+        self.cfg["strecken"] = {o.key: [o.stretch_w, o.stretch_h] for o in self.overlays}
         self.cfg["an"] = dict(self.enabled)
         save_config(self.cfg_path, self.cfg)
 

@@ -121,3 +121,43 @@ def test_resize_is_saved_per_widget(qtbot, tmp_path: Path):
     assert next(o for o in ctl2.overlays if o.key == "flaggen").scale == 1.5
     assert next(o for o in ctl2.overlays if o.key == "delta").scale == 1.0
     ctl2.close()
+
+
+def test_stretch_is_saved_and_respects_min_size(qtbot, tmp_path: Path):
+    cfg = tmp_path / "cfg.json"
+    ctl = Controller(FakeSource(), cfg, tmp_path / "logos")
+    qtbot.addWidget(ctl.window)
+    inputs = next(o for o in ctl.overlays if o.key == "inputs")
+    w0, h0 = inputs.width(), inputs.height()
+    inputs.set_stretch(1.5, 1.4)
+    assert inputs.width() > w0 and inputs.height() > h0
+    inputs.set_stretch(0.1, 0.1)  # kleiner als erlaubt: bleibt bei der Mindestgröße
+    mw, mh = inputs.min_size()
+    assert inputs.width() == int(mw) and inputs.height() == int(mh)
+    inputs.set_stretch(1.5, 1.4)
+    flags = next(o for o in ctl.overlays if o.key == "flaggen")
+    flags.set_stretch(1.3, 2.0)
+    assert flags.stretch_h == 1.0  # Flaggen nur in die Breite
+    ctl._save()
+    ctl.close()
+    ctl2 = Controller(FakeSource(), cfg, tmp_path / "logos")
+    qtbot.addWidget(ctl2.window)
+    inputs2 = next(o for o in ctl2.overlays if o.key == "inputs")
+    assert (inputs2.stretch_w, inputs2.stretch_h) == (1.5, 1.4)
+    assert any(o.key == "reifen" for o in ctl2.overlays)
+    ctl2.close()
+
+
+def test_overlays_paint_at_min_and_large_size(qtbot):
+    src = FakeSource()
+    tr = SessionTracker()
+    for _ in range(300):
+        st = src.poll()
+        tr.update(st)
+    for cls in ALL_OVERLAYS:
+        for f in (0.1, 2.0):
+            o = cls()
+            qtbot.addWidget(o)
+            o.set_data(st, tr)
+            o.set_stretch(f, f)
+            assert not o.grab().isNull()

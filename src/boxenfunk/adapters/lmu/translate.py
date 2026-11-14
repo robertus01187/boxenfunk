@@ -163,6 +163,15 @@ def _player(c: dict[str, Any]) -> PlayerState:
     for w in wheels:
         t = [x for x in (w.get("mTemperature") or []) if x is not None]
         temps.append(sum(t) / len(t) - KELVIN if t else float("nan"))
+    ico, inner, press, brake, ctype = [], [], [], [], []
+    for w in wheels:
+        ico.append([(_num(x) or KELVIN) - KELVIN for x in (w.get("mTemperature") or [])])
+        il = [x for x in (w.get("mTireInnerLayerTemperature") or []) if x is not None]
+        inner.append(sum(il) / len(il) - KELVIN if il else float("nan"))
+        press.append(_num(w.get("mPressure")) or 0.0)
+        # LMU liefert die Bremse in Kelvin (TinyPedal zieht ebenfalls 273,15 ab)
+        brake.append((_num(w.get("mBrakeTemp")) or KELVIN) - KELVIN)
+        ctype.append(int(w.get("mCompoundType") or 0))
     lap_start = _num(v.get("mLapStartET"))
     now = _num(v.get("mElapsedTime"))
     return PlayerState(
@@ -185,6 +194,11 @@ def _player(c: dict[str, Any]) -> PlayerState:
         tyre_wear=[_num(w.get("mWear")) or 0.0 for w in wheels],
         tyre_temp=temps,
         tyre_compound=v.get("mFrontTireCompoundName", "") or "",
+        tyre_temp_ico=ico,
+        tyre_inner=inner,
+        tyre_pressure=press,
+        brake_temp=brake,
+        tyre_compound_type=ctype,
         track_limits_points=_num(v.get("mTrackLimitsSteps")),
         input_time=now,
         gap_car_ahead=_num(v.get("mTimeGapCarAhead")),
