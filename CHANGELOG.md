@@ -2,6 +2,12 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.3.2] – 2026-11-14
+### Hinzugefügt
+- Recorder eingebaut: Knopf „Aufnahme starten/beenden“ im Boxenfunk-Fenster (gleiches Format und
+  gleicher Ordner `Boxenfunk-Aufnahmen` wie der eigenständige LMU-Recorder) und Knopf
+  „Aufnahmen-Ordner öffnen“. Läuft im Hintergrund, Anzeige der Messpunkte.
+
 ## [0.3.1] – 2026-11-14
 ### Behoben (nach Roberts erstem Test in LMU)
 - Relative: Abstände werden jetzt gemessen (wann war das andere Auto an meiner Stelle) statt aus

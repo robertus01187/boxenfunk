@@ -65,3 +65,38 @@ def test_controller_runs_and_saves_positions(qtbot, tmp_path: Path):
     assert ctl2.overlays[0].pos().toTuple() == (123, 45)
     assert ctl2.enabled["delta"] is False
     ctl2.close()
+
+
+def test_recording_button_writes_files(qtbot, tmp_path: Path):
+    import time
+
+    from boxenfunk.recorder import recorder
+    from boxenfunk.recorder.files import recording_files
+
+    class Moving(FakeLmu):
+        def update(self) -> bool:
+            self.tick(0.2)
+            return True
+
+    def factory(folder, log):
+        return recorder.Recorder(Moving(), folder, hz=50, log=log)
+
+    rec_dir = tmp_path / "Boxenfunk-Aufnahmen"
+    ctl = Controller(
+        FakeSource(),
+        tmp_path / "cfg.json",
+        tmp_path / "logos",
+        recorder_factory=factory,
+        rec_dir=rec_dir,
+    )
+    qtbot.addWidget(ctl.window)
+    ctl.rec_btn.setChecked(True)
+    assert ctl.recording.running
+    time.sleep(0.5)
+    ctl.tick()
+    assert "Messpunkte" in ctl.rec_label.text()
+    ctl.rec_btn.setChecked(False)
+    assert not ctl.recording.running
+    assert "gespeichert" in ctl.rec_label.text()
+    assert len(recording_files(rec_dir)) == 1
+    ctl.close()

@@ -37,7 +37,9 @@ Größe, Auswahl) bleiben erhalten. Gibt es eine neue Version, steht das schon b
 
 ## Beim Testen mitschreiben lassen
 
-Starte beim Testen zusätzlich den **Boxenfunk-LMU-Recorder** und schick mir danach die Aufnahme.
+Drück beim Testen im Boxenfunk-Fenster auf **„● Aufnahme starten“** (ab Version 0.3.2; vorher den
+Boxenfunk-LMU-Recorder zusätzlich starten) und danach auf **„■ Aufnahme beenden“**. Mit
+**„Aufnahmen-Ordner öffnen“** kommst du direkt zu den Dateien; schick mir alle Dateien der Aufnahme.
 Ich kann dann genau nachspielen, was die Overlays gezeigt haben, und automatisch mit den Werten des
 Spiels vergleichen. Siehst du etwas Falsches, merk dir grob die Uhrzeit oder mach ein Bildschirmfoto.
 
