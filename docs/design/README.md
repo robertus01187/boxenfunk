@@ -241,3 +241,13 @@ Reiter „LEDs“: ganz an/aus, Aus-Zustand leicht sichtbar/unsichtbar, jede Anz
 iRacing meldet nur „ABS greift“ → TC, Blockieren, Durchdrehen und Empfindlichkeit im iRacing-Preset durchgestrichen.
 
 - **Delta-Balken (2026-11-14):** unten eigene Zeile „Geschätzte Runde 1:26.915“ (Farbe wie das Delta), an/aus und klein/groß im Reiter Inhalt.
+
+## 17. Reifen (Entwurf 2026-11-14, nur LMU)
+
+Muster `design/reifen-einstellungen.html`. iRacing liefert Reifentemperaturen nur in der Box → Widget nur für LMU.
+- **Kompakt** (zum Drüberlegen über die Reifen-/Temperatur-Anzeige des Spiels unten rechts): vier farbige Reifen-Blöcke
+  um einen Auto-Umriss, je Temperatur und Abnutzung %; darunter auf Wunsch Wasser und Öl (deckt die Spiel-Anzeige mit ab).
+- **Normal** (MFD-Größe): je Rad Ring = Rest-Gummi % mit Mischung, Temperatur groß, drei Streifen innen/Mitte/außen,
+  Druck, Bremstemperatur; Mitte „Nächster Stopp: …“ (aus dem Boxenmenü, wenn lesbar).
+- Färben nach Temperatur oder Abnutzung; Grenzen kalt/heiß/abgefahren und Farben einstellbar; °C·kPa oder °F·psi;
+  Lauffläche oder Kern.
