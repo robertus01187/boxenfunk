@@ -27,8 +27,8 @@ Ein-/Ausblenden und nur für LMU.
    Tipp: Zum Verschieben im Spiel kurz mit Alt+Tab zum Boxenfunk-Fenster wechseln.
 4. **Größe:** S, M, L oder XL im Boxenfunk-Fenster.
 5. **Standings:** „Alle Klassen“ (jede Klasse mit Namen getrennt) oder „Nur meine Klasse“.
-5. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
-6. **Beenden:** Boxenfunk-Fenster schließen.
+6. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
+7. **Beenden:** Boxenfunk-Fenster schließen.
 
 ## Neue Version holen
 
