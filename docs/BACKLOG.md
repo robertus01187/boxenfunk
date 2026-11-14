@@ -66,7 +66,7 @@
 | W-25 | Darstellung einstellbar: Schriftart, schmale Schrift, Größe der Kopf- und Fahrerzeilen (XS bis L), Ausrichtung, Farben für Gewinn/Verlust, Deckkraft, abwechselnd helle/dunkle Zeilen, Tönung der eigenen Zeile, „zurücksetzen“-Knopf | Robert | ja | ja | mittel | T3/T7 | ✅ |
 | W-26 | Animation bei Platzwechseln, Tempo getrennt für Fahrt und Wiederholung (aus, schnell, normal, langsam) | Robert | ja | ja | mittel | T7 | ✅ |
 | W-27 | „Live-Standings“: Positionen laufend auf der Strecke statt nur an der Ziellinie neu sortieren | Robert | ja | ja | klein | T4 | ✅ |
-| W-28 | Rundenvergleich rechts in jeder Zeile: Differenz der letzten 3 Rundenzeiten dieses Autos zu meiner jeweiligen Runde, grün = ich war schneller, rot = langsamer (von Robert bestätigt). Neueste Runde rechts, älteste fällt links raus. Eigene Zeile zeigt ∞ | Robert | ja | ja | klein | T4 | ✅ |
+| W-28 | Rundenvergleich rechts in jeder Zeile: Differenz der letzten 3 Rundenzeiten dieses Autos zu meiner jeweiligen Runde, grün = ich war schneller, rot = langsamer (von Robert bestätigt). Wächst von links nach rechts: nach der 1. Runde nur ein Wert, mit jeder Runde kommt rechts ein neuer dazu, bis zur eingestellten Anzahl (Standard 3); danach fällt der älteste links raus. Eigene Zeile zeigt ∞ | Robert | ja | ja | klein | T4 | ✅ |
 | W-29 | Eigene Standings-Ansicht für Training/Quali (nach Bestzeit sortiert, Abstand zur Bestzeit) | Robert | ja | ja | klein | T4 | ✅ |
 | W-30 | Spiel automatisch erkennen (LMU oder iRacing) und das passende Overlay-Preset laden. Beide Presets vorher getrennt einstellbar; im Einstellungsfenster werden nur Bausteine angeboten, die das jeweilige Spiel liefern kann (andere ausgegraut mit Hinweis) | Robert | ja | ja | mittel | T2 Erkennung, T3/T7 Presets | ✅ |
 | W-31 | Herstellerlogos statt Kürzel: App wird ohne Logos ausgeliefert, lädt sie aus einem Logo-Ordner, den der Nutzer selbst füllt (eine Datei pro Marke); fehlt ein Logo, wird das Kürzel gezeigt. Braucht Zuordnung Fahrzeug → Marke | Design-Thread / Robert | ja | ja | klein | T4 | ✅ |
@@ -92,6 +92,8 @@
 | W-51 | Sprachansagen wie CrewChief, direkt in Boxenfunk, nur LMU + iRacing: Renningenieur-Stimme (Sprit/VE, Boxenfenster, Flaggen, Abstände, Rundenzeiten, Strategie) und Spotter („Auto links/rechts“), mit Einstellungen (was angesagt wird, Lautstärke, Stimme). Später evtl. Sprachbefehle | Robert | ja | ja | groß | eigene Phase T9 nach 1.0 | ✅ |
 | W-52 | LED-Leisten links/rechts am Input-Graph: Blockieren/Durchdrehen vorne = obere 3 LEDs der Seite, hinten = untere 3; ABS greift = alle LEDs flackern gelb, TC greift = alle blau. An/aus, Farben frei, einzelne Anzeigen abschaltbar | Robert | ja | teilweise (ABS ja, TC und Radschlupf prüfen) | mittel | mit W-33 (nach 1.0) | ✅ |
 | W-53 | Boxenzeiten aus den Stopps **aller** Autos lernen, nicht nur aus meinen: Durchfahrt Boxengasse (Ein- bis Ausfahrt) und Standzeit getrennt nach mit/ohne Tanken, Reifenwechsel, Fahrerwechsel; bevorzugt gleiches Fahrzeug (z. B. Porsche), sonst gleiche Klasse. Grundlage für Circle of Doom und Strategie | Robert | ja | teilweise (Tanken nicht erkennbar) | mittel | T6 (Messung schon in T2/T8a) | ✅ |
+| W-54 | Update-Knopf (im Prototyp und in der fertigen App): lädt die neueste Version von GitHub, ersetzt die exe, Einstellungen bleiben erhalten | Robert | – | – | klein | 🔨 Prototyp 0.3.1, dann T7 | 🔨 |
+| W-55 | Prüfprogramm „Spiel gegen Overlay“: vergleicht laufend die Werte im Spiel mit denen im Overlay (z. B. Abstände in Relative, Plätze in Standings) und meldet Abweichungen | Robert | ja | ja | mittel | Prototyp / T4 | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -336,3 +338,11 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 **Aufräumen nötig:** Im Training fahren viele Autos in die Garage (Box-Besuche von mehreren Minuten). Solche Besuche, Durchfahrtsstrafen und Ausreißer werden herausgefiltert; gezählt werden nur echte Stopps im Rennen.
 
 **Ergebnis für den Circle of Doom:** Boxenverlust = Durchfahrtszeit (aus allen Autos, gleiches Modell bevorzugt) + erwartete Standzeit für meinen geplanten Stopp (Tanken/Reifen/Fahrer, siehe W-50) − Zeit, die ich auf der Strecke für denselben Abschnitt gebraucht hätte.
+
+### Feedback Prototyp-Test (Robert, 14.11.2026)
+- **Gut:** VE- und Spritanzeige, letzte Runde, Input-Graph (genau), Delta.
+- **Input-Graph** ruckelt (wirkt wie ~15 Bilder/s) → flüssiger und schneller; passt zu W-44 (Anzeigerate je Widget, Standard für Inputs 30–60).
+- **Relative** stimmt nicht: Abstände bis zu 2 s daneben → wird im Prototyp-Thread repariert; W-55 soll solche Fehler künftig selbst finden.
+- **Standings:** mehrere Fehler und Formatierung (erste Spalte rutscht in die Positionswechsel) → Reparatur im Prototyp-Thread.
+- **Trend-Spalte (W-28):** wächst künftig von links nach rechts (siehe W-28).
+- **Flaggen:** noch nicht getestet.
