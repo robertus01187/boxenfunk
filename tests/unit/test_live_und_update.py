@@ -74,3 +74,16 @@ def test_swap_script_replaces_and_restarts():
     s = updater.swap_script(Path("C:/B/Boxenfunk.neu.exe"), Path("C:/B/Boxenfunk.exe"))
     assert "move /y" in s and "Boxenfunk.neu.exe" in s and 'start ""' in s
     assert not updater.can_self_update()  # Tests laufen nie als fertige exe
+
+
+def test_restart_does_not_inherit_old_exe_folder():
+    """Fehler bei Robert nach dem Update auf 0.3.3: „Failed to load Python DLL … _MEI…“."""
+    from boxenfunk.updater import clean_env
+
+    env = clean_env({"PATH": "x", "_PYI_APPLICATION_HOME_DIR": "C:/Temp/_MEI1", "_MEIPASS2": "y"})
+    assert env == {"PATH": "x", "PYINSTALLER_RESET_ENVIRONMENT": "1"}
+    from pathlib import Path
+
+    from boxenfunk.updater import swap_script
+
+    assert "PYINSTALLER_RESET_ENVIRONMENT=1" in swap_script(Path("a.exe"), Path("b.exe"))
