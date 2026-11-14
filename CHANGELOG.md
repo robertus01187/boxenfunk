@@ -2,6 +2,24 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.4.0] – 2026-11-14
+Ab jetzt ist TinyPedal (GPLv3, github.com/TinyPedal/TinyPedal) die Vorlage für Rechenwege und
+Funktionen (Roberts Vorgabe).
+### Hinzugefügt
+- Flaggen-Widget (Rechenweg wie TinyPedal): Gelb mit Abstand in Metern zum nächsten langsamen
+  Auto (bis 500 m vor dir, 50 m hinter dir), Gelb für die ganze Strecke, Blau mit der Klasse des
+  überrundenden Autos (HYPERCAR, LMP2, LMP3, GT3) und seinem Abstand in Sekunden, VE/Sprit knapp
+  (höchstens 2 Runden), Box angefordert, Grün nach Start und Gelbphase, Zielflagge.
+- Größe jedes Widgets einzeln: im Verschiebe-Modus an der gelben Ecke unten rechts ziehen.
+  Alles im Widget wächst gleichmäßig mit. Die Knöpfe S/M/L/XL sind weg.
+### Geändert
+- VE & Sprit rechnen wie TinyPedal: Verbrauch der letzten gültigen Runde plus die Abweichung, die
+  du in der laufenden Runde an derselben Stelle hast. Wer spart, sieht es sofort („Diese Runde
+  (geschätzt)“). Runden Rest und Ziel (+1 Runde) daraus wie in TinyPedals Sprit-Sparhilfe.
+  Zusätzlich steht der Schnitt der letzten 5 sauberen Runden im Widget.
+- Standings im Rennen: Abstände wie TinyPedal aus der vom Spiel geschätzten Zeit seit
+  Start/Ziel, „+1L“ erst ab mehr als einer Runde.
+
 ## [0.3.4] – 2026-11-14
 ### Behoben
 - Nach „Nach Update suchen“ startete die neue Version nicht („Failed to load Python DLL“): Sie

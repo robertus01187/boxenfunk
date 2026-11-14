@@ -104,3 +104,20 @@ def test_recording_button_writes_files(qtbot, tmp_path: Path):
     assert "gespeichert" in ctl.rec_label.text()
     assert len(recording_files(rec_dir)) == 1
     ctl.close()
+
+
+def test_resize_is_saved_per_widget(qtbot, tmp_path: Path):
+    cfg = tmp_path / "cfg.json"
+    ctl = Controller(FakeSource(), cfg, tmp_path / "logos")
+    qtbot.addWidget(ctl.window)
+    flags = next(o for o in ctl.overlays if o.key == "flaggen")
+    w0 = flags.width()
+    flags.set_scale(1.5)
+    assert flags.width() > w0
+    ctl._save()
+    ctl.close()
+    ctl2 = Controller(FakeSource(), cfg, tmp_path / "logos")
+    qtbot.addWidget(ctl2.window)
+    assert next(o for o in ctl2.overlays if o.key == "flaggen").scale == 1.5
+    assert next(o for o in ctl2.overlays if o.key == "delta").scale == 1.0
+    ctl2.close()

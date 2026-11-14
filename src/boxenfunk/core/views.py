@@ -5,7 +5,6 @@ Ohne Qt, damit es sich mit Aufnahmen testen lässt. Die Overlays zeichnen nur no
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 from boxenfunk.core.tracker import SessionTracker
@@ -27,18 +26,27 @@ class StandingsRow:
 def gap_between(st: RaceState, car: CarState, ref: CarState) -> str:
     """Abstand von ``car`` hinter ``ref`` (ref liegt vorn), als Text.
 
-    Liegt ``car`` eine Runde oder mehr zurück: "+1L". Sonst Summe der Abstände zum jeweils
-    davor liegenden Auto (``gap_ahead``) über die Gesamtwertung, so wie das Spiel sie misst.
+    Wie TinyPedal (``calc_time_gap_behind``): Mehr als eine Runde Rückstand → "+1L". Sonst
+    Unterschied der vom Spiel geschätzten Zeit seit Start/Ziel; liegt ``car`` auf der Strecke
+    scheinbar vorn, eine geschätzte Rundenzeit dazu. Fehlen die Werte: Summe der Abstände zum
+    jeweils davor liegenden Auto, so wie das Spiel sie meldet.
     """
     L = st.track_length or 1.0
     behind = (ref.laps + ref.lap_dist / L) - (car.laps + car.lap_dist / L)
-    if behind >= 1.0:
+    if behind > 1.0:
         return f"+{int(behind)}L"
-    total = 0.0
-    for c in st.cars[ref.position : car.position]:
-        if c.gap_ahead is None:
-            return ""
-        total += c.gap_ahead
+    if behind < 0:  # schon vorbei, Platz noch nicht umgestellt (TinyPedal zeigt dann 0)
+        return "0.0"
+    if ref.time_into_lap is not None and car.time_into_lap is not None and car.est_lap_time:
+        total = ref.time_into_lap - car.time_into_lap
+        if total < 0:
+            total += car.est_lap_time
+    else:
+        total = 0.0
+        for c in st.cars[ref.position : car.position]:
+            if c.gap_ahead is None:
+                return ""
+            total += c.gap_ahead
     if total < 0:
         return ""
     return f"{total:.0f}" if total >= 100 else f"{total:.1f}"
@@ -125,17 +133,22 @@ class EnergyView:
     kind: str  # "energy" (VE, Anteil) oder "fuel" (Liter)
     level: float  # VE 0–1 bzw. Liter
     capacity: float | None
-    avg_per_lap: float | None
-    last_lap: float | None
+    avg_per_lap: float | None  # Ø der letzten 5 sauberen Runden (Zusatzanzeige)
+    last_lap: float | None  # Verbrauch der letzten Runde
     laps_left: float | None
     target_laps: int | None  # Ziel = eine Runde mehr als jetzt möglich
     allowed_per_lap: float | None
     save_per_lap: float | None  # positiv = so viel pro Runde sparen
+    est_per_lap: float | None = None  # Schätzung dieser Runde (TinyPedal)
 
 
 def energy_view(
     st: RaceState, tr: SessionTracker, kind: str, avg_laps: int = 5
 ) -> EnergyView | None:
+    """VE- bzw. Sprit-Anzeige. Rechenweg wie TinyPedal (``module_fuel`` und
+    ``widget/fuel_energy_saver``): Schätzung = letzte gültige Runde + Abweichung in dieser Runde,
+    Ziel = eine Runde mehr ab dem Stand zu Beginn dieser Runde. Solange es noch keine gültige
+    Runde gibt, gilt der Ø der letzten sauberen Runden."""
     p = st.player
     if p is None:
         return None
@@ -144,12 +157,17 @@ def energy_view(
         return None
     cap = 1.0 if kind == "energy" else p.fuel_capacity
     avg = tr.usage_average(kind, avg_laps)
-    last = tr.last_usage(kind)
-    laps_left = level / avg if avg else None
+    cons = tr.consumption[kind]
+    est = cons.estimate
+    last = cons.used_last_raw if cons.used_last_raw else tr.last_usage(kind)
+    used_now = cons.used_curr
+    if est is None or est <= 0:
+        est, used_now = avg, 0.0
+    laps_left = level / est if est else None
     target = allowed = save = None
-    if laps_left is not None:
-        target = math.floor(laps_left) + 1
-        allowed = level / target
-        if last is not None:
-            save = last - allowed
-    return EnergyView(kind, level, cap, avg, last, laps_left, target, allowed, save)
+    if est:
+        at_lap_start = level + used_now
+        target = int(round(at_lap_start / est, 1)) + 1
+        allowed = at_lap_start / target
+        save = est - allowed
+    return EnergyView(kind, level, cap, avg, last, laps_left, target, allowed, save, est)

@@ -1,7 +1,7 @@
 # Anleitung: Overlay-Prototyp in Le Mans Ultimate ausprobieren
 
 Ab Version 0.3.0 zeigt `Boxenfunk.exe` die ersten Overlays live über LMU:
-**Standings, Relative, Delta, Inputs und VE & Sprit**. Das ist ein Prototyp: Aussehen nach den
+**Standings, Relative, Delta, Inputs, VE & Sprit und Flaggen**. Das ist ein Prototyp: Aussehen nach den
 Entwürfen aus dem Design-Thread, aber noch ohne Einstellungsfenster je Widget, ohne Taste zum
 Ein-/Ausblenden und nur für LMU.
 
@@ -25,7 +25,7 @@ Ein-/Ausblenden und nur für LMU.
    bekommen einen gelben gestrichelten Rahmen und lassen sich mit der Maus ziehen. Danach
    **„Fertig – Positionen festsetzen“** klicken. Die Positionen werden gespeichert.
    Tipp: Zum Verschieben im Spiel kurz mit Alt+Tab zum Boxenfunk-Fenster wechseln.
-4. **Größe:** S, M, L oder XL im Boxenfunk-Fenster.
+4. **Größe:** Im Verschiebe-Modus an der gelben Ecke unten rechts eines Widgets ziehen. Jedes Widget hat seine eigene Größe.
 5. **Standings:** „Alle Klassen“ (jede Klasse mit Namen getrennt) oder „Nur meine Klasse“.
 6. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
 7. **Beenden:** Boxenfunk-Fenster schließen.

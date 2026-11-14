@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass, field
 
+from boxenfunk.core.consumption import Consumption
 from boxenfunk.core.track_timing import TrackTiming
 from boxenfunk.model.race_state import CarState, Phase, RaceState, SessionKind
 
@@ -62,6 +63,8 @@ class SessionTracker:
         self.best_lap_class: dict[str, float] = {}
         self.overall_best: float | None = None
         self.timing = TrackTiming()
+        # Verbrauch wie TinyPedal (letzte gültige Runde + Abweichung in der laufenden Runde)
+        self.consumption = {"energy": Consumption(), "fuel": Consumption()}
 
     # -- Aktualisieren --
 
@@ -122,6 +125,17 @@ class SessionTracker:
         p = st.player
         if me is None or p is None:
             return
+        for kind, amount in (("energy", p.energy), ("fuel", p.fuel)):
+            self.consumption[kind].update(
+                amount,
+                me.laps,
+                me.lap_dist,
+                st.session_time,
+                me.speed,
+                me.in_pits,
+                me.in_garage,
+                me.last_lap is not None,
+            )
         ph = self.player
         if me.in_pits:
             ph.pit = True

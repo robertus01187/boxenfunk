@@ -71,8 +71,12 @@ def test_tracker_counts_laps_usage_and_relative():
 
     ev = energy_view(st, tr, "energy")
     assert ev is not None and ev.laps_left is not None
-    assert ev.target_laps == int(ev.laps_left) + 1
-    assert abs(ev.allowed_per_lap * ev.target_laps - ev.level) < 1e-9
+    # Wie TinyPedal: Schätzung aus der letzten gültigen Runde, Ziel ab Stand zu Rundenbeginn
+    assert ev.est_per_lap is not None and abs(ev.est_per_lap - 0.07) < 0.003
+    at_start = ev.level + tr.consumption["energy"].used_curr
+    assert ev.target_laps == int(round(at_start / ev.est_per_lap, 1)) + 1
+    assert abs(ev.allowed_per_lap * ev.target_laps - at_start) < 1e-9
+    assert ev.avg_per_lap is not None
 
 
 def test_standings_blocks_show_top_and_me():
@@ -260,3 +264,83 @@ def test_relative_uses_game_time_into_lap():
     }
     rel = {e.car.car_id: e.gap for e in SessionTracker().relative(to_race_state(snap))}
     assert abs(rel["2"] + 3.5) < 1e-9 and abs(rel["3"] - 2.8) < 1e-9
+
+
+def _flag_snap(sector=(0, 0, 0), blue=False, slow_dist=None, behind_cls="Hyper", behind_laps=6):
+    def car(place, dist, tinto, cls="GT3", laps=5, speed=50.0, **kw):
+        s = {
+            "mPlace": place,
+            "mLapDist": dist,
+            "mTimeIntoLap": tinto,
+            "mEstimatedLapTime": 120.0,
+            "mVehicleClass": cls,
+            "mTotalLaps": laps,
+            "mLocalVel": {"x": 0.0, "y": 0.0, "z": speed},
+        }
+        s.update(kw)
+        return {"s": s}
+
+    cars = {
+        "1": car(2, 1000.0, 24.0, mIsPlayer=1, mFlag=6 if blue else 0),
+        "2": car(1, 900.0, 22.6, cls=behind_cls, laps=behind_laps),
+    }
+    if slow_dist is not None:
+        cars["3"] = car(3, 1000.0 + slow_dist, 30.0, speed=2.0)
+    return {
+        "i": {
+            "mSession": 10,
+            "mLapDist": 5000.0,
+            "mGamePhase": 5,
+            "mCurrentET": 100.0,
+            "mSectorFlag": list(sector),
+        },
+        "c": cars,
+    }
+
+
+def test_flags_yellow_distance_like_tinypedal():
+    from boxenfunk.core.flags import FlagState
+
+    fs = FlagState()
+    assert fs.update(to_race_state(_flag_snap(sector=(1, 0, 0), slow_dist=230)), None)[0].info == (
+        "▲ 230 m"
+    )
+    # Mehr als 500 m vor mir: keine Flagge (wie TinyPedal)
+    far = to_race_state(_flag_snap(sector=(1, 0, 0), slow_dist=700))
+    assert FlagState().update(far, None) == []
+    # Gelb vorbei → kurz Grün
+    flags = FlagState()
+    flags.update(to_race_state(_flag_snap(sector=(1, 0, 0), slow_dist=100)), None)
+    assert [f.kind for f in flags.update(to_race_state(_flag_snap()), None)] == ["gruen"]
+
+
+def test_flags_blue_shows_class_of_lapping_car():
+    from boxenfunk.core.flags import FlagState, class_label
+
+    f = FlagState().update(to_race_state(_flag_snap(blue=True)), None)
+    assert f[0].kind == "blau" and f[0].info.startswith("HYPERCAR") and "1.4 s" in f[0].info
+    assert class_label("LMP2 ELMS") == "LMP2" and class_label("LMGT3") == "GT3"
+
+
+def test_consumption_reacts_within_lap_like_tinypedal():
+    """Wer in der laufenden Runde spart, sieht es sofort an der Schätzung."""
+    from boxenfunk.core.consumption import Consumption
+
+    c = Consumption()
+    t = 0.0
+    level = 1.0
+    for lap in range(0, 3):
+        for k in range(1, 101):  # 100 Schritte à 50 m, 5000 m Runde, 5 % pro Runde
+            t += 1
+            dist = k * 50.0 if k < 100 else 10.0
+            level -= 0.0005
+            c.update(level, lap + (k == 100), dist, t, 50, False, False, True)
+        t += 1
+        c.update(level, lap + 1, 60.0, t, 50, False, False, True)
+    assert c.used_last_valid is not None and abs(c.used_last_valid - 0.05) < 0.002
+    # Halbe Runde mit halbem Verbrauch → Schätzung sinkt um ~1,25 %
+    for k in range(2, 51):
+        t += 1
+        level -= 0.00025
+        c.update(level, 3, k * 50.0, t, 50, False, False, True)
+    assert c.estimate is not None and c.estimate < 0.04
