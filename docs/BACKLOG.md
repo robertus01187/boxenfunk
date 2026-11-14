@@ -91,6 +91,7 @@
 | W-50 | Boxeneinstellungen aus LMU lesen (Reifenwechsel, Fahrerwechsel, Füllmenge), damit Circle of Doom und Strategie die Standzeit ohne Haken von Hand richtig rechnen. Haken bleiben als Ersatz | Robert | teilweise (über REST, prüfen) | teilweise | mittel | T5/T6 | ✅ |
 | W-51 | Sprachansagen wie CrewChief, direkt in Boxenfunk, nur LMU + iRacing: Renningenieur-Stimme (Sprit/VE, Boxenfenster, Flaggen, Abstände, Rundenzeiten, Strategie) und Spotter („Auto links/rechts“), mit Einstellungen (was angesagt wird, Lautstärke, Stimme). Später evtl. Sprachbefehle | Robert | ja | ja | groß | eigene Phase T9 nach 1.0 | ✅ |
 | W-52 | LED-Leisten links/rechts am Input-Graph: Blockieren/Durchdrehen vorne = obere 3 LEDs der Seite, hinten = untere 3; ABS greift = alle LEDs flackern gelb, TC greift = alle blau. An/aus, Farben frei, einzelne Anzeigen abschaltbar | Robert | ja | teilweise (ABS ja, TC und Radschlupf prüfen) | mittel | mit W-33 (nach 1.0) | ✅ |
+| W-53 | Boxenzeiten aus den Stopps **aller** Autos lernen, nicht nur aus meinen: Durchfahrt Boxengasse (Ein- bis Ausfahrt) und Standzeit getrennt nach mit/ohne Tanken, Reifenwechsel, Fahrerwechsel; bevorzugt gleiches Fahrzeug (z. B. Porsche), sonst gleiche Klasse. Grundlage für Circle of Doom und Strategie | Robert | ja | teilweise (Tanken nicht erkennbar) | mittel | T6 (Messung schon in T2/T8a) | ✅ |
 | W-14 | Lenkradknopf statt Tastatur zum Ein-/Ausblenden | Projektplan | ja | ja | klein | T7 | ✅ |
 | W-15 | Boxenverlust je Strecke lernen und speichern | Projektplan | ja | ja | mittel | T6 | ✅ |
 | W-16 | Overcut als dritte Strategie, Safety-Car-/FCY-Modus | Projektplan | ja | ja | mittel | nach 1.0 | ⏸️ |
@@ -318,3 +319,20 @@ Ziel: eine Frage auf einen Blick beantworten: **„Wie oft muss ich noch rein un
 | Blockieren / Durchdrehen je Rad | ja: Raddrehzahl je Rad (`mRotation`) und Radius gegen Fahrzeugtempo → Schlupf selbst gerechnet (wie TinyPedal) | **voraussichtlich nein**: iRacing liefert live keine Raddrehzahlen → höchstens grobe Schätzung, mit R2 prüfen |
 - Schwellen für „blockiert/durchdrehend“ einstellbar (Schlupf in %), damit es nicht bei jedem kleinen Rutscher leuchtet.
 - Braucht die schnelle Datenrate des Input-Graphen (W-44).
+
+### W-53 Boxenzeiten aus Gegnerdaten ✅ (Robert, 14.11.2026)
+**Bisheriger Plan:** Boxenverlust aus eigenen Stopps lernen, anfangs Standardwert je Strecke (W-15). Mit W-53 kommen die Stopps aller Autos dazu → schon nach wenigen Runden eines Rennens gute Werte, auch bevor ich selbst gestoppt habe.
+
+**Prüfung mit der Aufnahme R0 (LMU, Practice Bahrain, 12.11.2026):** 57 Box-Besuche anderer Autos erkannt.
+| Wert je Stopp eines anderen Autos | LMU | iRacing |
+|---|---|---|
+| Zeit in der Boxengasse (Einfahrt bis Ausfahrt) | ja (`mInPits`), in R0 meist 20–45 s | ja (`CarIdxOnPitRoad`) |
+| Standzeit (Auto steht) | ja (Geschwindigkeit ≈ 0 bzw. `mPitState`), in R0 z. B. 5–35 s | ja (`CarIdxTrackSurface` = in der Box) |
+| Getankt / VE nachgefüllt? | ja, über Sprung im Energie-/Spritstand (in R0 sichtbar, z. B. VE 76 % → 100 %) | **nein** (kein Gegner-Sprit) → Standzeit ohne diese Unterscheidung |
+| Reifen gewechselt? | teilweise: Wechsel der Mischung sichtbar (in R0: Medium → Hard); gleiche Mischung neu → evtl. über Reifenverschleiß, mit R1 prüfen | teilweise (Mischung) |
+| Fahrerwechsel? | ja (Fahrername je Auto) – in R0 kein Fall, da Training; R1 liefert echte Wechsel | ja (Teamrennen melden aktuellen Fahrer) |
+| Fahrzeugmodell (Porsche-Vergleich) | ja (`mVehicleName`) | ja |
+
+**Aufräumen nötig:** Im Training fahren viele Autos in die Garage (Box-Besuche von mehreren Minuten). Solche Besuche, Durchfahrtsstrafen und Ausreißer werden herausgefiltert; gezählt werden nur echte Stopps im Rennen.
+
+**Ergebnis für den Circle of Doom:** Boxenverlust = Durchfahrtszeit (aus allen Autos, gleiches Modell bevorzugt) + erwartete Standzeit für meinen geplanten Stopp (Tanken/Reifen/Fahrer, siehe W-50) − Zeit, die ich auf der Strecke für denselben Abschnitt gebraucht hätte.
