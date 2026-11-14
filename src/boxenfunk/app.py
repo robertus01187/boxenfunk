@@ -1,7 +1,8 @@
 """Einstiegspunkt der App.
 
-T0: zeigt nur ein Statusfenster, damit sich der Build und Start der .exe prüfen lassen.
-Die eigentlichen Overlays kommen in T3.
+Prototyp (0.3.0): liest Le Mans Ultimate live und zeigt die ersten Overlays (Standings,
+Relative, Delta, Inputs, VE & Sprit). Zum Entwickeln ohne Spiel lässt sich stattdessen eine
+Aufnahme abspielen (``--abspielen``).
 """
 
 from __future__ import annotations
@@ -24,37 +25,37 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         metavar="MS",
         help="Beendet die App nach MS Millisekunden (für Smoke-Tests)",
     )
+    parser.add_argument(
+        "--abspielen",
+        metavar="AUFNAHME",
+        help="Statt LMU live eine Aufnahme (.jsonl.gz oder Ordner) abspielen",
+    )
+    parser.add_argument("--tempo", type=float, default=1.0, help="Abspieltempo (z. B. 4 = 4-fach)")
+    parser.add_argument(
+        "--ab-rennen", action="store_true", help="Beim Abspielen direkt zum Rennstart springen"
+    )
+    parser.add_argument("--einstellungen", metavar="DATEI", help="Andere Einstellungsdatei nutzen")
     return parser.parse_args(argv)
-
-
-def build_window():
-    """Erzeugt das Statusfenster. Import von Qt erst hier, damit --version ohne Qt läuft."""
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
-
-    window = QWidget()
-    window.setWindowTitle(f"{APP_NAME} {__version__}")
-    layout = QVBoxLayout(window)
-    label = QLabel(f"{APP_NAME} {__version__} läuft.\nOverlays folgen in einer späteren Version.")
-    label.setObjectName("statusLabel")
-    label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    layout.addWidget(label)
-    window.resize(420, 140)
-    return window
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
 
+    from pathlib import Path
+
     from PySide6.QtCore import QTimer
     from PySide6.QtWidgets import QApplication
+
+    from boxenfunk.overlay.controller import Controller, make_source
 
     app = QApplication.instance() or QApplication(sys.argv[:1])
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(__version__)
 
-    window = build_window()
-    window.show()
+    source = make_source(args.abspielen, args.tempo, args.ab_rennen)
+    ctl = Controller(source, Path(args.einstellungen) if args.einstellungen else None)
+    app.aboutToQuit.connect(ctl.close)
+    ctl.show()
 
     if args.quit_after > 0:
         QTimer.singleShot(args.quit_after, app.quit)
