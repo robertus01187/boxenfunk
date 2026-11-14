@@ -26,6 +26,7 @@ Ein-/Ausblenden und nur für LMU.
    **„Fertig – Positionen festsetzen“** klicken. Die Positionen werden gespeichert.
    Tipp: Zum Verschieben im Spiel kurz mit Alt+Tab zum Boxenfunk-Fenster wechseln.
 4. **Größe:** S, M, L oder XL im Boxenfunk-Fenster.
+5. **Standings:** „Alle Klassen“ (jede Klasse mit Namen getrennt) oder „Nur meine Klasse“.
 5. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
 6. **Beenden:** Boxenfunk-Fenster schließen.
 

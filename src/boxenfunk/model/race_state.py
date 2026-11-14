@@ -64,7 +64,8 @@ class CarState:
     gap_ahead: float | None = None  # Sekunden hinter dem Auto direkt davor (Gesamtwertung)
     laps_behind_ahead: int = 0
     est_lap_time: float | None = None
-    in_pits: bool = False
+    in_pits: bool = False  # in der Boxengasse (inkl. Garage)
+    in_garage: bool = False  # steht in der Garage (nicht auf der Strecke)
     pit_state: PitState = PitState.KEINER
     pit_stops: int = 0
     penalties: int = 0
@@ -102,6 +103,8 @@ class PlayerState:
     tyre_temp: list[float] = field(default_factory=list)  # 4 Räder, Mittel der Lauffläche
     tyre_compound: str = ""
     track_limits_points: float | None = None
+    gap_car_ahead: float | None = None  # vom Spiel: Sekunden zum Auto direkt vor mir (Strecke)
+    gap_car_behind: float | None = None  # vom Spiel: Sekunden zum Auto direkt hinter mir
     input_time: float | None = None  # Spielzeit des letzten Eingabe-Messpunkts
 
 

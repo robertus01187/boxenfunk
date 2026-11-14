@@ -102,6 +102,9 @@ class SessionTracker:
                 h.last_pit_lap = car.laps
             if h.last_counted is None:
                 h.last_counted = car.laps
+                # Beim Beitritt kennt das Spiel nur die letzte Runde jedes Autos: als Start nehmen
+                if car.last_lap:
+                    h.laps.append(car.last_lap)
             elif car.laps > h.last_counted:
                 h.laps.append(car.last_lap)
                 h.last_counted = car.laps
@@ -201,8 +204,8 @@ class SessionTracker:
             if car.car_id == me.car_id:
                 entries.append(RelativeEntry(car, 0.0, 0))
                 continue
-            if car.pit_state.value == "garage":
-                continue
+            if car.in_garage:
+                continue  # steht in der Garage, nicht auf der Strecke
             d = self.timing.offset(st, me, car)
             gap = self.timing.gap(st, me, car)
             if gap is None:  # Verlauf reicht noch nicht: grob schätzen
@@ -214,6 +217,18 @@ class SessionTracker:
             entries.append(RelativeEntry(car, gap, lap_diff))
         entries.sort(key=lambda e: e.gap)
         idx = next(i for i, e in enumerate(entries) if e.car.car_id == me.car_id)
+        # Direkt vor/hinter mir: Wert des Spiels übernehmen (genau wie LMU selbst), sofern er
+        # zum selben Auto passt (das Spiel lässt z. B. Autos in der Box aus).
+        p = st.player
+        if p is not None:
+            if idx > 0 and p.gap_car_ahead:  # 0 = Spiel kennt keinen Wert
+                e = entries[idx - 1]
+                if abs(abs(p.gap_car_ahead) - abs(e.gap)) < 1.0:
+                    e.gap = -abs(p.gap_car_ahead)
+            if idx + 1 < len(entries) and p.gap_car_behind:
+                e = entries[idx + 1]
+                if abs(abs(p.gap_car_behind) - abs(e.gap)) < 1.0:
+                    e.gap = abs(p.gap_car_behind)
         return entries[max(0, idx - ahead) : idx + behind + 1]
 
 

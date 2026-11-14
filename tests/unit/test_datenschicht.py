@@ -182,3 +182,42 @@ def test_abgleich_runs(tmp_path: Path, capsys):
     rec.close()
     assert abgleich.main([str(tmp_path)]) == 0
     assert "Relative" in capsys.readouterr().out
+
+
+def test_pitstate_5_on_track_is_not_garage():
+    """LMU meldet mPitState 5 auch für Autos auf der Strecke (Roberts Test 14.11.)."""
+    snap = {
+        "i": {"mSession": 1, "mLapDist": 5000.0, "mGamePhase": 5, "mCurrentET": 100.0},
+        "c": {
+            "1": {"s": {"mPlace": 1, "mIsPlayer": 1, "mLapDist": 1000.0, "mVehicleClass": "GT3"}},
+            "2": {"s": {"mPlace": 2, "mPitState": 5, "mLapDist": 1400.0, "mVehicleClass": "GT3"}},
+            "3": {
+                "s": {
+                    "mPlace": 3,
+                    "mPitState": 5,
+                    "mInPits": 1,
+                    "mInGarageStall": 1,
+                    "mLapDist": 50.0,
+                    "mVehicleClass": "GT3",
+                }
+            },
+        },
+    }
+    st = to_race_state(snap)
+    car2 = next(c for c in st.cars if c.car_id == "2")
+    assert not car2.in_garage and car2.pit_state.value == ""
+    rel = SessionTracker().relative(st)
+    ids = [e.car.car_id for e in rel]
+    assert "2" in ids and "3" not in ids
+
+
+def test_standings_only_my_class_and_practice_gaps():
+    fake = FakeLmu(n_hyper=3, n_gt3=6, player_index=5)
+    tr = SessionTracker()
+    st = run(fake, tr, seconds=300)
+    blocks = standings_blocks(st, tr, only_my_class=True)
+    assert [cls for cls, _ in blocks] == ["GT3"]
+    # Im Training zählt der Rückstand der Bestzeit, nicht die Runden
+    st.session_kind = SessionKind.TRAINING
+    rows = dict(standings_blocks(st, tr))["GT3"]
+    assert all("L" not in r.gap and "L" not in r.interval for r in rows)

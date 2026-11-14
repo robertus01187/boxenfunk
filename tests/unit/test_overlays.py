@@ -59,11 +59,15 @@ def test_controller_runs_and_saves_positions(qtbot, tmp_path: Path):
     ctl.overlays[0].move(123, 45)
     ctl._toggle("delta", False)
     assert not ctl.overlays[2].isVisible()
+    ctl._set_classes("meine")
+    assert ctl.overlays[0].only_my_class
+    assert len(ctl.overlays[0]._blocks) == 1
     ctl.close()
     ctl2 = Controller(FakeSource(), cfg, tmp_path / "logos")
     qtbot.addWidget(ctl2.window)
     assert ctl2.overlays[0].pos().toTuple() == (123, 45)
     assert ctl2.enabled["delta"] is False
+    assert ctl2.overlays[0].only_my_class
     ctl2.close()
 
 

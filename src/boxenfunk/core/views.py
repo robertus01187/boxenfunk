@@ -9,7 +9,7 @@ import math
 from dataclasses import dataclass
 
 from boxenfunk.core.tracker import SessionTracker
-from boxenfunk.model.race_state import CarState, RaceState
+from boxenfunk.model.race_state import CarState, RaceState, SessionKind
 
 
 @dataclass
@@ -44,17 +44,34 @@ def gap_between(st: RaceState, car: CarState, ref: CarState) -> str:
     return f"{total:.0f}" if total >= 100 else f"{total:.1f}"
 
 
+def best_lap_gap(car: CarState, ref: CarState) -> str:
+    """Training/Quali: Rückstand der Bestzeit auf ``ref`` (Rundenzahlen sind dort egal)."""
+    if car.best_lap is None or ref.best_lap is None:
+        return "–"
+    d = car.best_lap - ref.best_lap
+    return f"{d:.3f}" if d < 10 else f"{d:.1f}"
+
+
 def standings_blocks(
     st: RaceState,
     tr: SessionTracker,
     top: int = 3,
     around: int = 2,
     other_top: int = 3,
+    only_my_class: bool = False,
 ) -> list[tuple[str, list[StandingsRow]]]:
-    """Je Klasse ein Block: Spitze + Autos um mich (eigene Klasse) bzw. nur Spitze (andere)."""
+    """Je Klasse ein Block: Spitze + Autos um mich (eigene Klasse) bzw. nur Spitze (andere).
+
+    ``only_my_class``: nur den Block der eigenen Klasse. Im Rennen zählen Abstände auf der
+    Strecke, in Training und Quali der Rückstand der Bestzeit.
+    """
     me = st.player_car()
+    race = st.session_kind == SessionKind.RENNEN
+    gap_fn = gap_between if race else (lambda _st, c, ref: best_lap_gap(c, ref))
     blocks = []
     for cls in st.classes():
+        if only_my_class and me is not None and cls != me.car_class:
+            continue
         cars = [c for c in st.cars if c.car_class == cls]
         if me is not None and cls == me.car_class:
             idx = next(i for i, c in enumerate(cars) if c.car_id == me.car_id)
@@ -87,8 +104,8 @@ def standings_blocks(
             rows.append(
                 StandingsRow(
                     car=c,
-                    gap="" if i == 0 else gap_between(st, c, leader),
-                    interval="" if ahead is None else gap_between(st, c, ahead),
+                    gap="" if i == 0 else gap_fn(st, c, leader),
+                    interval="" if ahead is None else gap_fn(st, c, ahead),
                     gained=tr.positions_gained(c),
                     last_kind=kind,
                     stint=tr.stint_laps(c),
