@@ -726,7 +726,7 @@ class EnergyOverlay(Overlay):
         rows = (1 if self._ve else 0) + (1 if self._fuel else 0)
         main = self._ve or self._fuel
         box = 92 if main and main.allowed_per_lap is not None else 0
-        return 340 * s, (14 + rows * 36 + box + 34) * s
+        return 340 * s, (14 + rows * 36 + box + 60) * s
 
     def paint_overlay(self, p: QPainter) -> None:
         s = self.scale
@@ -787,10 +787,11 @@ class EnergyOverlay(Overlay):
                 WHITE,
             )
             p.setFont(ov_font(11 * s))
-            text(p, 20 * s, y + 20 * s, 140 * s, 14 * s, "Letzte Runde", DIM, CENTER)
+            text(p, 20 * s, y + 20 * s, 140 * s, 14 * s, "Diese Runde (geschätzt)", DIM, CENTER)
             text(p, 170 * s, y + 20 * s, 140 * s, 14 * s, "Erlaubt (+1)", DIM, CENTER)
             p.setFont(ov_font(21 * s, 700))
-            last = f"{main.last_lap * k:.2f}{u}" if main.last_lap is not None else "–"
+            cur = main.est_per_lap if main.est_per_lap is not None else main.last_lap
+            last = f"{cur * k:.2f}{u}" if cur is not None else "–"
             text(p, 20 * s, y + 34 * s, 140 * s, 26 * s, last, WHITE, CENTER)
             text(
                 p,
@@ -811,15 +812,17 @@ class EnergyOverlay(Overlay):
                 )
                 text(p, 10 * s, y + 60 * s, w - 20 * s, 22 * s, msg, edge, CENTER)
             y += 92 * s
-        # Letzte Runde
+        # Letzte Runde und Ø der letzten 5 Runden
         p.setFont(ov_font(13 * s))
-        text(p, 12 * s, y, w, 26 * s, "Letzte Runde", WHITE)
-        parts = []
-        if self._ve and self._ve.last_lap is not None:
-            parts.append(f"{self._ve.last_lap * 100:.2f} %")
-        if self._fuel and self._fuel.last_lap is not None:
-            parts.append(f"{self._fuel.last_lap:.2f} L")
-        text(p, 0, y, w - 12 * s, 26 * s, " · ".join(parts) or "–", WHITE, RIGHT)
+        for label, attr in (("Letzte Runde", "last_lap"), ("Schnitt letzte 5 Runden", "avg_per_lap")):
+            parts = []
+            if self._ve and getattr(self._ve, attr) is not None:
+                parts.append(f"{getattr(self._ve, attr) * 100:.2f} %")
+            if self._fuel and getattr(self._fuel, attr) is not None:
+                parts.append(f"{getattr(self._fuel, attr):.2f} L")
+            text(p, 12 * s, y, w, 26 * s, label, WHITE)
+            text(p, 0, y, w - 12 * s, 26 * s, " · ".join(parts) or "–", WHITE, RIGHT)
+            y += 26 * s
 
 
 # --- Flaggen ------------------------------------------------------------------

@@ -13,6 +13,10 @@ Funktionen (Roberts Vorgabe).
 - Größe jedes Widgets einzeln: im Verschiebe-Modus an der gelben Ecke unten rechts ziehen.
   Alles im Widget wächst gleichmäßig mit. Die Knöpfe S/M/L/XL sind weg.
 ### Geändert
+- VE & Sprit rechnen wie TinyPedal: Verbrauch der letzten gültigen Runde plus die Abweichung, die
+  du in der laufenden Runde an derselben Stelle hast. Wer spart, sieht es sofort („Diese Runde
+  (geschätzt)“). Runden Rest und Ziel (+1 Runde) daraus wie in TinyPedals Sprit-Sparhilfe.
+  Zusätzlich steht der Schnitt der letzten 5 sauberen Runden im Widget.
 - Standings im Rennen: Abstände wie TinyPedal aus der vom Spiel geschätzten Zeit seit
   Start/Ziel, „+1L“ erst ab mehr als einer Runde.
 

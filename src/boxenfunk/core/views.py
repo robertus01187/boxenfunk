@@ -5,7 +5,6 @@ Ohne Qt, damit es sich mit Aufnahmen testen lässt. Die Overlays zeichnen nur no
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 from boxenfunk.core.tracker import SessionTracker
@@ -134,17 +133,22 @@ class EnergyView:
     kind: str  # "energy" (VE, Anteil) oder "fuel" (Liter)
     level: float  # VE 0–1 bzw. Liter
     capacity: float | None
-    avg_per_lap: float | None
-    last_lap: float | None
+    avg_per_lap: float | None  # Ø der letzten 5 sauberen Runden (Zusatzanzeige)
+    last_lap: float | None  # Verbrauch der letzten Runde
     laps_left: float | None
     target_laps: int | None  # Ziel = eine Runde mehr als jetzt möglich
     allowed_per_lap: float | None
     save_per_lap: float | None  # positiv = so viel pro Runde sparen
+    est_per_lap: float | None = None  # Schätzung dieser Runde (TinyPedal)
 
 
 def energy_view(
     st: RaceState, tr: SessionTracker, kind: str, avg_laps: int = 5
 ) -> EnergyView | None:
+    """VE- bzw. Sprit-Anzeige. Rechenweg wie TinyPedal (``module_fuel`` und
+    ``widget/fuel_energy_saver``): Schätzung = letzte gültige Runde + Abweichung in dieser Runde,
+    Ziel = eine Runde mehr ab dem Stand zu Beginn dieser Runde. Solange es noch keine gültige
+    Runde gibt, gilt der Ø der letzten sauberen Runden."""
     p = st.player
     if p is None:
         return None
@@ -153,12 +157,17 @@ def energy_view(
         return None
     cap = 1.0 if kind == "energy" else p.fuel_capacity
     avg = tr.usage_average(kind, avg_laps)
-    last = tr.last_usage(kind)
-    laps_left = level / avg if avg else None
+    cons = tr.consumption[kind]
+    est = cons.estimate
+    last = cons.used_last_raw if cons.used_last_raw else tr.last_usage(kind)
+    used_now = cons.used_curr
+    if est is None or est <= 0:
+        est, used_now = avg, 0.0
+    laps_left = level / est if est else None
     target = allowed = save = None
-    if laps_left is not None:
-        target = math.floor(laps_left) + 1
-        allowed = level / target
-        if last is not None:
-            save = last - allowed
-    return EnergyView(kind, level, cap, avg, last, laps_left, target, allowed, save)
+    if est:
+        at_lap_start = level + used_now
+        target = int(round(at_lap_start / est, 1)) + 1
+        allowed = at_lap_start / target
+        save = est - allowed
+    return EnergyView(kind, level, cap, avg, last, laps_left, target, allowed, save, est)

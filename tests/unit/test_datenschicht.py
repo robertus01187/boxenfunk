@@ -71,8 +71,12 @@ def test_tracker_counts_laps_usage_and_relative():
 
     ev = energy_view(st, tr, "energy")
     assert ev is not None and ev.laps_left is not None
-    assert ev.target_laps == int(ev.laps_left) + 1
-    assert abs(ev.allowed_per_lap * ev.target_laps - ev.level) < 1e-9
+    # Wie TinyPedal: Schätzung aus der letzten gültigen Runde, Ziel ab Stand zu Rundenbeginn
+    assert ev.est_per_lap is not None and abs(ev.est_per_lap - 0.07) < 0.003
+    at_start = ev.level + tr.consumption["energy"].used_curr
+    assert ev.target_laps == int(round(at_start / ev.est_per_lap, 1)) + 1
+    assert abs(ev.allowed_per_lap * ev.target_laps - at_start) < 1e-9
+    assert ev.avg_per_lap is not None
 
 
 def test_standings_blocks_show_top_and_me():
@@ -316,3 +320,27 @@ def test_flags_blue_shows_class_of_lapping_car():
     f = FlagState().update(to_race_state(_flag_snap(blue=True)), None)
     assert f[0].kind == "blau" and f[0].info.startswith("HYPERCAR") and "1.4 s" in f[0].info
     assert class_label("LMP2 ELMS") == "LMP2" and class_label("LMGT3") == "GT3"
+
+
+def test_consumption_reacts_within_lap_like_tinypedal():
+    """Wer in der laufenden Runde spart, sieht es sofort an der Schätzung."""
+    from boxenfunk.core.consumption import Consumption
+
+    c = Consumption()
+    t = 0.0
+    level = 1.0
+    for lap in range(0, 3):
+        for k in range(1, 101):  # 100 Schritte à 50 m, 5000 m Runde, 5 % pro Runde
+            t += 1
+            dist = k * 50.0 if k < 100 else 10.0
+            level -= 0.0005
+            c.update(level, lap + (k == 100), dist, t, 50, False, False, True)
+        t += 1
+        c.update(level, lap + 1, 60.0, t, 50, False, False, True)
+    assert c.used_last_valid is not None and abs(c.used_last_valid - 0.05) < 0.002
+    # Halbe Runde mit halbem Verbrauch → Schätzung sinkt um ~1,25 %
+    for k in range(2, 51):
+        t += 1
+        level -= 0.00025
+        c.update(level, 3, k * 50.0, t, 50, False, False, True)
+    assert c.estimate is not None and c.estimate < 0.04
