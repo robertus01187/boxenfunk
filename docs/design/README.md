@@ -239,3 +239,5 @@ ABS greift = alle LEDs flackern gelb, TC greift = alle flackern blau; das betrof
 Reiter „LEDs“: ganz an/aus, Aus-Zustand leicht sichtbar/unsichtbar, jede Anzeige einzeln an/aus mit eigener Farbe
 (Blockieren rot, Durchdrehen violett, ABS gelb, TC blau), Empfindlichkeit (Schlupf-Schwelle in %).
 iRacing meldet nur „ABS greift“ → TC, Blockieren, Durchdrehen und Empfindlichkeit im iRacing-Preset durchgestrichen.
+
+- **Delta-Balken (2026-11-14):** unten eigene Zeile „Geschätzte Runde 1:26.915“ (Farbe wie das Delta), an/aus und klein/groß im Reiter Inhalt.
