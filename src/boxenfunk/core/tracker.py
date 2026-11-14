@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass, field
 
+from boxenfunk.core.track_timing import TrackTiming
 from boxenfunk.model.race_state import CarState, Phase, RaceState, SessionKind
 
 HISTORY = 10  # gespeicherte Runden je Auto
@@ -60,6 +61,7 @@ class SessionTracker:
         self.player = PlayerHistory()
         self.best_lap_class: dict[str, float] = {}
         self.overall_best: float | None = None
+        self.timing = TrackTiming()
 
     # -- Aktualisieren --
 
@@ -71,17 +73,29 @@ class SessionTracker:
             self.reset()
             self.session_key = key
         self.last_time = st.session_time
+        self.timing.update(st)
 
         race_running = st.session_kind == SessionKind.RENNEN and st.phase in (
             Phase.GRUEN,
             Phase.GELB,
             Phase.ENDE,
         )
+        # Startplatz in der Klasse aus der Startaufstellung des Spiels (stimmt auch, wenn
+        # Boxenfunk erst während des Rennens gestartet wurde). Nur im Rennen.
+        grid: dict[str, int] = {}
+        if st.session_kind == SessionKind.RENNEN:
+            by_class: dict[str, list[CarState]] = {}
+            for car in st.cars:
+                if car.start_position:
+                    by_class.setdefault(car.car_class, []).append(car)
+            for cars in by_class.values():
+                for rank, car in enumerate(sorted(cars, key=lambda c: c.start_position), 1):
+                    grid[car.car_id] = rank
         for car in st.cars:
             h = self.cars.setdefault(car.car_id, CarHistory())
-            if h.start_class_pos is None and (
-                race_running or st.session_kind != SessionKind.RENNEN
-            ):
+            if car.car_id in grid:
+                h.start_class_pos = grid[car.car_id]
+            elif h.start_class_pos is None and race_running:
                 h.start_class_pos = car.class_position
             if car.in_pits:
                 h.pit_this_lap = True
@@ -148,13 +162,13 @@ class SessionTracker:
     def trend(self, st: RaceState, car: CarState, n: int = 3) -> list[float | None]:
         """Rundenzeit-Differenz zum eigenen Auto, älteste zuerst. Positiv = ich war schneller."""
         if st.player_id is None:
-            return [None] * n
+            return []
         mine = self.recent_laps(st.player_id, n)
         theirs = self.recent_laps(car.car_id, n)
+        k = min(len(mine), len(theirs))
+        # Nur so viele Werte wie beide Autos Runden haben: die Anzeige wächst von links
         out: list[float | None] = []
-        for k in range(n, 0, -1):
-            a = theirs[-k] if len(theirs) >= k else None
-            b = mine[-k] if len(mine) >= k else None
+        for a, b in zip(theirs[len(theirs) - k :], mine[len(mine) - k :], strict=True):
             out.append(a - b if a and b else None)
         return out
 
@@ -189,12 +203,10 @@ class SessionTracker:
                 continue
             if car.pit_state.value == "garage":
                 continue
-            d = car.lap_dist - me.lap_dist
-            if d > L / 2:
-                d -= L
-            elif d < -L / 2:
-                d += L
-            gap = -d / L * lap_t
+            d = self.timing.offset(st, me, car)
+            gap = self.timing.gap(st, me, car)
+            if gap is None:  # Verlauf reicht noch nicht: grob schätzen
+                gap = -d / L * lap_t
             my_total = me.laps + me.lap_dist / L
             their_total = car.laps + car.lap_dist / L
             # Ganze Runden Unterschied, Streckenabstand herausgerechnet

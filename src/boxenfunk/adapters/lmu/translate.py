@@ -104,7 +104,7 @@ def _lap_time(v: Any) -> float | None:
     return f if f is not None and f > 0 else None
 
 
-def _speed_kmh(vel: dict[str, float] | None) -> float:
+def speed_kmh(vel: dict[str, float] | None) -> float:
     if not vel:
         return 0.0
     return 3.6 * math.sqrt(sum((vel.get(k) or 0.0) ** 2 for k in ("x", "y", "z")))
@@ -165,7 +165,7 @@ def _player(c: dict[str, Any]) -> PlayerState:
         clutch=_num(v.get("mFilteredClutch")),
         steering=_num(v.get("mFilteredSteering")),
         gear=int(v.get("mGear") or 0),
-        speed_kmh=_speed_kmh(v.get("mLocalVel") or s.get("mLocalVel")),
+        speed_kmh=speed_kmh(v.get("mLocalVel") or s.get("mLocalVel")),
         rpm=_num(v.get("mEngineRPM")) or 0.0,
         rpm_max=_num(v.get("mEngineMaxRPM")) or 0.0,
         abs_active=bool(v.get("mABSActive")),
@@ -180,6 +180,7 @@ def _player(c: dict[str, Any]) -> PlayerState:
         tyre_temp=temps,
         tyre_compound=v.get("mFrontTireCompoundName", "") or "",
         track_limits_points=_num(v.get("mTrackLimitsSteps")),
+        input_time=now,
     )
 
 

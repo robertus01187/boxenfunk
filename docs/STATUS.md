@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-14 · **Version:** 0.3.0 (Overlay-Prototyp LMU, wartet auf Freigabe) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
+**Stand:** 2026-11-14 · **Version:** 0.3.1 (Prototyp-Fixes nach erstem LMU-Test + Update-Knopf) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,
@@ -26,7 +26,11 @@
   `adapters/sources.py` (Live + `ReplaySource`), `core/tracker.py`, `core/views.py`.
   Geprüft mit der LMU-Aufnahme eines 1h-Rennens (Bahrain, 38 Autos, Hyper+GT3): VE-Verbrauch je
   Runde stimmt mit der Recorder-Auswertung überein (5,37 %), Abstände über `mTimeBehindNext`.
-  Anleitung `docs/anleitung-prototyp.md`. Noch nicht live in LMU getestet.
+  Anleitung `docs/anleitung-prototyp.md`. v0.3.0 von Robert live getestet (14.11.): VE/Sprit,
+  Delta, Inputs ok; Relative ungenau, Input-Graph ruckelig, Standings-Format → behoben in 0.3.1
+  (`core/track_timing.py`, schneller Eingabe-Weg, Update-Knopf `updater.py`, Abgleich
+  `core/abgleich.py`). Prüfweg: Robert lässt beim Testen den LMU-Recorder mitlaufen, Abgleich
+  läuft dann auf der Aufnahme.
 
 ## Entscheidungen
 | ID | Entscheidung | Status |

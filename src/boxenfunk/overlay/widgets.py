@@ -135,8 +135,8 @@ class StandingsOverlay(Overlay):
 
     # Spalten: (Name, Breite in Schrift-Einheiten)
     COLS = (
-        ("pos", 1.7),
-        ("gain", 2.4),
+        ("pos", 2.2),
+        ("gain", 2.7),
         ("num", 2.6),
         ("name", 9.0),
         ("logo", 2.0),
@@ -167,7 +167,14 @@ class StandingsOverlay(Overlay):
 
     def _cols(self) -> list[tuple[str, float]]:
         show_ve = self.state is None or any(c.energy is not None for c in self.state.cars[:1])
-        return [(n, w * self.fs) for n, w in self.COLS if n != "ve" or show_ve]
+        # Trend-Spalten wachsen mit den gefahrenen Runden (1, 2, dann 3)
+        n_trend = max(
+            (len(r.trend) for _, rows in getattr(self, "_blocks", []) for r in rows), default=0
+        )
+        skip = {"t1", "t2", "t3"} - {f"t{k}" for k in range(1, n_trend + 1)}
+        if not show_ve:
+            skip.add("ve")
+        return [(n, w * self.fs) for n, w in self.COLS if n not in skip]
 
     def on_data(self) -> None:
         if self.state is None or self.tracker is None:
@@ -242,11 +249,11 @@ class StandingsOverlay(Overlay):
         for name, w in cols:
             if name == "pos":
                 p.setFont(ov_font(fs))
-                text(p, x, y, w, rh, str(c.class_position), WHITE, RIGHT)
+                text(p, x, y, w - 0.35 * fs, rh, str(c.class_position), WHITE, RIGHT)
             elif name == "gain" and row.gained:
                 up = row.gained > 0
                 col = GAIN if up else LOSS
-                self._chevron(p, x + 0.55 * fs, y + rh / 2, 0.32 * fs, up, col)
+                self._chevron(p, x + 0.75 * fs, y + rh / 2, 0.3 * fs, up, col)
                 p.setFont(ov_font(fs))
                 text(p, x, y, w - pad / 2, rh, str(abs(row.gained)), col, RIGHT)
             elif name == "num":
@@ -289,10 +296,15 @@ class StandingsOverlay(Overlay):
                 p.setFont(ov_font(fs))
                 text(p, x, y, w - pad, rh, str(c.pit_stops), WHITE, RIGHT)
             elif name in ("t1", "t2", "t3") and row.trend:
-                v = row.trend[["t1", "t2", "t3"].index(name)]
-                if v is not None and abs(v) < 30:
-                    p.setFont(ov_font(fs))
-                    text(p, x, y, w - pad, rh, f"{abs(v):.1f}", GAIN if v > 0 else LOSS, RIGHT)
+                k = ["t1", "t2", "t3"].index(name)
+                v = row.trend[k] if k < len(row.trend) else None
+                p.setFont(ov_font(fs))
+                if k < len(row.trend) and (v is None or abs(v) >= 30):
+                    # Runde ohne gültige Zeit oder mit Boxenstopp
+                    text(p, x, y, w - pad, rh, "–", DIM, RIGHT)
+                elif v is not None:
+                    col = WHITE if abs(v) < 0.05 else (GAIN if v > 0 else LOSS)
+                    text(p, x, y, w - pad, rh, f"{abs(v):.1f}", col, RIGHT)
             x += w
 
     def _pit_cell(self, p: QPainter, c: CarState, stint: int, x, y, w, rh) -> None:
@@ -426,11 +438,12 @@ class RelativeOverlay(Overlay):
 
 class DeltaOverlay(Overlay):
     key = "delta"
+    fast = True
     title = "Delta"
     RANGE = 1.0  # ± Sekunden Skala
 
     def __init__(self, scale: float = 1.0) -> None:
-        self._hist: deque[float] = deque(maxlen=8)
+        self._hist: deque[float] = deque(maxlen=30)
         super().__init__(scale)
 
     def preferred_size(self) -> tuple[float, float]:
@@ -506,6 +519,7 @@ class DeltaOverlay(Overlay):
 
 class InputsOverlay(Overlay):
     key = "inputs"
+    fast = True
     title = "Inputs"
     WINDOW = 8.0  # Sekunden im Graphen
 
@@ -521,7 +535,7 @@ class InputsOverlay(Overlay):
         if st is None or st.player is None:
             return
         pl = st.player
-        t = st.wall_time
+        t = pl.input_time if pl.input_time is not None else st.wall_time
         if self._hist and t < self._hist[-1][0]:
             self._hist.clear()
         if not self._hist or t > self._hist[-1][0]:
@@ -559,24 +573,28 @@ class InputsOverlay(Overlay):
                 return QPointF(gx + gw * (1 - (t_end - t) / self.WINDOW), gy + gh * (1 - v))
 
             for idx, col in ((1, QColor("#3ddc54")), (2, QColor("#ff4040"))):
-                fill = QPolygonF([QPointF(pt(self._hist[0][0], 0))])
-                for e in self._hist:
-                    fill.append(pt(e[0], e[idx]))
+                pts = [pt(e[0], e[idx]) for e in self._hist]
+                line = QPolygonF(pts)
+                fill = QPolygonF(line)
                 fill.append(pt(t_end, 0))
+                fill.prepend(pt(self._hist[0][0], 0))
                 fc = QColor(col)
                 fc.setAlpha(45)
                 p.setPen(Qt.PenStyle.NoPen)
                 p.setBrush(fc)
                 p.drawPolygon(fill)
-                # Linie, Bremse gelb wo ABS eingreift
-                prev = None
-                for e in self._hist:
-                    cur = pt(e[0], e[idx])
-                    if prev is not None:
-                        c = YELLOW if idx == 2 and e[3] else col
-                        p.setPen(QPen(c, 2 * s))
-                        p.drawLine(prev, cur)
-                    prev = cur
+                p.setBrush(Qt.BrushStyle.NoBrush)
+                p.setPen(QPen(col, 2 * s))
+                p.drawPolyline(line)
+                if idx == 2:  # Bremse gelb, wo ABS eingreift
+                    abs_path = QPainterPath()
+                    for k in range(1, len(pts)):
+                        if self._hist[k][3]:
+                            abs_path.moveTo(pts[k - 1])
+                            abs_path.lineTo(pts[k])
+                    if not abs_path.isEmpty():
+                        p.setPen(QPen(YELLOW, 2.5 * s))
+                        p.drawPath(abs_path)
         # Balken
         bx = gx + gw + 10 * s
         for i, (v, col) in enumerate(

@@ -105,6 +105,7 @@ class Overlay(QWidget):
 
     moved = Signal()
     key = "overlay"
+    fast = False  # True = bekommt die schnellen Eingabe-Daten (60-mal pro Sekunde)
     title = "Overlay"
 
     def __init__(self, scale: float = 1.0) -> None:

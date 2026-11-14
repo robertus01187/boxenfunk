@@ -9,20 +9,47 @@ import time
 from collections.abc import Iterator
 from pathlib import Path
 
-from boxenfunk.adapters.lmu.translate import to_race_state
-from boxenfunk.model.race_state import RaceState
+from boxenfunk.adapters.lmu.translate import speed_kmh, to_race_state
+from boxenfunk.model.race_state import PlayerState, RaceState
 
 
 class LmuLiveSource:
     """Liest den Shared Memory von Le Mans Ultimate (nur lesend)."""
 
-    def __init__(self) -> None:
+    def __init__(self, name: str | None = None) -> None:
         from boxenfunk.adapters.lmu.shm import LmuSharedMemory
 
-        self._shm = LmuSharedMemory()
+        self._shm = LmuSharedMemory(name) if name else LmuSharedMemory()
         self._last_et: float | None = None
         self._last_change = 0.0
         self.status = "Warte auf Le Mans Ultimate …"
+
+    def poll_inputs(self, pl: PlayerState) -> bool:
+        """Schneller Weg nur fürs eigene Auto (Pedale, Gang, Tempo, Delta), direkt aus dem Speicher.
+
+        Liest wenige Werte ohne die ganze Datenkopie, damit Input-Graph und Delta flüssig laufen.
+        """
+        tel = self._shm._live.telemetry
+        idx = tel.playerVehicleIdx
+        if not tel.playerHasVehicle or not 0 <= idx < len(tel.telemInfo):
+            return False
+        t = tel.telemInfo[idx]
+        et = float(t.mElapsedTime)
+        if pl.input_time is not None and et == pl.input_time:
+            return False
+        pl.input_time = et
+        pl.throttle = float(t.mFilteredThrottle)
+        pl.brake = float(t.mFilteredBrake)
+        pl.steering = float(t.mFilteredSteering)
+        pl.clutch = float(t.mFilteredClutch)
+        pl.gear = int(t.mGear)
+        v = t.mLocalVel
+        pl.speed_kmh = speed_kmh({"x": v.x, "y": v.y, "z": v.z})
+        pl.rpm = float(t.mEngineRPM)
+        pl.abs_active = bool(t.mABSActive)
+        pl.tc_active = bool(t.mTCActive)
+        pl.delta_best = float(t.mDeltaBest)
+        return True
 
     def poll(self) -> RaceState | None:
         from boxenfunk.recorder.snapshot import snapshot
@@ -99,6 +126,9 @@ class ReplaySource:
         if self._state is not None:
             yield self._state
         yield from self._frames
+
+    def poll_inputs(self, pl: PlayerState) -> bool:
+        return False  # Aufnahme hat nur 5 Messpunkte pro Sekunde, die liefert poll()
 
     def poll(self) -> RaceState | None:
         now = time.monotonic()

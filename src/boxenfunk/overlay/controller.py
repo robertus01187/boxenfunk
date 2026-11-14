@@ -9,22 +9,25 @@ from __future__ import annotations
 import json
 import os
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 
-from PySide6.QtCore import QObject, QTimer, QUrl
+from PySide6.QtCore import QObject, Qt, QTimer, QUrl
 from PySide6.QtGui import QDesktopServices, QGuiApplication
 from PySide6.QtWidgets import (
+    QApplication,
     QButtonGroup,
     QCheckBox,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
-from boxenfunk import __version__
+from boxenfunk import __version__, updater
 from boxenfunk.core.tracker import SessionTracker
 from boxenfunk.overlay.base import Overlay
 from boxenfunk.overlay.widgets import (
@@ -88,7 +91,13 @@ def save_config(path: Path, cfg: dict[str, Any]) -> None:
 
 
 class Controller(QObject):
-    def __init__(self, source, cfg_path: Path | None = None, logo_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        source,
+        cfg_path: Path | None = None,
+        logo_dir: Path | None = None,
+        check_updates: bool = False,
+    ) -> None:
         super().__init__()
         self.source = source
         self.tracker = SessionTracker()
@@ -109,10 +118,19 @@ class Controller(QObject):
         self._place_overlays()
         for o in self.overlays:
             o.moved.connect(self._save)
+        self._found_release = None
         self.window = self._build_window()
+        if check_updates:
+            self._check_update_background()
+        self.state = None
+        # Ganzes Feld 10-mal pro Sekunde, eigene Eingaben (Input-Graph, Delta) 60-mal
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.tick)
-        self.timer.start(50)  # 20-mal pro Sekunde
+        self.timer.start(100)
+        self.fast_timer = QTimer(self)
+        self.fast_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.fast_timer.timeout.connect(self.tick_fast)
+        self.fast_timer.start(16)
 
     # -- Fenster --
 
@@ -170,6 +188,10 @@ class Controller(QObject):
         self.move_btn.toggled.connect(self._toggle_move)
         lay.addWidget(self.move_btn)
 
+        self.update_btn = QPushButton("Nach Update suchen")
+        self.update_btn.clicked.connect(self._update_clicked)
+        lay.addWidget(self.update_btn)
+
         logo_btn = QPushButton("Logo-Ordner öffnen")
         logo_btn.clicked.connect(self._open_logos)
         lay.addWidget(logo_btn)
@@ -205,6 +227,65 @@ class Controller(QObject):
         if not on:
             self._save()
 
+    # -- Update --
+
+    def _check_update_background(self) -> None:
+        """Beim Start leise nachsehen, ob es eine neuere Version gibt (ohne das Fenster zu blockieren)."""
+
+        def work() -> None:
+            try:
+                rel = updater.latest_release()
+            except Exception:
+                return
+            if rel and updater.is_newer(rel.version, __version__):
+                self._found_release = rel
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _update_clicked(self) -> None:
+        self.update_btn.setText("Suche …")
+        QApplication.processEvents()
+        try:
+            rel = updater.latest_release()
+        except Exception as e:
+            self.update_btn.setText("Nach Update suchen")
+            QMessageBox.warning(self.window, "Update", f"GitHub nicht erreichbar:\n{e}")
+            return
+        self.update_btn.setText("Nach Update suchen")
+        if rel is None or not updater.is_newer(rel.version, __version__):
+            QMessageBox.information(
+                self.window, "Update", f"Du hast schon die neueste Version ({__version__})."
+            )
+            return
+        if not updater.can_self_update():
+            QMessageBox.information(
+                self.window, "Update", f"Version {rel.version} gibt es hier:\n{rel.page}"
+            )
+            return
+        ok = QMessageBox.question(
+            self.window,
+            "Update",
+            f"Version {rel.version} ist da (du hast {__version__}).\n\n"
+            "Jetzt herunterladen und Boxenfunk neu starten?\nDeine Einstellungen bleiben erhalten.",
+        )
+        if ok != QMessageBox.StandardButton.Yes:
+            return
+        target = Path(sys.executable).resolve().with_name("Boxenfunk.neu.exe")
+
+        def progress(done: int, total: int) -> None:
+            pct = f" {done * 100 // total} %" if total else ""
+            self.update_btn.setText(f"Lade herunter …{pct}")
+            QApplication.processEvents()
+
+        try:
+            updater.download(rel, target, progress)
+            updater.install_and_restart(target)
+        except Exception as e:
+            self.update_btn.setText("Nach Update suchen")
+            QMessageBox.warning(self.window, "Update", f"Update fehlgeschlagen:\n{e}")
+            return
+        QApplication.quit()
+
     def _open_logos(self) -> None:
         self.logo_dir.mkdir(parents=True, exist_ok=True)
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.logo_dir)))
@@ -233,12 +314,34 @@ class Controller(QObject):
             self.status.setText(f"Fehler beim Lesen: {e}")
         if st is not None:
             self.tracker.update(st)
+        self.state = st
         self.has_data = st is not None
         for o in self.overlays:
             if self.enabled[o.key]:
                 o.set_data(st, self.tracker if st is not None else None)
         self._refresh_visibility()
         self.status.setText(getattr(self.source, "status", ""))
+        if self._found_release is not None and not self.update_btn.text().startswith(
+            ("Lade", "Suche")
+        ):
+            self.update_btn.setText(
+                f"Update auf Version {self._found_release.version} installieren"
+            )
+
+    def tick_fast(self) -> None:
+        st = self.state
+        if st is None or st.player is None:
+            return
+        try:
+            new = self.source.poll_inputs(st.player)
+        except Exception:
+            return
+        if not new:
+            return
+        for o in self.overlays:
+            if o.fast and self.enabled[o.key] and o.isVisible():
+                o.on_data()
+                o.update()
 
     def show(self) -> None:
         self.window.show()
@@ -246,6 +349,7 @@ class Controller(QObject):
 
     def close(self) -> None:
         self.timer.stop()
+        self.fast_timer.stop()
         self._save()
         for o in self.overlays:
             o.close()

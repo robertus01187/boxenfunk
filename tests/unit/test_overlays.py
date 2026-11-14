@@ -19,6 +19,9 @@ class FakeSource:
         self.t = 0.0
         self.status = "Test"
 
+    def poll_inputs(self, pl):
+        return False
+
     def poll(self):
         self.fake.tick(0.5)
         self.t += 0.5

@@ -29,6 +29,18 @@ Ein-/Ausblenden und nur für LMU.
 5. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
 6. **Beenden:** Boxenfunk-Fenster schließen.
 
+## Neue Version holen
+
+Ab Version 0.3.1 gibt es im Boxenfunk-Fenster den Knopf **„Nach Update suchen“**. Er lädt die
+neueste Boxenfunk.exe, tauscht sie aus und startet Boxenfunk neu. Deine Einstellungen (Positionen,
+Größe, Auswahl) bleiben erhalten. Gibt es eine neue Version, steht das schon beim Start auf dem Knopf.
+
+## Beim Testen mitschreiben lassen
+
+Starte beim Testen zusätzlich den **Boxenfunk-LMU-Recorder** und schick mir danach die Aufnahme.
+Ich kann dann genau nachspielen, was die Overlays gezeigt haben, und automatisch mit den Werten des
+Spiels vergleichen. Siehst du etwas Falsches, merk dir grob die Uhrzeit oder mach ein Bildschirmfoto.
+
 ## Was die Widgets zeigen
 
 - **Standings:** je Klasse die Spitze, in deiner Klasse zusätzlich die Autos um dich herum.
