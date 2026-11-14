@@ -2,6 +2,15 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.3.4] – 2026-11-14
+### Behoben
+- Nach „Nach Update suchen“ startete die neue Version nicht („Failed to load Python DLL“): Sie
+  hat den entpackten Ordner der alten Version gesucht, den es nicht mehr gab. Der Neustart
+  bekommt jetzt eine saubere Umgebung.
+- Relative: Alle Abstände jetzt genau wie in LMU (aus der vom Spiel geschätzten Zeit seit
+  Start/Ziel, so rechnen LMU und TinyPedal). Abgleich mit Roberts Aufnahme: Auto hinter mir vorher
+  2,4 s daneben (Mitte), jetzt 0,00 s.
+
 ## [0.3.3] – 2026-11-14
 ### Behoben (nach Roberts zweitem Test in LMU)
 - Relative: Autos fehlten (LMU meldet „Boxenstatus 5“ auch für Autos auf der Strecke, das wurde als

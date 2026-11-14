@@ -136,6 +136,7 @@ def _car(cid: str, c: dict[str, Any]) -> CarState:
         gap_ahead=_num(s.get("mTimeBehindNext")),
         laps_behind_ahead=int(s.get("mLapsBehindNext") or 0),
         est_lap_time=_lap_time(s.get("mEstimatedLapTime")),
+        time_into_lap=_num(s.get("mTimeIntoLap")),
         in_pits=bool(s.get("mInPits")),
         in_garage=bool(s.get("mInGarageStall")),
         pit_state=_PIT.get(s.get("mPitState", 0), PitState.KEINER),

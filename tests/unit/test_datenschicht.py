@@ -221,3 +221,42 @@ def test_standings_only_my_class_and_practice_gaps():
     st.session_kind = SessionKind.TRAINING
     rows = dict(standings_blocks(st, tr))["GT3"]
     assert all("L" not in r.gap and "L" not in r.interval for r in rows)
+
+
+def test_relative_uses_game_time_into_lap():
+    """Wie LMU selbst (und TinyPedal): Abstand aus mTimeIntoLap, über Start/Ziel hinweg."""
+    snap = {
+        "i": {"mSession": 10, "mLapDist": 5000.0, "mGamePhase": 5, "mCurrentET": 100.0},
+        "c": {
+            "1": {
+                "s": {
+                    "mPlace": 2,
+                    "mIsPlayer": 1,
+                    "mLapDist": 4900.0,
+                    "mTimeIntoLap": 118.0,
+                    "mEstimatedLapTime": 120.0,
+                    "mVehicleClass": "GT3",
+                }
+            },
+            "2": {
+                "s": {
+                    "mPlace": 1,
+                    "mLapDist": 100.0,
+                    "mTimeIntoLap": 1.5,
+                    "mEstimatedLapTime": 120.0,
+                    "mVehicleClass": "GT3",
+                }
+            },
+            "3": {
+                "s": {
+                    "mPlace": 3,
+                    "mLapDist": 4800.0,
+                    "mTimeIntoLap": 115.2,
+                    "mEstimatedLapTime": 120.0,
+                    "mVehicleClass": "GT3",
+                }
+            },
+        },
+    }
+    rel = {e.car.car_id: e.gap for e in SessionTracker().relative(to_race_state(snap))}
+    assert abs(rel["2"] + 3.5) < 1e-9 and abs(rel["3"] - 2.8) < 1e-9

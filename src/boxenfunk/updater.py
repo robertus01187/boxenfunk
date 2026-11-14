@@ -93,6 +93,8 @@ def swap_script(new_exe: Path, exe: Path) -> str:
     """Batch-Skript: wartet, bis Boxenfunk beendet ist, tauscht die exe und startet sie neu."""
     return (
         "@echo off\r\n"
+        # Neue exe frisch entpacken lassen, nicht den (gelöschten) Ordner der alten benutzen
+        "set PYINSTALLER_RESET_ENVIRONMENT=1\r\n"
         "set n=0\r\n"
         ":warte\r\n"
         "timeout /t 1 /nobreak >nul\r\n"
@@ -103,6 +105,17 @@ def swap_script(new_exe: Path, exe: Path) -> str:
     )
 
 
+def clean_env(env) -> dict[str, str]:
+    """Umgebung ohne die Merker der laufenden exe.
+
+    Sonst hält die neu gestartete exe sich für einen Teil der alten und sucht deren entpackten
+    Ordner in Temp, den es nach dem Beenden nicht mehr gibt („Failed to load Python DLL“).
+    """
+    out = {k: v for k, v in env.items() if not k.upper().startswith(("_PYI", "_MEI"))}
+    out["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    return out
+
+
 def install_and_restart(new_exe: Path) -> None:
     """Startet das Austausch-Skript. Danach muss sich Boxenfunk sofort beenden."""
     exe = Path(sys.executable).resolve()
@@ -110,4 +123,9 @@ def install_and_restart(new_exe: Path) -> None:
     with os.fdopen(fd, "w", encoding="mbcs" if sys.platform == "win32" else "utf-8") as f:
         f.write(swap_script(new_exe, exe))
     flags = 0x08000000 | 0x00000008  # CREATE_NO_WINDOW | DETACHED_PROCESS
-    subprocess.Popen(["cmd", "/c", bat], creationflags=flags, close_fds=True)  # noqa: S603,S607
+    subprocess.Popen(  # noqa: S603
+        ["cmd", "/c", bat],  # noqa: S607
+        creationflags=flags,
+        close_fds=True,
+        env=clean_env(os.environ),
+    )

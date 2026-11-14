@@ -64,6 +64,7 @@ class CarState:
     gap_ahead: float | None = None  # Sekunden hinter dem Auto direkt davor (Gesamtwertung)
     laps_behind_ahead: int = 0
     est_lap_time: float | None = None
+    time_into_lap: float | None = None  # vom Spiel geschätzte Zeit seit Start/Ziel (Sekunden)
     in_pits: bool = False  # in der Boxengasse (inkl. Garage)
     in_garage: bool = False  # steht in der Garage (nicht auf der Strecke)
     pit_state: PitState = PitState.KEINER
