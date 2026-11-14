@@ -102,6 +102,7 @@ class PlayerState:
     tyre_temp: list[float] = field(default_factory=list)  # 4 Räder, Mittel der Lauffläche
     tyre_compound: str = ""
     track_limits_points: float | None = None
+    input_time: float | None = None  # Spielzeit des letzten Eingabe-Messpunkts
 
 
 @dataclass(slots=True)

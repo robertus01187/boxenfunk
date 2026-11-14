@@ -80,7 +80,7 @@ def standings_blocks(
             ahead = cars[i - 1] if i > 0 else None
             if c.last_lap and c.last_lap == tr.best_lap_class.get(cls):
                 kind = "ob"
-            elif c.last_lap and c.best_lap and c.last_lap == c.best_lap:
+            elif c.laps >= 2 and c.last_lap and c.best_lap and c.last_lap == c.best_lap:
                 kind = "pb"
             else:
                 kind = ""

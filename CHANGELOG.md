@@ -2,6 +2,24 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.3.1] – 2026-11-14
+### Behoben (nach Roberts erstem Test in LMU)
+- Relative: Abstände werden jetzt gemessen (wann war das andere Auto an meiner Stelle) statt aus
+  Streckenabstand × Rundenzeit geschätzt. Abgleich mit den Spielwerten (Bahrain-Aufnahme):
+  Mitte 0,02 s, 9 von 10 Werten unter 0,15 s daneben (vorher bis 1 s und mehr).
+- Input-Graph und Delta ruckelten (20 Bilder/s, ganze Datenkopie pro Bild): eigener schneller Weg,
+  60-mal pro Sekunde nur die eigenen Eingaben direkt aus dem Spielspeicher.
+- Standings: Platz-Spalte breiter (rutschte in die Platzgewinne), gewonnene Plätze ab dem echten
+  Startplatz in der Klasse (auch wenn Boxenfunk erst im Rennen gestartet wird), grüne Bestzeit-Linie
+  nicht mehr in Runde 1, Trend-Spalten wachsen von links (1, 2, dann 3 Runden), „–“ für Runden ohne
+  gültige Zeit.
+
+### Hinzugefügt
+- Knopf „Nach Update suchen“: lädt die neueste Boxenfunk.exe von GitHub, tauscht sie aus und
+  startet neu; Einstellungen bleiben. Beim Start wird leise nach einer neuen Version gesucht.
+- Abgleich-Werkzeug `python -m boxenfunk.core.abgleich <Aufnahme>`: vergleicht Relative- und
+  Standings-Abstände mit den Werten, die LMU selbst berechnet.
+
 ## [0.3.0] – 2026-11-14
 ### Hinzugefügt
 - Overlay-Prototyp für Le Mans Ultimate in `Boxenfunk.exe`: Standings, Relative, Delta, Inputs,

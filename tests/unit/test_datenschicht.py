@@ -145,3 +145,40 @@ def test_replay_source_plays_recording(tmp_path: Path):
     src = ReplaySource(tmp_path, speed=1000.0)
     first = src.poll()
     assert first is not None
+
+
+def test_relative_measured_gap_follows_track_time(tmp_path: Path):
+    """Gemessener Abstand: Auto 1,5 s vor mir mit gleichem Tempo → Relative zeigt −1,5 s."""
+    fake = FakeLmu(n_hyper=0, n_gt3=2, player_index=1)
+    for c in fake.cars:
+        c["lap_time"] = 120.0
+        c["ve_per_lap"] = 0.0
+    fake.cars[0]["dist"] = fake.cars[1]["dist"] + TRACK_LEN * 1.5 / 120.0
+    tr = SessionTracker()
+    st = run(fake, tr, seconds=30)
+    rel = tr.relative(st)
+    ahead = next(e for e in rel if not e.car.is_player)
+    assert abs(ahead.gap + 1.5) < 0.05
+
+
+def test_trend_grows_from_left():
+    fake = FakeLmu(n_hyper=0, n_gt3=3, player_index=1)
+    tr = SessionTracker()
+    st = run(fake, tr, seconds=130)
+    other = next(c for c in st.cars if not c.is_player)
+    assert 1 <= len(tr.trend(st, other)) <= 3
+
+
+def test_abgleich_runs(tmp_path: Path, capsys):
+    from boxenfunk.core import abgleich
+
+    fake = FakeLmu()
+    t = [1_700_000_000.0]
+    rec = recorder.Recorder(fake, tmp_path, clock=lambda: t[0], log=lambda m: None)
+    for _ in range(5 * 30):
+        fake.tick(0.2)
+        t[0] += 0.2
+        rec.step()
+    rec.close()
+    assert abgleich.main([str(tmp_path)]) == 0
+    assert "Relative" in capsys.readouterr().out

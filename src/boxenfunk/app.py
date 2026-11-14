@@ -53,7 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     app.setApplicationVersion(__version__)
 
     source = make_source(args.abspielen, args.tempo, args.ab_rennen)
-    ctl = Controller(source, Path(args.einstellungen) if args.einstellungen else None)
+    ctl = Controller(
+        source,
+        Path(args.einstellungen) if args.einstellungen else None,
+        check_updates=args.quit_after == 0,
+    )
     app.aboutToQuit.connect(ctl.close)
     ctl.show()
 
