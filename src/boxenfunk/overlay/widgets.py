@@ -129,6 +129,23 @@ def session_letter(kind: SessionKind) -> str:
 # --- Standings ----------------------------------------------------------------
 
 
+_CLASS_COLORS = {
+    "hyper": QColor(230, 70, 70),
+    "lmp2": QColor(70, 140, 235),
+    "lmp3": QColor(170, 110, 230),
+    "gt3": QColor(60, 200, 110),
+    "gte": QColor(240, 150, 40),
+}
+
+
+def class_color(cls: str) -> QColor:
+    key = cls.lower().replace(" ", "").replace("lmgt3", "gt3")
+    for k, col in _CLASS_COLORS.items():
+        if k in key:
+            return col
+    return QColor(160, 170, 185)
+
+
 class StandingsOverlay(Overlay):
     key = "standings"
     title = "Standings"
@@ -155,6 +172,7 @@ class StandingsOverlay(Overlay):
     def __init__(self, scale: float = 1.0, logos: Logos | None = None) -> None:
         self.logos = logos or Logos(None)
         self._rows = 0
+        self.only_my_class = False  # Einstellung „Standings: nur meine Klasse“
         super().__init__(scale)
 
     @property
@@ -180,7 +198,17 @@ class StandingsOverlay(Overlay):
         if self.state is None or self.tracker is None:
             self._blocks = []
             return
-        self._blocks = standings_blocks(self.state, self.tracker)
+        self._blocks = standings_blocks(
+            self.state,
+            self.tracker,
+            around=3 if self.only_my_class else 2,
+            only_my_class=self.only_my_class,
+        )
+
+    @property
+    def label_h(self) -> float:
+        """Höhe der Klassen-Beschriftung über jedem Block."""
+        return 0.8 * self.rh
 
     def preferred_size(self) -> tuple[float, float]:
         width = sum(w for _, w in self._cols()) + 8 * self.scale
@@ -191,7 +219,7 @@ class StandingsOverlay(Overlay):
             self.rh * 1.25
             + 6 * self.scale
             + n * self.rh
-            + len(blocks) * 6 * self.scale
+            + len(blocks) * (6 * self.scale + self.label_h)
             + gaps * 6 * self.scale
         )
         return width, max(height, self.rh * 3)
@@ -222,7 +250,9 @@ class StandingsOverlay(Overlay):
         y = hh + 6 * s
         cols = self._cols()
         width = sum(w for _, w in cols)
-        for _cls, rows in self._blocks:
+        for cls, rows in self._blocks:
+            self._class_label(p, cls, y, width)
+            y += self.label_h
             block_h = len(rows) * rh + sum(6 * s for r in rows if r.gap_before)
             clip = QPainterPath()
             clip.addRoundedRect(QRectF(0, y, width, block_h), 4 * s, 4 * s)
@@ -236,6 +266,17 @@ class StandingsOverlay(Overlay):
                 y += rh
             p.restore()
             y += 6 * s
+
+    def _class_label(self, p: QPainter, cls: str, y: float, width: float) -> None:
+        s, fs, h = self.scale, self.fs, self.label_h
+        col = class_color(cls)
+        p.setFont(ov_font(fs * 0.8, 600))
+        tw = p.fontMetrics().horizontalAdvance(cls or "?") + 14 * s
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(col)
+        p.drawRoundedRect(QRectF(0, y, tw, h - 2 * s), 3 * s, 3 * s)
+        text(p, 0, y, tw, h - 2 * s, cls or "?", QColor("#111"), CENTER)
+        p.fillRect(QRectF(tw + 4 * s, y + h - 4 * s, width - tw - 4 * s, 2 * s), col)
 
     def _paint_row(self, p: QPainter, row, y: float, k: int, cols, width: float) -> None:
         s, fs, rh = self.scale, self.fs, self.rh
@@ -310,7 +351,11 @@ class StandingsOverlay(Overlay):
     def _pit_cell(self, p: QPainter, c: CarState, stint: int, x, y, w, rh) -> None:
         s, fs = self.scale, self.fs
         p.setFont(ov_font(fs))
-        if c.in_pits or c.pit_state in (PitState.STEHT, PitState.EINFAHRT, PitState.AUSFAHRT):
+        if c.in_garage:
+            # Steht in der Garage (im Training meist): ruhig anzeigen, nicht gelb
+            p.setFont(ov_font(fs * 0.75))
+            text(p, x, y, w, rh, "GARAGE", DIM, CENTER)
+        elif c.in_pits or c.pit_state in (PitState.STEHT, PitState.EINFAHRT, PitState.AUSFAHRT):
             p.fillRect(
                 QRectF(x + 2 * s, y + 2 * s, w - 4 * s, rh - 4 * s), QColor(200, 150, 0, 220)
             )
@@ -392,15 +437,23 @@ class RelativeOverlay(Overlay):
         if st.player and st.player.energy is not None:
             head.append(f"VE {st.player.energy * 100:.1f}%")
         text(p, 12 * s, 0, w - 24 * s, rh * 1.2, "   ".join(head), WHITE)
-        y = rh * 1.2
+        top = rh * 1.2
+        # Eigenes Auto immer in der Mitte (3 Plätze davor, 3 dahinter), wie im Spiel
+        me_idx = next((n for n, e in enumerate(self._entries) if e.car.is_player), 0)
+        for slot in range(7):
+            p.fillRect(QRectF(0, top + slot * rh, w, rh), ROW_A if slot % 2 == 0 else ROW_B)
         for k, e in enumerate(self._entries):
+            slot = 3 + k - me_idx
+            if not 0 <= slot < 7:
+                continue
+            y = top + slot * rh
             c = e.car
             if c.is_player:
                 p.fillRect(QRectF(0, y, w, rh), QColor(200, 162, 74, 235))
                 p.fillRect(QRectF(0, y, 5 * s, rh), YELLOW)
                 col = WHITE
             else:
-                p.fillRect(QRectF(0, y, w, rh), ROW_A if k % 2 == 0 else ROW_B)
+                p.fillRect(QRectF(0, y, w, rh), ROW_A if slot % 2 == 0 else ROW_B)
                 col = LOSS if e.lap_diff > 0 else (QColor("#7db7ff") if e.lap_diff < 0 else WHITE)
                 if c.in_pits:
                     col = QColor(col.red(), col.green(), col.blue(), 140)
@@ -421,8 +474,8 @@ class RelativeOverlay(Overlay):
             p.setFont(ov_font(fs))
             gap = "0.0" if c.is_player else f"{e.gap:+.1f}".replace("-", "−")
             text(p, 0, y, w - 10 * s, rh, gap, col, RIGHT)
-            y += rh
-        # Fuß: Runde, Restzeit
+        # Fuß: Runde, Restzeit (fest unten)
+        y = top + 7 * rh
         me = st.player_car()
         p.setFont(ov_font(fs))
         if me is not None:
@@ -458,13 +511,15 @@ class DeltaOverlay(Overlay):
         st = self.state
         s = self.scale
         w, h = self.width(), self.height()
-        p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QColor(20, 27, 38, 225))
-        p.drawRoundedRect(QRectF(0, 0, w, h), 6 * s, 6 * s)
         me = st.player_car()
         pl = st.player
         d = pl.delta_best if pl else None
         best = me.best_lap if me else None
+        if best is None and self.locked:
+            return  # noch keine gültige Runde: Delta ausblenden (Roberts Wunsch)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(QColor(20, 27, 38, 225))
+        p.drawRoundedRect(QRectF(0, 0, w, h), 6 * s, 6 * s)
         valid = (
             d is not None and best is not None and me is not None and not me.in_pits and abs(d) < 60
         )
@@ -536,7 +591,10 @@ class InputsOverlay(Overlay):
             return
         pl = st.player
         t = pl.input_time if pl.input_time is not None else st.wall_time
-        if self._hist and t < self._hist[-1][0]:
+        # Zwei Datenwege (schnell 60 Hz, komplett 10 Hz) liefern leicht versetzte Zeiten.
+        # Ein etwas älterer Wert wird nur übersprungen; neu anfangen nur bei echtem Rücksprung
+        # (neue Session, Zurücksetzen auf die Strecke).
+        if self._hist and t < self._hist[-1][0] - 2.0:
             self._hist.clear()
         if not self._hist or t > self._hist[-1][0]:
             self._hist.append((t, pl.throttle, pl.brake, pl.abs_active, bool(pl.tc_active)))

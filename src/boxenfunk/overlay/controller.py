@@ -116,6 +116,7 @@ class Controller(QObject):
             InputsOverlay(scale),
             EnergyOverlay(scale),
         ]
+        self.overlays[0].only_my_class = self.cfg.get("standings_klassen") == "meine"
         self.enabled = {o.key: self.cfg.get("an", {}).get(o.key, True) for o in self.overlays}
         self.has_data = False
         self._place_overlays()
@@ -171,6 +172,20 @@ class Controller(QObject):
             cb.setChecked(self.enabled[o.key])
             cb.toggled.connect(lambda on, k=o.key: self._toggle(k, on))
             lay.addWidget(cb)
+
+        cls_row = QHBoxLayout()
+        cls_row.addWidget(QLabel("Standings zeigen"))
+        cls_grp = QButtonGroup(w)
+        cur_cls = self.cfg.get("standings_klassen", "alle")
+        for key, label in (("alle", "Alle Klassen"), ("meine", "Nur meine Klasse")):
+            b = QPushButton(label)
+            b.setCheckable(True)
+            b.setChecked(key == cur_cls)
+            b.clicked.connect(lambda _=False, k=key: self._set_classes(k))
+            cls_grp.addButton(b)
+            cls_row.addWidget(b)
+        cls_row.addStretch(1)
+        lay.addLayout(cls_row)
 
         row = QHBoxLayout()
         row.addWidget(QLabel("Größe"))
@@ -233,6 +248,13 @@ class Controller(QObject):
         self.cfg["groesse"] = name
         for o in self.overlays:
             o.set_scale(SCALES[name])
+        self._save()
+
+    def _set_classes(self, key: str) -> None:
+        self.cfg["standings_klassen"] = key
+        st = self.overlays[0]
+        st.only_my_class = key == "meine"
+        st.set_data(st.state, st.tracker)
         self._save()
 
     def _toggle_move(self, on: bool) -> None:

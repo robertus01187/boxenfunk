@@ -2,6 +2,21 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.3.3] – 2026-11-14
+### Behoben (nach Roberts zweitem Test in LMU)
+- Relative: Autos fehlten (LMU meldet „Boxenstatus 5“ auch für Autos auf der Strecke, das wurde als
+  Garage gewertet). Jetzt zählt nur, ob ein Auto wirklich in seiner Garage steht.
+- Relative: Abstand zum Auto direkt vor und hinter mir kommt jetzt von LMU selbst.
+- Relative: Fußzeile steht fest unten, eigene Zeile immer in der Mitte (3 davor, 3 dahinter).
+- Input-Graph setzte sich alle 1–2 s zurück (zwei Datenwege mit leicht versetzten Zeiten).
+- Delta bleibt ausgeblendet, bis es eine gültige Bestzeit gibt.
+- Beim Beitritt wird die letzte Runde jedes Autos übernommen (mehr Verlauf liefert LMU nicht).
+- Standings in Training/Quali: Abstand = Rückstand der Bestzeit statt Rundenrückstand („+35L“).
+  Autos in der Garage stehen als ruhiges „GARAGE“ da statt gelbem „PIT“.
+### Hinzugefügt
+- Standings: jede Klasse mit farbiger Beschriftung (Hyper, LMP2, GT3 …) und Schalter
+  „Alle Klassen / Nur meine Klasse“ im Boxenfunk-Fenster (wird gespeichert).
+
 ## [0.3.2] – 2026-11-14
 ### Hinzugefügt
 - Recorder eingebaut: Knopf „Aufnahme starten/beenden“ im Boxenfunk-Fenster (gleiches Format und

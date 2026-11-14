@@ -42,7 +42,9 @@ _PIT = {
     2: PitState.EINFAHRT,
     3: PitState.STEHT,
     4: PitState.AUSFAHRT,
-    5: PitState.GARAGE,
+    # 5 kommt in LMU auch bei Autos auf der Strecke vor (geprüft 14.11.): nicht als Garage werten.
+    # Ob ein Auto wirklich in der Garage steht, sagt mInGarageStall.
+    5: PitState.KEINER,
 }
 
 # Erste Wörter von mVehicleModel → Marken-Schlüssel (wie die Logo-Namen im Design)
@@ -135,6 +137,7 @@ def _car(cid: str, c: dict[str, Any]) -> CarState:
         laps_behind_ahead=int(s.get("mLapsBehindNext") or 0),
         est_lap_time=_lap_time(s.get("mEstimatedLapTime")),
         in_pits=bool(s.get("mInPits")),
+        in_garage=bool(s.get("mInGarageStall")),
         pit_state=_PIT.get(s.get("mPitState", 0), PitState.KEINER),
         pit_stops=int(s.get("mNumPitstops") or 0),
         penalties=int(s.get("mNumPenalties") or 0),
@@ -181,6 +184,8 @@ def _player(c: dict[str, Any]) -> PlayerState:
         tyre_compound=v.get("mFrontTireCompoundName", "") or "",
         track_limits_points=_num(v.get("mTrackLimitsSteps")),
         input_time=now,
+        gap_car_ahead=_num(v.get("mTimeGapCarAhead")),
+        gap_car_behind=_num(v.get("mTimeGapCarBehind")),
     )
 
 
