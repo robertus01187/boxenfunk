@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 from boxenfunk.core.consumption import Consumption
 from boxenfunk.core.track_timing import TrackTiming
-from boxenfunk.model.race_state import CarState, Phase, RaceState, SessionKind
+from boxenfunk.model.race_state import CarState, Phase, PlayerState, RaceState, SessionKind
 
 HISTORY = 10  # gespeicherte Runden je Auto
 
@@ -65,6 +65,7 @@ class SessionTracker:
         self.timing = TrackTiming()
         # Verbrauch wie TinyPedal (letzte gültige Runde + Abweichung in der laufenden Runde)
         self.consumption = {"energy": Consumption(), "fuel": Consumption()}
+        self.focus_id: str | None = None
 
     # -- Aktualisieren --
 
@@ -123,8 +124,18 @@ class SessionTracker:
 
         me = st.player_car()
         p = st.player
-        if me is None or p is None:
+        if me is None:
             return
+        # Folgt das Overlay einem anderen Auto als vorher, fängt die Verbrauchsrechnung neu an
+        if me.car_id != self.focus_id:
+            self.focus_id = me.car_id
+            self.player = PlayerHistory()
+            self.consumption = {"energy": Consumption(), "fuel": Consumption()}
+        if p is None:
+            # Zuschauen: VE kommt vom Teamauto (gröber), Sprit liefert LMU dann nicht
+            p = PlayerState(energy=me.energy) if st.spectating else None
+            if p is None:
+                return
         for kind, amount in (("energy", p.energy), ("fuel", p.fuel)):
             self.consumption[kind].update(
                 amount,

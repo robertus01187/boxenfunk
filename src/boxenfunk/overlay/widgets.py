@@ -457,8 +457,15 @@ class RelativeOverlay(Overlay):
             head.append(f"Luft {st.air_temp:.0f}°C")
         if st.track_temp is not None:
             head.append(f"Strecke {st.track_temp:.0f}°C")
-        if st.player and st.player.energy is not None:
-            head.append(f"VE {st.player.energy * 100:.1f}%")
+        ve = st.player.energy if st.player else None
+        if st.spectating and st.player_car() is not None:
+            ve = st.player_car().energy
+        if ve is not None:
+            head.append(f"VE {ve * 100:.1f}%")
+        if st.spectating and st.player_car() is not None:
+            # Beim Zuschauen ist der Fahrer wichtiger als die Temperaturen
+            head = [h for h in head if h.startswith("VE")]
+            head.append(f"Zuschauen: {st.player_car().driver}")
         text(p, 12 * s, 0, w - 24 * s, rh * 1.2, "   ".join(head), WHITE)
         top = rh * 1.2
         # Eigenes Auto immer in der Mitte, so viele Zeilen wie die Höhe hergibt
@@ -519,6 +526,7 @@ class DeltaOverlay(Overlay):
     key = "delta"
     fast = True
     title = "Delta"
+    needs_driver = True  # beim Zuschauen ausgeblendet: LMU liefert die Werte dann nicht
     RANGE = 1.0  # ± Sekunden Skala
 
     def __init__(self, scale: float = 1.0) -> None:
@@ -613,6 +621,7 @@ class InputsOverlay(Overlay):
     key = "inputs"
     fast = True
     title = "Inputs"
+    needs_driver = True  # beim Zuschauen ausgeblendet: LMU liefert die Werte dann nicht
     WINDOW = 8.0  # Sekunden im Graphen
 
     def __init__(self, scale: float = 1.0) -> None:
@@ -749,21 +758,34 @@ class EnergyOverlay(Overlay):
     def __init__(self, scale: float = 1.0) -> None:
         self._ve = None
         self._fuel = None
+        # Einstellungen (im Boxenfunk-Fenster): Nachtanken bis zum Ende zeigen, Sicherheitsrunden
+        self.show_refuel = True
+        self.safety_laps = 1
         super().__init__(scale)
 
     def on_data(self) -> None:
         if self.state is None or self.tracker is None:
             self._ve = self._fuel = None
             return
-        self._ve = energy_view(self.state, self.tracker, "energy")
-        self._fuel = energy_view(self.state, self.tracker, "fuel")
+        k = self.safety_laps
+        self._ve = energy_view(self.state, self.tracker, "energy", safety_laps=k)
+        self._fuel = energy_view(self.state, self.tracker, "fuel", safety_laps=k)
+
+    def _refuel_rows(self) -> list:
+        if not self.show_refuel:
+            return []
+        return [v for v in (self._ve, self._fuel) if v is not None and v.need_end is not None]
+
+    def _refuel_h(self) -> float:
+        n = len(self._refuel_rows())
+        return (24 + n * 26) if n else 0
 
     def preferred_size(self) -> tuple[float, float]:
         s = self.scale
         rows = (1 if self._ve else 0) + (1 if self._fuel else 0)
         main = self._ve or self._fuel
         box = 92 if main and main.allowed_per_lap is not None else 0
-        return 340 * s, (14 + rows * 36 + box + 60) * s
+        return 340 * s, (14 + rows * 36 + self._refuel_h() + box + 60) * s
 
     def min_size(self) -> tuple[float, float]:
         rows = max(1, (1 if self._ve else 0) + (1 if self._fuel else 0))
@@ -774,8 +796,13 @@ class EnergyOverlay(Overlay):
         w, h = self.width(), self.height()
         dx = w - 340 * s  # zusätzliche Breite: Zahlen rücken nach rechts
         rows = (1 if self._ve else 0) + (1 if self._fuel else 0)
-        # Was nicht mehr in die Höhe passt, fällt weg: zuerst die Zeilen unten, dann der Kasten
+        # Was nicht mehr in die Höhe passt, fällt weg: zuerst die Zeilen unten, dann der Kasten,
+        # zuletzt „Nachtanken bis zum Ende“
         room = h - (12 + rows * 36) * s
+        refuel_h = self._refuel_h() * s
+        show_refuel = refuel_h > 0 and room >= refuel_h
+        if show_refuel:
+            room -= refuel_h
         show_box = room >= 92 * s
         show_lines = room - (92 * s if show_box else 0) >= 52 * s
         p.setPen(Qt.PenStyle.NoPen)
@@ -813,6 +840,8 @@ class EnergyOverlay(Overlay):
             p.setFont(ov_font(11 * s))
             text(p, 318 * s + dx, y + 3 * s, 20 * s, 30 * s, "Rd", DIM)
             y += 36 * s
+        if show_refuel:
+            y = self._paint_refuel(p, y, w)
         main = self._ve if lim != "fuel" and self._ve else self._fuel
         if show_box and main and main.allowed_per_lap is not None:
             ok = main.save_per_lap is not None and main.save_per_lap <= 0
@@ -878,6 +907,35 @@ class EnergyOverlay(Overlay):
             text(p, 12 * s, y, w, 26 * s, label, WHITE)
             text(p, 0, y, w - 12 * s, 26 * s, " · ".join(parts) or "–", WHITE, RIGHT)
             y += 26 * s
+
+    def _paint_refuel(self, p: QPainter, y: float, w: float) -> float:
+        """Wie viel jetzt nachtanken, um ins Ziel zu kommen (genau und mit Sicherheitsrunden)."""
+        s = self.scale
+        p.fillRect(QRectF(10 * s, y, w - 20 * s, 1 * s), QColor(255, 255, 255, 40))
+        p.setFont(ov_font(11 * s, 700))
+        text(p, 12 * s, y + 3 * s, w * 0.5, 18 * s, "NACHTANKEN BIS ZUM ENDE", DIM)
+        p.setFont(ov_font(11 * s))
+        col1, col2 = w * 0.42, w * 0.70
+        cw = w * 0.27
+        text(p, col1, y + 3 * s, cw, 18 * s, "genau", DIM, RIGHT)
+        text(p, col2, y + 3 * s, cw, 18 * s, f"+{self.safety_laps} Rd", DIM, RIGHT)
+        y += 22 * s
+        for v in self._refuel_rows():
+            k, u = (100, " %") if v.kind == "energy" else (1, " L")
+            p.setFont(ov_font(12 * s))
+            text(p, 12 * s, y, 80 * s, 24 * s, "VE" if v.kind == "energy" else "SPRIT", WHITE)
+            p.setFont(ov_font(16 * s, 700))
+            for x, val in ((col1, v.need_end), (col2, v.need_end_safe)):
+                label = "reicht" if val <= 0 else f"{val * k:.1f}{u}"
+                room = (v.capacity or 0) - v.level
+                # Rot: passt beim Stopp jetzt nicht mehr hinein (mehr als ein Stopp nötig)
+                col = GAIN if val <= 0 else (RED if v.capacity and val > room else WHITE)
+                text(p, x, y, cw, 24 * s, label, col, RIGHT)
+            if v.stops_needed and v.stops_needed > 1:
+                p.setFont(ov_font(10 * s))
+                text(p, 46 * s, y, 80 * s, 24 * s, f"{v.stops_needed} Stopps", RED)
+            y += 26 * s
+        return y + 2 * s
 
 
 # --- Flaggen ------------------------------------------------------------------
@@ -986,6 +1044,7 @@ class TyresOverlay(Overlay):
 
     key = "reifen"
     title = "Reifen"
+    needs_driver = True  # beim Zuschauen ausgeblendet: LMU liefert die Werte dann nicht
 
     def preferred_size(self) -> tuple[float, float]:
         return 340 * self.scale, 216 * self.scale

@@ -26,9 +26,12 @@ Ein-/Ausblenden und nur für LMU.
    **„Fertig – Positionen festsetzen“** klicken. Die Positionen werden gespeichert.
    Tipp: Zum Verschieben im Spiel kurz mit Alt+Tab zum Boxenfunk-Fenster wechseln.
 4. **Größe:** Im Verschiebe-Modus an der gelben Ecke unten rechts eines Widgets ziehen: alles wird gleichmäßig größer. An einer Kante (links, rechts, oben, unten) ziehen macht das Widget nur breiter oder höher; wird es zu eng, blendet es Teile aus. Jedes Widget merkt sich Größe und Form.
-5. **Standings:** „Alle Klassen“ (jede Klasse mit Namen getrennt) oder „Nur meine Klasse“.
-6. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
-7. **Beenden:** Boxenfunk-Fenster schließen.
+5. **Voreinstellungen:** Training, Quali, Rennen und Zuschauen haben je eigene Widgets, Positionen und Größen. „Automatisch“ nimmt die passende. Zum Bearbeiten oben die Voreinstellung wählen, dann verschieben und an/aus schalten; danach wieder „Automatisch“ wählen.
+   **VE & Sprit:** „Nachtanken bis zum Ende“ an/aus und die Zahl der Sicherheitsrunden stellst du im Boxenfunk-Fenster ein.
+6. **Standings:** „Alle Klassen“ (jede Klasse mit Namen getrennt) oder „Nur meine Klasse“.
+7. **Zuschauen:** Fährt ein Teamkollege, folgen Standings, Relative, VE und Flaggen automatisch dem Auto, in dem du zuletzt gesessen hast. Unter „Beim Zuschauen folgen“ kannst du auch ein anderes Auto wählen. Delta, Inputs und Reifen sind dann aus, weil LMU diese Werte beim Zuschauen nicht liefert.
+8. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
+9. **Beenden:** Boxenfunk-Fenster schließen.
 
 ## Neue Version holen
 

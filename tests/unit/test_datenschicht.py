@@ -357,3 +357,87 @@ def test_tyre_heatmap_like_tinypedal():
     assert tyre_color(1, 85) == "#4F8"
     assert tyre_color(3, 55) == "#4F4"
     assert brake_color(450) == "#4F4"
+
+
+def test_teamcar_follows_last_own_car_when_spectating():
+    import dataclasses
+
+    from boxenfunk.core.teamcar import TeamCar
+    from boxenfunk.model.race_state import CarState, Phase, RaceState, SessionKind
+
+    def state(player: str | None) -> RaceState:
+        cars = [
+            CarState("9", "Robert" if player else "Calvin", "397", "Team A", "911", "", "GT3", 1),
+            CarState("4", "Fremd", "397", "Team B", "911", "", "GT3", 2, energy=0.5),
+        ]
+        if player:
+            cars[0] = dataclasses.replace(cars[0], is_player=True)
+        return RaceState(
+            "LMU",
+            0.0,
+            SessionKind.RENNEN,
+            1,
+            10.0,
+            None,
+            None,
+            Phase.GRUEN,
+            "Bahrain",
+            5000.0,
+            cars=cars,
+            player_id=player,
+        )
+
+    tc = TeamCar()
+    assert tc.apply(state(None)).player_id is None  # noch nie selbst gefahren
+    tc.apply(state("9"))
+    assert tc.to_cfg() == {"id": "9", "team": "Team A"}
+    st = tc.apply(state(None))
+    assert st.spectating and st.player_id == "9" and st.player_car().is_player
+    # nach Neustart aus der Einstellung, Hand-Auswahl geht vor
+    tc2 = TeamCar({"id": "9", "team": "Team A"})
+    tc2.manual = "4"
+    assert tc2.apply(state(None)).player_id == "4"
+    # anderer Server: Slot 9 gehört einem anderen Team → nicht folgen
+    tc3 = TeamCar({"id": "9", "team": "Team X"})
+    assert tc3.apply(state(None)).player_id is None
+
+
+def test_refuel_to_finish_like_tinypedal():
+    from types import SimpleNamespace
+
+    from boxenfunk.core.views import race_laps_left
+    from boxenfunk.model.race_state import CarState, Phase, RaceState, SessionKind
+
+    me = CarState(
+        "1",
+        "Ich",
+        "1",
+        "T",
+        "M",
+        "",
+        "GT3",
+        1,
+        laps=10,
+        lap_dist=2500.0,
+        best_lap=120.0,
+        is_player=True,
+    )
+    st = RaceState(
+        "LMU",
+        0.0,
+        SessionKind.RENNEN,
+        1,
+        1000.0,
+        1000.0 + 600.0,
+        None,
+        Phase.GRUEN,
+        "X",
+        5000.0,
+        cars=[me],
+        player_id="1",
+    )
+    tr = SimpleNamespace(recent_laps=lambda cid, n: [120.0, 120.0])
+    # 600 s / 120 s = 5 Runden + halbe Runde → über die Linie 6 Runden, minus die halbe = 5,5
+    assert race_laps_left(st, tr) == 5.5
+    st.max_laps, st.session_end = 20, None
+    assert race_laps_left(st, tr) == 9.5

@@ -139,6 +139,8 @@ class RaceState:
     cars: list[CarState] = field(default_factory=list)  # sortiert nach Gesamtplatz
     player: PlayerState | None = None
     player_id: str | None = None
+    # Du schaust zu (Teamkollege fährt): player_id ist das Teamauto, player bleibt leer
+    spectating: bool = False
 
     @property
     def time_remaining(self) -> float | None:

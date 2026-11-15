@@ -2,6 +2,26 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.6.0] – 2026-11-15
+### Hinzugefügt
+- Teamauto beim Zuschauen (Wunsch W-48): Fährt ein Teamkollege, folgen Standings, Relative,
+  VE und Flaggen eurem Auto. Boxenfunk merkt sich das Auto, in dem du zuletzt gesessen hast
+  (auch über Training, Quali und Rennen und nach einem Neustart). Im Boxenfunk-Fenster lässt
+  sich unter „Beim Zuschauen folgen“ auch jedes andere Auto wählen. Vorbild ist TinyPedal (bleibt
+  beim zuletzt gefundenen Auto, Auswahl über die Slot-Nummer).
+- Delta, Inputs und Reifen sind beim Zuschauen ausgeblendet: LMU liefert diese Werte dann nicht
+  (geprüft mit der Aufnahme vom 8h-Rennen Bahrain). Sprit ebenso. VE kommt nur in Schritten von
+  0,4 %, deshalb rechnet „Runden Rest“ beim Zuschauen mit dem Schnitt der letzten 5 Runden.
+- Voreinstellungen je Situation: Training, Quali, Rennen und Zuschauen (Teamauto) haben jeweils
+  eigene Widgets an/aus, Positionen, Größen und Formen. Boxenfunk wechselt automatisch passend zur
+  Situation; im Boxenfunk-Fenster lässt sich jede Voreinstellung auch fest auswählen und
+  bearbeiten.
+- VE & Sprit: „Nachtanken bis zum Ende“ (Rechenweg wie TinyPedal): wie viel du jetzt nachtanken
+  müsstest, um ins Ziel zu kommen, einmal genau und einmal mit Sicherheitsrunden (Standard +1).
+  Reicht eine Füllung nicht, steht die Zahl der Stopps dabei. Restrunden im Zeitrennen aus der
+  Restzeit und dem Schnitt deiner letzten 3 Runden. Einstellbar im Boxenfunk-Fenster
+  (an/aus, Sicherheitsrunden 0–5).
+
 ## [0.5.0] – 2026-11-15
 ### Hinzugefügt
 - Reifen-Widget (Datenquellen und Farben wie TinyPedal): je Rad Lauffläche links/Mitte/rechts,
