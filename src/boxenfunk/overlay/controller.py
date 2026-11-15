@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
     QPushButton,
+    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
@@ -42,6 +43,27 @@ from boxenfunk.overlay.widgets import (
     StandingsOverlay,
     TyresOverlay,
 )
+
+# Voreinstellungen je Spielsituation: welche Widgets an sind, Position, Größe und Form
+PRESETS = (
+    ("training", "Training"),
+    ("quali", "Quali"),
+    ("rennen", "Rennen"),
+    ("zuschauen", "Zuschauen (Teamauto)"),
+)
+PRESET_KEYS = ("an", "positionen", "skalen", "strecken")
+
+
+def situation_of(st) -> str:
+    """Welche Voreinstellung gerade passt."""
+    from boxenfunk.model.race_state import SessionKind
+
+    if st.spectating:
+        return "zuschauen"
+    return {SessionKind.QUALI: "quali", SessionKind.RENNEN: "rennen"}.get(
+        st.session_kind, "training"
+    )
+
 
 SCALES = {"S": 0.8, "M": 1.0, "L": 1.25, "XL": 1.5}
 
@@ -134,8 +156,18 @@ class Controller(QObject):
             o.set_stretch(float(sw), float(sh))
         self.overlays[0].only_my_class = self.cfg.get("standings_klassen") == "meine"
         self.enabled = {o.key: self.cfg.get("an", {}).get(o.key, True) for o in self.overlays}
+        energy = self._overlay("energie")
+        energy.show_refuel = bool(self.cfg.get("energie_nachtanken", True))
+        energy.safety_laps = int(self.cfg.get("energie_sicherheitsrunden", 1))
         self.has_data = False
         self._place_overlays()
+        # Voreinstellungen: beim ersten Start mit der bisherigen Anordnung füllen
+        presets = self.cfg.setdefault("presets", {})
+        for key, _ in PRESETS:
+            presets.setdefault(key, self._current_layout())
+        self.preset_mode = "auto"  # oder ein fester Schlüssel zum Bearbeiten
+        self.preset = self.cfg.get("preset_zuletzt", "rennen")
+        self._apply_preset(self.preset)
         for o in self.overlays:
             o.moved.connect(self._save)
         self._found_release = None
@@ -182,12 +214,43 @@ class Controller(QObject):
         self.status.setObjectName("status")
         lay.addWidget(self.status)
 
-        lay.addWidget(QLabel("Widgets"))
+        # Voreinstellung je Situation: automatisch passend oder fest zum Bearbeiten
+        pre_row = QHBoxLayout()
+        pre_row.addWidget(QLabel("Voreinstellung"))
+        self.preset_box = QComboBox()
+        self.preset_box.addItem("Automatisch (passend zur Situation)", "auto")
+        for key, label in PRESETS:
+            self.preset_box.addItem(f"{label} bearbeiten", key)
+        self.preset_box.currentIndexChanged.connect(self._set_preset_mode)
+        pre_row.addWidget(self.preset_box, 1)
+        lay.addLayout(pre_row)
+        self.preset_label = QLabel(f"Aktiv: {dict(PRESETS)[self.preset]}")
+        self.preset_label.setObjectName("hint")
+        lay.addWidget(self.preset_label)
+
+        lay.addWidget(QLabel("Widgets (gelten für die aktive Voreinstellung)"))
+        self.checks: dict[str, QCheckBox] = {}
         for o in self.overlays:
             cb = QCheckBox(o.title.replace("&", "&&"))
             cb.setChecked(self.enabled[o.key])
             cb.toggled.connect(lambda on, k=o.key: self._toggle(k, on))
+            self.checks[o.key] = cb
             lay.addWidget(cb)
+
+        # Einstellungen VE & Sprit
+        ve_row = QHBoxLayout()
+        self.refuel_cb = QCheckBox("VE & Sprit: Nachtanken bis zum Ende zeigen")
+        self.refuel_cb.setChecked(self._overlay("energie").show_refuel)
+        self.refuel_cb.toggled.connect(lambda _on: self._set_refuel())
+        ve_row.addWidget(self.refuel_cb, 1)
+        ve_row.addWidget(QLabel("Sicherheit +"))
+        self.safety_box = QSpinBox()
+        self.safety_box.setRange(0, 5)
+        self.safety_box.setValue(self._overlay("energie").safety_laps)
+        self.safety_box.setSuffix(" Rd")
+        self.safety_box.valueChanged.connect(lambda _v: self._set_refuel())
+        ve_row.addWidget(self.safety_box)
+        lay.addLayout(ve_row)
 
         cls_row = QHBoxLayout()
         cls_row.addWidget(QLabel("Standings zeigen"))
@@ -255,6 +318,64 @@ class Controller(QObject):
         self.enabled[key] = on
         self._save()
         self._refresh_visibility()
+
+    def _current_layout(self) -> dict:
+        return {
+            "an": dict(self.enabled),
+            "positionen": {o.key: [o.x(), o.y()] for o in self.overlays},
+            "skalen": {o.key: o.scale for o in self.overlays},
+            "strecken": {o.key: [o.stretch_w, o.stretch_h] for o in self.overlays},
+        }
+
+    def _overlay(self, key: str) -> Overlay:
+        return next(o for o in self.overlays if o.key == key)
+
+    def _apply_preset(self, key: str) -> None:
+        """Anordnung einer Voreinstellung laden (an/aus, Position, Größe, Form)."""
+        pr = self.cfg.get("presets", {}).get(key, {})
+        for o in self.overlays:
+            if o.key in pr.get("skalen", {}):
+                o.set_scale(float(pr["skalen"][o.key]))
+            sw, sh = pr.get("strecken", {}).get(o.key, (o.stretch_w, o.stretch_h))
+            o.set_stretch(float(sw), float(sh))
+            if o.key in pr.get("positionen", {}):
+                x, y = pr["positionen"][o.key]
+                o.move(int(x), int(y))
+            self.enabled[o.key] = bool(pr.get("an", {}).get(o.key, self.enabled[o.key]))
+        for k, cb in getattr(self, "checks", {}).items():
+            cb.blockSignals(True)
+            cb.setChecked(self.enabled[k])
+            cb.blockSignals(False)
+        self.preset = key
+        if hasattr(self, "preset_label"):
+            self.preset_label.setText(f"Aktiv: {dict(PRESETS)[key]}")
+        if hasattr(self, "move_btn"):
+            self._refresh_visibility()
+
+    def _switch_preset(self, key: str) -> None:
+        if key == self.preset:
+            return
+        self._save()  # bisherige Anordnung sichern
+        self._apply_preset(key)
+        self._save()
+
+    def _set_preset_mode(self, _idx: int = 0) -> None:
+        self.preset_mode = self.preset_box.currentData()
+        if self.preset_mode != "auto":
+            self._switch_preset(self.preset_mode)
+        elif self.state is not None:
+            self._switch_preset(situation_of(self.state))
+
+    def _set_refuel(self) -> None:
+        e = self._overlay("energie")
+        e.show_refuel = self.refuel_cb.isChecked()
+        e.safety_laps = self.safety_box.value()
+        self.cfg["energie_nachtanken"] = e.show_refuel
+        self.cfg["energie_sicherheitsrunden"] = e.safety_laps
+        self._save()
+        e.on_data()
+        e.relayout()
+        e.update()
 
     def _set_spectate(self, _idx: int = 0) -> None:
         self.teamcar.manual = self.spec_box.currentData()
@@ -360,6 +481,9 @@ class Controller(QObject):
         self.cfg["strecken"] = {o.key: [o.stretch_w, o.stretch_h] for o in self.overlays}
         self.cfg["an"] = dict(self.enabled)
         self.cfg["teamauto"] = self.teamcar.to_cfg()
+        if hasattr(self, "preset"):
+            self.cfg.setdefault("presets", {})[self.preset] = {k: self.cfg[k] for k in PRESET_KEYS}
+            self.cfg["preset_zuletzt"] = self.preset
         save_config(self.cfg_path, self.cfg)
 
     def _refresh_visibility(self) -> None:
@@ -390,6 +514,8 @@ class Controller(QObject):
                 self._save()
             self.tracker.update(st)
             self._refresh_spectate_list(st)
+            if self.preset_mode == "auto":
+                self._switch_preset(situation_of(st))
         self.state = st
         self.has_data = st is not None
         for o in self.overlays:

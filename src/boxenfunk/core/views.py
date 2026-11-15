@@ -5,6 +5,7 @@ Ohne Qt, damit es sich mit Aufnahmen testen lässt. Die Overlays zeichnen nur no
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from boxenfunk.core.tracker import SessionTracker
@@ -140,10 +141,40 @@ class EnergyView:
     allowed_per_lap: float | None
     save_per_lap: float | None  # positiv = so viel pro Runde sparen
     est_per_lap: float | None = None  # Schätzung dieser Runde (TinyPedal)
+    race_laps_left: float | None = None  # Runden bis zum Ende ab jetzt (Bruchteil)
+    need_end: float | None = None  # so viel jetzt nachtanken, um ins Ziel zu kommen
+    need_end_safe: float | None = None  # dasselbe mit Sicherheitsrunden
+    stops_needed: int | None = None  # Stopps, wenn eine Füllung nicht reicht
+
+
+def race_laps_left(st: RaceState, tr: SessionTracker) -> float | None:
+    """Runden bis zum Ende ab der jetzigen Position (TinyPedal ``module_fuel``).
+
+    Rundenrennen: Gesamtrunden − gefahrene Runden − Anteil der laufenden Runde.
+    Zeitrennen: Restzeit / Rundenzeit + Anteil, aufgerundet auf ganze Runden über die Linie,
+    minus Anteil (nach Ablauf der Zeit wird die Runde noch zu Ende gefahren).
+    Rundenzeit („Pace“): Schnitt der letzten 3 gültigen eigenen Runden, sonst Bestzeit oder die
+    vom Spiel geschätzte Rundenzeit.
+    """
+    me = st.player_car()
+    if me is None or st.track_length <= 0:
+        return None
+    lap_into = max(0.0, min(1.0, me.lap_dist / st.track_length))
+    if st.max_laps:
+        return max(0.0, st.max_laps - me.laps - lap_into)
+    left = st.time_remaining
+    if left is None:
+        return None
+    laps = [x for x in tr.recent_laps(me.car_id, 3) if x and x > 0]
+    pace = sum(laps) / len(laps) if laps else (me.best_lap or me.est_lap_time)
+    if not pace or pace <= 0:
+        return None
+    end_laps = left / pace + lap_into if left > 0 else lap_into
+    return max(0.0, math.ceil(end_laps) - lap_into)
 
 
 def energy_view(
-    st: RaceState, tr: SessionTracker, kind: str, avg_laps: int = 5
+    st: RaceState, tr: SessionTracker, kind: str, avg_laps: int = 5, safety_laps: int = 1
 ) -> EnergyView | None:
     """VE- bzw. Sprit-Anzeige. Rechenweg wie TinyPedal (``module_fuel`` und
     ``widget/fuel_energy_saver``): Schätzung = letzte gültige Runde + Abweichung in dieser Runde,
@@ -174,4 +205,31 @@ def energy_view(
         target = int(round(at_lap_start / est, 1)) + 1
         allowed = at_lap_start / target
         save = est - allowed
-    return EnergyView(kind, level, cap, avg, last, laps_left, target, allowed, save, est)
+    # Nachtanken bis zum Ende (TinyPedal: benötigt = Runden bis Ende × Verbrauch − Stand)
+    race_left = race_laps_left(st, tr)
+    need = need_safe = None
+    stops = None
+    if race_left is not None and est:
+        need = max(0.0, race_left * est - level)
+        need_safe = max(0.0, (race_left + safety_laps) * est - level)
+        if cap:
+            # TinyPedal ``end_stint_pit_counts``: Stopps = Bedarf / (Tank − Rest am Stint-Ende)
+            amount_end = level - math.floor(level / est) * est
+            per_stop = cap - amount_end
+            stops = math.ceil(need_safe / per_stop) if need_safe > 0 and per_stop > 0 else 0
+    return EnergyView(
+        kind,
+        level,
+        cap,
+        avg,
+        last,
+        laps_left,
+        target,
+        allowed,
+        save,
+        est,
+        race_left,
+        need,
+        need_safe,
+        stops,
+    )

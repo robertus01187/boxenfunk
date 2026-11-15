@@ -161,3 +161,25 @@ def test_overlays_paint_at_min_and_large_size(qtbot):
             o.set_data(st, tr)
             o.set_stretch(f, f)
             assert not o.grab().isNull()
+
+
+def test_presets_keep_separate_layouts(qtbot, tmp_path: Path):
+    cfg = tmp_path / "cfg.json"
+    ctl = Controller(FakeSource(), cfg, tmp_path / "logos")
+    qtbot.addWidget(ctl.window)
+    delta = next(o for o in ctl.overlays if o.key == "delta")
+    ctl._switch_preset("rennen")
+    delta.move(111, 222)
+    ctl._toggle("reifen", False)
+    ctl._switch_preset("zuschauen")
+    delta.move(333, 444)
+    assert ctl.enabled["reifen"] is True  # eigene Auswahl je Voreinstellung
+    ctl._switch_preset("rennen")
+    assert (delta.x(), delta.y()) == (111, 222)
+    assert ctl.enabled["reifen"] is False
+    ctl._save()
+    ctl.close()
+    ctl2 = Controller(FakeSource(), cfg, tmp_path / "logos")
+    qtbot.addWidget(ctl2.window)
+    assert ctl2.cfg["presets"]["zuschauen"]["positionen"]["delta"] == [333, 444]
+    ctl2.close()
