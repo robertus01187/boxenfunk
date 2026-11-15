@@ -28,8 +28,8 @@ Ein-/Ausblenden und nur für LMU.
 4. **Größe:** Im Verschiebe-Modus an der gelben Ecke unten rechts eines Widgets ziehen: alles wird gleichmäßig größer. An einer Kante (links, rechts, oben, unten) ziehen macht das Widget nur breiter oder höher; wird es zu eng, blendet es Teile aus. Jedes Widget merkt sich Größe und Form.
 5. **Standings:** „Alle Klassen“ (jede Klasse mit Namen getrennt) oder „Nur meine Klasse“.
 6. **Zuschauen:** Fährt ein Teamkollege, folgen Standings, Relative, VE und Flaggen automatisch dem Auto, in dem du zuletzt gesessen hast. Unter „Beim Zuschauen folgen“ kannst du auch ein anderes Auto wählen. Delta, Inputs und Reifen sind dann aus, weil LMU diese Werte beim Zuschauen nicht liefert.
-6. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
-7. **Beenden:** Boxenfunk-Fenster schließen.
+7. **Einzelne Widgets aus:** Haken im Boxenfunk-Fenster entfernen.
+8. **Beenden:** Boxenfunk-Fenster schließen.
 
 ## Neue Version holen
 
