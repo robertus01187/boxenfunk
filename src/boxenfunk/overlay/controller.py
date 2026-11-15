@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
     QCheckBox,
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -28,6 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 from boxenfunk import __version__, updater
+from boxenfunk.core.teamcar import TeamCar, car_label
 from boxenfunk.core.tracker import SessionTracker
 from boxenfunk.overlay.base import Overlay
 from boxenfunk.overlay.widgets import (
@@ -110,6 +112,7 @@ class Controller(QObject):
         self.tracker = SessionTracker()
         self.cfg_path = cfg_path or config_path()
         self.cfg = load_config(self.cfg_path)
+        self.teamcar = TeamCar(self.cfg.get("teamauto"))
         self.logo_dir = logo_dir or (app_dir() / "Boxenfunk-Logos")
         logos = Logos(self.logo_dir)
         # Größe je Widget (im Verschiebe-Modus an der Ecke ziehen). Alte Einstellung S/M/L/XL
@@ -200,6 +203,16 @@ class Controller(QObject):
         cls_row.addStretch(1)
         lay.addLayout(cls_row)
 
+        # Zuschauen (Teamkollege fährt): welchem Auto die Overlays folgen
+        spec_row = QHBoxLayout()
+        spec_row.addWidget(QLabel("Beim Zuschauen folgen"))
+        self.spec_box = QComboBox()
+        self.spec_box.addItem("Meinem Teamauto (automatisch)", None)
+        self.spec_box.currentIndexChanged.connect(self._set_spectate)
+        self._spec_items: list[tuple[str, str]] = []
+        spec_row.addWidget(self.spec_box, 1)
+        lay.addLayout(spec_row)
+
         self.move_btn = QPushButton("Overlays verschieben")
         self.move_btn.setCheckable(True)
         self.move_btn.toggled.connect(self._toggle_move)
@@ -242,6 +255,26 @@ class Controller(QObject):
         self.enabled[key] = on
         self._save()
         self._refresh_visibility()
+
+    def _set_spectate(self, _idx: int = 0) -> None:
+        self.teamcar.manual = self.spec_box.currentData()
+
+    def _refresh_spectate_list(self, st) -> None:
+        """Autoliste fürs Zuschauen aktuell halten (ohne die Auswahl zu verlieren)."""
+        items = [(c.car_id, car_label(c)) for c in sorted(st.cars, key=lambda c: c.position)]
+        if items == self._spec_items or self.spec_box.view().isVisible():
+            return
+        self._spec_items = items
+        keep = self.spec_box.currentData()
+        self.spec_box.blockSignals(True)
+        self.spec_box.clear()
+        self.spec_box.addItem("Meinem Teamauto (automatisch)", None)
+        for cid, label in items:
+            self.spec_box.addItem(label, cid)
+        idx = self.spec_box.findData(keep) if keep is not None else 0
+        self.spec_box.setCurrentIndex(max(0, idx))
+        self.spec_box.blockSignals(False)
+        self._set_spectate()
 
     def _set_classes(self, key: str) -> None:
         self.cfg["standings_klassen"] = key
@@ -326,12 +359,17 @@ class Controller(QObject):
         self.cfg["skalen"] = {o.key: o.scale for o in self.overlays}
         self.cfg["strecken"] = {o.key: [o.stretch_w, o.stretch_h] for o in self.overlays}
         self.cfg["an"] = dict(self.enabled)
+        self.cfg["teamauto"] = self.teamcar.to_cfg()
         save_config(self.cfg_path, self.cfg)
 
     def _refresh_visibility(self) -> None:
         moving = self.move_btn.isChecked()
         for o in self.overlays:
-            show = self.enabled[o.key] and (self.has_data or moving)
+            cur = getattr(self, "state", None)
+            spectating = cur is not None and cur.spectating
+            show = self.enabled[o.key] and (
+                moving or (self.has_data and not (spectating and o.needs_driver))
+            )
             if show and not o.isVisible():
                 o.show()
             elif not show and o.isVisible():
@@ -346,7 +384,12 @@ class Controller(QObject):
             st = None
             self.status.setText(f"Fehler beim Lesen: {e}")
         if st is not None:
+            st = self.teamcar.apply(st)
+            if self.teamcar.changed:
+                self.teamcar.changed = False
+                self._save()
             self.tracker.update(st)
+            self._refresh_spectate_list(st)
         self.state = st
         self.has_data = st is not None
         for o in self.overlays:

@@ -457,8 +457,15 @@ class RelativeOverlay(Overlay):
             head.append(f"Luft {st.air_temp:.0f}°C")
         if st.track_temp is not None:
             head.append(f"Strecke {st.track_temp:.0f}°C")
-        if st.player and st.player.energy is not None:
-            head.append(f"VE {st.player.energy * 100:.1f}%")
+        ve = st.player.energy if st.player else None
+        if st.spectating and st.player_car() is not None:
+            ve = st.player_car().energy
+        if ve is not None:
+            head.append(f"VE {ve * 100:.1f}%")
+        if st.spectating and st.player_car() is not None:
+            # Beim Zuschauen ist der Fahrer wichtiger als die Temperaturen
+            head = [h for h in head if h.startswith("VE")]
+            head.append(f"Zuschauen: {st.player_car().driver}")
         text(p, 12 * s, 0, w - 24 * s, rh * 1.2, "   ".join(head), WHITE)
         top = rh * 1.2
         # Eigenes Auto immer in der Mitte, so viele Zeilen wie die Höhe hergibt
@@ -519,6 +526,7 @@ class DeltaOverlay(Overlay):
     key = "delta"
     fast = True
     title = "Delta"
+    needs_driver = True  # beim Zuschauen ausgeblendet: LMU liefert die Werte dann nicht
     RANGE = 1.0  # ± Sekunden Skala
 
     def __init__(self, scale: float = 1.0) -> None:
@@ -613,6 +621,7 @@ class InputsOverlay(Overlay):
     key = "inputs"
     fast = True
     title = "Inputs"
+    needs_driver = True  # beim Zuschauen ausgeblendet: LMU liefert die Werte dann nicht
     WINDOW = 8.0  # Sekunden im Graphen
 
     def __init__(self, scale: float = 1.0) -> None:
@@ -986,6 +995,7 @@ class TyresOverlay(Overlay):
 
     key = "reifen"
     title = "Reifen"
+    needs_driver = True  # beim Zuschauen ausgeblendet: LMU liefert die Werte dann nicht
 
     def preferred_size(self) -> tuple[float, float]:
         return 340 * self.scale, 216 * self.scale

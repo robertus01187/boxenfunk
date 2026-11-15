@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from boxenfunk.core.tracker import SessionTracker
-from boxenfunk.model.race_state import CarState, RaceState, SessionKind
+from boxenfunk.model.race_state import CarState, PlayerState, RaceState, SessionKind
 
 
 @dataclass
@@ -151,7 +151,10 @@ def energy_view(
     Runde gibt, gilt der Ø der letzten sauberen Runden."""
     p = st.player
     if p is None:
-        return None
+        me = st.player_car() if st.spectating else None
+        if me is None or kind != "energy":
+            return None  # beim Zuschauen kein Sprit (LMU liefert ihn dann nicht)
+        p = PlayerState(energy=me.energy)
     level = p.energy if kind == "energy" else p.fuel
     if level is None or (kind == "energy" and level <= 0 and not tr.player.laps):
         return None
@@ -161,7 +164,8 @@ def energy_view(
     est = cons.estimate
     last = cons.used_last_raw if cons.used_last_raw else tr.last_usage(kind)
     used_now = cons.used_curr
-    if est is None or est <= 0:
+    if est is None or est <= 0 or (st.spectating and avg):
+        # Beim Zuschauen kommt VE nur in Schritten von 0,4 %: der Schnitt glättet das
         est, used_now = avg, 0.0
     laps_left = level / est if est else None
     target = allowed = save = None

@@ -2,7 +2,7 @@
 
 > Einzige Wahrheitsquelle zwischen Threads. Am Ende jedes Threads aktualisieren.
 
-**Stand:** 2026-11-15 · **Version:** 0.5.0 (Prototyp mit Reifen, Flaggen, Größe und Strecken per Maus; TinyPedal als Vorlage) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
+**Stand:** 2026-11-15 · **Version:** 0.6.0 (Prototyp mit Teamauto beim Zuschauen, Reifen, Flaggen, Größe und Strecken per Maus; TinyPedal als Vorlage) · **Letzter Thread:** Overlay-Prototyp mit Aufnahmen
 
 ## Erledigt
 - T0 (abgenommen: exe startet beim Nutzer, Fenster erscheint): Repo-Gerüst, `pyproject.toml`, Ordnerstruktur, leere Qt-App (Statusfenster, `--version`,

@@ -156,6 +156,7 @@ class Overlay(QWidget):
 
     # Strecken: Breite/Höhe als Faktor zur natürlichen Größe. Widgets zeichnen in die echte
     # Fenstergröße und blenden Teile aus, wenn der Platz nicht reicht.
+    needs_driver = False  # nur sinnvoll, wenn du selbst fährst
     can_stretch_w = True
     can_stretch_h = True
     stretch_w = 1.0
