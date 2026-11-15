@@ -12,6 +12,8 @@ from pathlib import Path
 from boxenfunk.adapters.lmu.translate import speed_kmh, to_race_state
 from boxenfunk.model.race_state import PlayerState, RaceState
 
+STALE_AFTER = 10.0  # s ohne laufende Spielzeit: als „Spiel läuft nicht“ werten
+
 
 class LmuLiveSource:
     """Liest den Shared Memory von Le Mans Ultimate (nur lesend)."""
@@ -22,6 +24,7 @@ class LmuLiveSource:
         self._shm = LmuSharedMemory(name) if name else LmuSharedMemory()
         self._last_et: float | None = None
         self._last_change = 0.0
+        self._seen_running = False  # Spielzeit lief seit dem Start von Boxenfunk mindestens einmal
         self.status = "Warte auf Le Mans Ultimate …"
 
     def poll_inputs(self, pl: PlayerState) -> bool:
@@ -57,16 +60,27 @@ class LmuLiveSource:
         self._shm.update()
         data = self._shm.data
         si = data.scoring.scoringInfo
-        if si.mNumVehicles <= 0 or not data.telemetry.playerHasVehicle:
-            self.status = "Warte auf Le Mans Ultimate … (kein Auto auf der Strecke)"
+        # Ohne eigenes Auto (playerHasVehicle 0) weiterlesen: dann schaust du zu (Teamauto)
+        if si.mNumVehicles <= 0:
+            self.status = "Warte auf Le Mans Ultimate … (keine Session)"
             return None
         et = si.mCurrentET
         now = time.time()
-        if et != self._last_et:
+        if self._last_et is None:
+            self._last_et = et  # erster Wert: kann ein alter Rest sein, wenn LMU nicht läuft
+        elif et != self._last_et:
             self._last_et = et
             self._last_change = now
-        elif now - self._last_change > 3:
-            self.status = "LMU verbunden, Spiel pausiert oder im Menü"
+            self._seen_running = True
+        # Overlays erst zeigen, wenn die Spielzeit wirklich läuft. Steht sie länger still (Spiel
+        # zu, Pause, Menü), verschwinden die Overlays wieder.
+        if not self._seen_running or now - self._last_change > STALE_AFTER:
+            self.status = (
+                "LMU verbunden, Spiel pausiert oder im Menü"
+                if self._seen_running
+                else "Warte auf Le Mans Ultimate …"
+            )
+            return None
         snap = snapshot(data)
         snap["t"] = now
         # Lenkung/Kupplung lässt der Recorder weg; live wollen wir sie fürs Input-Widget.
@@ -78,8 +92,7 @@ class LmuLiveSource:
                     c["v"]["mFilteredSteering"] = float(t.mFilteredSteering)
                     c["v"]["mFilteredClutch"] = float(t.mFilteredClutch)
         st = to_race_state(snap)
-        if now - self._last_change <= 3:
-            self.status = f"LMU verbunden · {st.track}"
+        self.status = f"LMU verbunden · {st.track}"
         return st
 
 
