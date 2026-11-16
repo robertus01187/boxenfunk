@@ -2,6 +2,14 @@
 
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionierung nach SemVer.
 
+## [0.6.1] – 2026-11-15
+### Behoben
+- Overlays erschienen beim Öffnen von Boxenfunk, obwohl LMU gar nicht lief: Boxenfunk las alte
+  Reste aus dem Speicher. Jetzt erscheinen die Overlays erst, wenn die Spielzeit in LMU wirklich
+  läuft, und verschwinden wieder, wenn sie länger als 10 Sekunden steht (Spiel zu, Pause, Menü).
+- Teamauto beim Zuschauen funktionierte live nicht: Ohne eigenes Auto hat Boxenfunk gar nichts
+  gelesen. Jetzt liest es auch beim Zuschauen weiter.
+
 ## [0.6.0] – 2026-11-15
 ### Hinzugefügt
 - Teamauto beim Zuschauen (Wunsch W-48): Fährt ein Teamkollege, folgen Standings, Relative,

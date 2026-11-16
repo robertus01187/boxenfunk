@@ -26,6 +26,11 @@ def test_live_source_full_and_fast_inputs():
     mm[:] = bytes(fake.data)
     try:
         src = LmuLiveSource(name)
+        # Erster Wert könnte ein alter Rest sein (LMU zu): noch keine Overlays
+        assert src.poll() is None
+        assert "Warte" in src.status
+        fake.tick(0.5)  # Spielzeit läuft
+        mm[:] = bytes(fake.data)
         st = src.poll()
         assert st is not None and st.player is not None
         assert "LMU verbunden" in src.status
@@ -87,3 +92,22 @@ def test_restart_does_not_inherit_old_exe_folder():
     from boxenfunk.updater import swap_script
 
     assert "PYINSTALLER_RESET_ENVIRONMENT=1" in swap_script(Path("a.exe"), Path("b.exe"))
+
+
+def test_live_source_keeps_reading_while_spectating():
+    name = f"Boxenfunk_Test_{uuid.uuid4().hex[:8]}"
+    fake = FakeLmu()
+    fake.tick(5)
+    fake.data.telemetry.playerHasVehicle = 0  # Teamkollege fährt, du schaust zu
+    mm = shm._open(name, shm.SIZE)
+    mm[:] = bytes(fake.data)
+    try:
+        src = LmuLiveSource(name)
+        assert src.poll() is None
+        fake.tick(0.5)
+        mm[:] = bytes(fake.data)
+        st = src.poll()
+        assert st is not None and len(st.cars) > 0
+    finally:
+        mm.close()
+        Path(f"/dev/shm/{name}").unlink(missing_ok=True)
